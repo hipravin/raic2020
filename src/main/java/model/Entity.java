@@ -90,4 +90,16 @@ public class Entity {
         StreamUtil.writeInt(stream, health);
         StreamUtil.writeBoolean(stream, active);
     }
+
+    @Override
+    public String toString() {
+        return "Entity{" +
+                "id=" + id +
+                ", playerId=" + playerId +
+                ", entityType=" + entityType +
+                ", position=" + position +
+                ", health=" + health +
+                ", active=" + active +
+                '}';
+    }
 }

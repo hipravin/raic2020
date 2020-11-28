@@ -2,6 +2,8 @@ package model;
 
 import util.StreamUtil;
 
+import java.util.Arrays;
+
 public class PlayerView {
     private int myId;
     public int getMyId() { return myId; }
@@ -124,5 +126,20 @@ public class PlayerView {
         for (Entity entitiesElement : entities) {
             entitiesElement.writeTo(stream);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerView{" +
+                "myId=" + myId +
+                ", mapSize=" + mapSize +
+                ", fogOfWar=" + fogOfWar +
+                ", entityProperties=" + entityProperties +
+                ", maxTickCount=" + maxTickCount +
+                ", maxPathfindNodes=" + maxPathfindNodes +
+                ", currentTick=" + currentTick +
+                ", players=" + Arrays.toString(players) +
+                ", entities=" + Arrays.toString(entities) +
+                '}';
     }
 }

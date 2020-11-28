@@ -30,4 +30,13 @@ public class Player {
         StreamUtil.writeInt(stream, score);
         StreamUtil.writeInt(stream, resource);
     }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "id=" + id +
+                ", score=" + score +
+                ", resource=" + resource +
+                '}';
+    }
 }
