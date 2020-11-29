@@ -20,9 +20,49 @@ public final class Position2d {
         return of(x + xshift, y + yshift);
     }
 
+    public Position2d up() {
+        return shift(0, 1);
+    }
+
+    public Position2d diag(int n) {
+        return switch (n % 4 ) {
+            case 1 -> diag1();
+            case 2 -> diag2();
+            case 3 -> diag3();
+            case 0 -> diag4();
+            default -> throw new IllegalStateException("Unexpected value: " + n % 4);
+        };
+    }
+
+    public Position2d diag1() {
+        return shift(1, -1);
+    }
+    public Position2d diag2() {
+        return shift(-1, -1);
+    }
+    public Position2d diag3() {
+        return shift(-1, 1);
+    }
+    public Position2d diag4() {
+        return shift(1, 1);
+    }
+
+    public long lenSquare(Position2d other) {
+        return square(x - other.x) + square(y - other.y);
+    }
+
+    public long lenShiftSum(Position2d other) {
+        return Math.abs(x - other.x) + Math.abs(y - other.y);
+    }
+
+    private static long square(long val) {
+        return val * val;
+    }
+
     public Position2d right() {
         return shift(1, 0);
     }
+
     public Position2d down() {
         return shift(0, 1);
     }
@@ -34,6 +74,14 @@ public final class Position2d {
     private Position2d(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
     @Override
@@ -52,6 +100,6 @@ public final class Position2d {
 
     @Override
     public String toString() {
-        return "(" + x + ","  + y + ")";
+        return "(" + x + "," + y + ")";
     }
 }

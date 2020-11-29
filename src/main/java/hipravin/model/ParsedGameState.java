@@ -17,4 +17,13 @@ public class ParsedGameState {
 
         return combined;
     }
+
+
+    public PlayerView getPlayerView() {
+        return playerView;
+    }
+
+    public Cell[][] getCells() {
+        return cells;
+    }
 }

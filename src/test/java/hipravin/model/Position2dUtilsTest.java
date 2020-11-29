@@ -2,8 +2,6 @@ package hipravin.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -11,9 +9,30 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Position2dUtilsTest {
+
+    @Test
+    void testClosePositionsIterator() {
+        long totalCells = Position2dUtil.MAP_SIZE * Position2dUtil.MAP_SIZE;
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(Position2d.of(0,0)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(Position2d.of(10,0)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(Position2d.of(10,20)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(Position2d.of(79,79)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(Position2d.of(79,1)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(Position2d.of(50,50)).distinct().count());
+    }
+
+    @Test
+    void testCloseToCornerComparator() {
+        long cnt = Position2dUtil.squareInclusiveCornerStream(Position2d.of(0, 0), 5).get()
+                .sorted(Position2dUtil.distanceToMyCornerComparator())
+//                .peek(System.out::println)
+                .count();
+
+        assertEquals(25, cnt);
+    }
 
     @Test
     void testSquareConsistency() {
@@ -36,12 +55,13 @@ class Position2dUtilsTest {
 
     @Test
     void testSquare5() {
-        Set<Position2d> pss = new HashSet<>(Position2dUtil.squareInclusiveCorner(Position2d.of(1,1), 5).get());
+        Set<Position2d> pss = new HashSet<>(Position2dUtil.squareInclusiveCorner(Position2d.of(1, 1), 5).get());
         assertEquals(25, pss.size());
     }
+
     @Test
     void testSquare1() {
-        Set<Position2d> pss = new HashSet<>(Position2dUtil.squareInclusiveCorner(Position2d.of(1,1), 1).get());
+        Set<Position2d> pss = new HashSet<>(Position2dUtil.squareInclusiveCorner(Position2d.of(1, 1), 1).get());
         assertEquals(1, pss.size());
     }
 }

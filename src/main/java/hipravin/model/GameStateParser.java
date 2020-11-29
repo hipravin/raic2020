@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static hipravin.model.Position2d.of;
-import static hipravin.model.Position2dUtil.squareInclusiveCorner;
 import static hipravin.model.Position2dUtil.squareInclusiveCornerStream;
 
 public abstract class GameStateParser {
