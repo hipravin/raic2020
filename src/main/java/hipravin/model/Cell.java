@@ -1,19 +1,29 @@
 package hipravin.model;
 
-import model.*;
+import model.Entity;
+import model.EntityProperties;
+import model.EntityType;
+import model.PlayerView;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Cell implements Cloneable {
+    public static final int MIN_FP_SIZE = 2;
+    public static final int MAX_FP_SIZE = 5;
+
     private Position2d position;
     private boolean isEmpty = true;
     private boolean fog = true;
     private int ownerPlayerId = -1;
     private EntityType entityType = null;
-    private boolean isMineral = false;
     private int healthLeft = -1;
     private int maxHealth = -1;
+
+    private boolean isMineral = false;
     private boolean isBuilding = false;
     private boolean isUnit = false;
     private boolean isMyEntity = false;
@@ -21,6 +31,20 @@ public class Cell implements Cloneable {
     private EntityProperties entityProps;
     private int sightRange = -1;
     private int entityId = -1;
+
+    private FreeSpace[] freeSpaces = new FreeSpace[MAX_FP_SIZE - MIN_FP_SIZE + 1];//size - 2 -> index ()
+
+    //TODO:
+    private boolean isEdgeMineral;
+    private int mineralsNearby5;
+
+
+    public boolean testOr(Predicate<? super Cell>... conditions) {
+        return Arrays.stream(conditions).anyMatch(predicate -> predicate.test(this));
+    }
+    public boolean testAnd(Predicate<? super Cell>... conditions) {
+        return Arrays.stream(conditions).allMatch(predicate -> predicate.test(this));
+    }
 
     public static Cell empty(Position2d position) {
         Cell cell = new Cell();
@@ -55,7 +79,7 @@ public class Cell implements Cloneable {
 
     public static List<Cell> ofBuilding(Entity entity, PlayerView playerView) {
         int size = playerView.getEntityProperties().get(entity.getEntityType()).getSize();
-        List<Position2d> positions = Position2dUtil.squareInclusiveCorner(Position2d.of(entity.getPosition()), size);
+        List<Position2d> positions = Position2dUtil.squareInclusiveCorner(Position2d.of(entity.getPosition()), size).get();
 
         Cell cell = new Cell();
         cell.entityType = entity.getEntityType();
@@ -193,6 +217,14 @@ public class Cell implements Cloneable {
         return isUnit;
     }
 
+    public boolean isMyUnit() {
+        return isUnit && isMyEntity;
+    }
+
+    public boolean isMyBuilding() {
+        return isBuilding && isMyEntity;
+    }
+
     public void setUnit(boolean unit) {
         isUnit = unit;
     }
@@ -211,5 +243,17 @@ public class Cell implements Cloneable {
 
     public void setSightRange(int sightRange) {
         this.sightRange = sightRange;
+    }
+
+    public void setFreeSpace(int size, FreeSpace freeSpace) {
+        freeSpaces[size - MIN_FP_SIZE] = freeSpace;
+    }
+
+    public Optional<FreeSpace> getFreeSpace(int size) {
+        if(size - MIN_FP_SIZE >= freeSpaces.length) {
+            //in case building size will be increased unexpectedly
+            return Optional.empty();
+        }
+        return Optional.ofNullable(freeSpaces[size - MIN_FP_SIZE]);
     }
 }

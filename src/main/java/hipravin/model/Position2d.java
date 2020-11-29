@@ -20,6 +20,13 @@ public final class Position2d {
         return of(x + xshift, y + yshift);
     }
 
+    public Position2d right() {
+        return shift(1, 0);
+    }
+    public Position2d down() {
+        return shift(0, 1);
+    }
+
     public Vec2Int toVec2dInt() {
         return new Vec2Int(x, y);
     }

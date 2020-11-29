@@ -1,21 +1,64 @@
 package hipravin.model;
 
 import hipravin.strategy.TestServerUtil;
-import model.*;
+import model.Entity;
+import model.EntityType;
+import model.PlayerView;
+import model.ServerMessage;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ParsedGameStateTest {
+    @Test
+    void testParseInitialFreeSpaces() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(1, 1, 0);
+
+        PlayerView pw = get0.getPlayerView();
+        ParsedGameState pgs = GameStateParser.parse(pw);
+
+        long freeTotal = 0;
+        long freeButUnitsTotal = 0;
+
+        //test result consistency
+        for (int size = Cell.MIN_FP_SIZE; size <= Cell.MAX_FP_SIZE ; size++) {
+            long free = countCompletelyFree(pgs, size);
+            long freeButUnits = countFreeButUnits(pgs, size);
+
+            System.out.println("Size" + size + ", Free: " + free + ", but units: " + freeButUnits);
+
+            freeTotal += free;
+            freeButUnitsTotal += freeButUnits;
+
+            assertTrue(free != 0);
+            assertTrue(freeButUnits != 0);
+
+            if(size < Cell.MAX_FP_SIZE - 1) {
+                assertTrue(free > countCompletelyFree(pgs, size + 1));
+            }
+        }
+
+        assertEquals(7680, freeTotal);
+        assertEquals(43, freeButUnitsTotal);
+    }
+
+    long countCompletelyFree(ParsedGameState pgs, int size) {
+        return pgs.allCellsAsStream().filter(c -> c.getFreeSpace(size).map(f -> f.isCompletelyFree).orElse(false)).count();
+    }
+    long countFreeButUnits(ParsedGameState pgs, int size) {
+        return pgs.allCellsAsStream().filter(c -> c.getFreeSpace(size).map(f -> f.isFreeButContainOurUnits).orElse(false)).count();
+    }
+
     @Test
     void testParseInitial() {
         ServerMessage.GetAction get0 = TestServerUtil.readGet(1, 1, 0);
 
         PlayerView pw = get0.getPlayerView();
-        ParsedGameState pgs = ParsedGameState.parse(pw);
+        ParsedGameState pgs = GameStateParser.parse(pw);
 
         //minerals
         assertEquals(countCells(pgs, Cell::isMineral), countEntities(pw, e -> e.getEntityType() == EntityType.RESOURCE));
