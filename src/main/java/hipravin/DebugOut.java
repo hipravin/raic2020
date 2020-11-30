@@ -32,14 +32,16 @@ public abstract class DebugOut {
     }
 
     public static void writeDebugBin(int tick, ServerMessage serverMessage) {
-        Path tickNFile = gameLog.resolve("tick" + tick + ".bin");
+        if(enabled) {
+            Path tickNFile = gameLog.resolve("tick" + tick + ".bin");
 
-        deleteIfExists(tickNFile);
+            deleteIfExists(tickNFile);
 
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(tickNFile.toFile()))) {
-            serverMessage.writeTo(os);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            try (OutputStream os = new BufferedOutputStream(new FileOutputStream(tickNFile.toFile()))) {
+                serverMessage.writeTo(os);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

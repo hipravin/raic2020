@@ -83,6 +83,21 @@ class ParsedGameStateTest {
         assertEquals(80 * 80 - 25 * 6 - 2 * 4 - 2 * 3 - countEntities(pw, e -> e.getEntityType() == EntityType.RESOURCE),
                 countCells(pgs, c -> c.isEmpty()));
 
+        //check buildings
+        assertEquals(8, pgs.buildingsByEntityId.size());
+        assertEquals(4, pgs.buildingsByEntityId.values().stream().filter(Building::isMyBuilding).count());
+        //all edges empty at start, test filled
+        assertEquals(pgs.buildingsByEntityId.values().stream().map(b -> b.buildingEmptyOuterEdgeWithoutCorners.size()).reduce(Integer::sum),
+                pgs.buildingsByEntityId.values().stream().map(b -> b.buildingOuterEdgeWithoutCorners.size()).reduce(Integer::sum));
+
+        //my w
+        assertEquals(1, pgs.myWorkers.size());
+        //pop
+        assertEquals(3, pgs.population.populationUse);
+        assertEquals(15, pgs.population.activeLimit);
+        assertEquals(15, pgs.population.potentialLimit);
+
+        assertEquals(3 * 24, countCells(pgs, c -> c.isProducingMyBuildingOuterEdge));
     }
 
     long countCells(ParsedGameState pgs, Predicate<? super Cell> predicate) {

@@ -9,6 +9,7 @@ public class FreeSpace {
 //    int enemyBuildingCellsCount = 0;
 //    int fogCellsCount = 0;
     boolean isCompletelyFree = false;
+
     boolean isFreeButContainOurUnits = false;
 
     public static FreeSpace completelyFree(int size) {

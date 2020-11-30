@@ -1,48 +1,95 @@
 package hipravin.strategy;
 
+import hipravin.model.Building;
+import hipravin.model.Cell;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
-import model.*;
+import model.BuildAction;
+import model.EntityAction;
+import model.EntityType;
+import model.MoveAction;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
+/**
+ * builds units and buildings
+ */
 public class BuildOrderSubStrategy implements SubStrategy {
+    private BuidingPosititioningLogic buildingPostitioningLogic = new BuidingPosititioningLogic();
+
     @Override
     public void decide(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
                        StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
 
-
-        stubBuildBuildBuildHouses(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+        stubBuildWorkersNonStop(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+        stubBuildHouses(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
     }
 
-    public void stubBuildBuildBuildHouses(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
+    public void stubBuildWorkersNonStop(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
+                                        StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+
+        List<Building> ccs = currentParsedGameState.findMyBuildings(EntityType.BUILDER_BASE);
+
+        for (Building cc : ccs) {
+            EntityAction buildWorker = new EntityAction();
+
+            Optional<Position2d> randomPositionToBuildWorker = cc.getBuildingEmptyOuterEdgeWithoutCorners().stream()
+                    .reduce((p1, p2) -> p1.hashCode() < p2.hashCode() ? p1 : p2);
+
+            if(randomPositionToBuildWorker.isPresent()) {
+
+                BuildAction ba = new BuildAction(EntityType.BUILDER_UNIT, randomPositionToBuildWorker.get().toVec2dInt());
+                buildWorker.setBuildAction(ba);
+
+                assignedActions.put(cc.getId(), new ValuedEntityAction(0.5, cc.getId(), buildWorker));
+            }
+        }
+    }
+
+    public void stubBuildHouses(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
                                           StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        int inAdvance = 10;
 
-        List<Entity> workers = Arrays.stream(currentParsedGameState.getPlayerView().getEntities())
-                .filter(e -> e.getEntityType() == EntityType.BUILDER_UNIT && e.getPlayerId() == currentParsedGameState.getPlayerView().getMyId())
-                .collect(Collectors.toList());
+        int hCost = currentParsedGameState.getPlayerView().getEntityProperties().get(EntityType.HOUSE).getCost();
+        int res = currentParsedGameState.getMyPlayer().getResource();
 
-        workers.forEach(w -> {
-            EntityAction autoAttack = new EntityAction();
-            AttackAction attackAction = new AttackAction(null, new AutoAttack(100, new EntityType[]{EntityType.RESOURCE}));
-            autoAttack.setAttackAction(attackAction);
-            assignedActions.put(w.getId(), new ValuedEntityAction(0.5, w.getId(), autoAttack));
-        });
+        if (currentParsedGameState.getPopulation().getPotentialLimit() - currentParsedGameState.getPopulation().getPopulationUse() < inAdvance
+              && res >= hCost) {
+            Optional<Position2d> housePosition = buildingPostitioningLogic.bestPositionForHouse(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
 
-        Entity cc = Arrays.stream(currentParsedGameState.getPlayerView().getEntities())
-                .filter(e -> e.getEntityType() == EntityType.BUILDER_BASE && e.getPlayerId() == currentParsedGameState.getPlayerView().getMyId() ).findAny().orElseThrow();
+            Optional<Cell> worker = stubSelectFirstWorker(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
 
-        EntityAction buildWorker = new EntityAction();
-        BuildAction ba = new BuildAction(EntityType.BUILDER_UNIT, Position2d.of(cc.getPosition()).shift(2,5).toVec2dInt());
-        buildWorker.setBuildAction(ba);
+            if(housePosition.isPresent() && worker.isPresent()) {
 
-        assignedActions.put(cc.getId(), new ValuedEntityAction(0.5, cc.getId(), buildWorker));
+                EntityAction entityAction = new EntityAction();
 
+                if(worker.get().getPosition().equals(Position2d.of(0,3))) {
+                    BuildAction buildAction = new BuildAction(EntityType.HOUSE, Position2d.of(0,0).toVec2dInt());
+                    //
+                    entityAction.setBuildAction(buildAction);
+
+                } else {
+                    MoveAction moveAction = new MoveAction(Position2d.of(0,3).toVec2dInt(), false, false);
+                    entityAction.setMoveAction(moveAction);
+                }
+                assignedActions.put(worker.get().getEntityId(), new ValuedEntityAction(0.5, worker.get().getEntityId(), entityAction));
+
+//                BuildAction buildAction = new BuildAction(EntityType.HOUSE, housePosition.get().toVec2dInt());
+//                //
+//                entityAction.setBuildAction(buildAction);
+//                assignedActions.put(worker.get().getEntityId(), new ValuedEntityAction(0.5, worker.get().getEntityId(), entityAction));
+            }
+        }
     }
+
+    public Optional<Cell> stubSelectFirstWorker(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
+                                                StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        return currentParsedGameState.getMyWorkers().values().stream().findFirst();
+    }
+
 
 
 }

@@ -15,28 +15,31 @@ public class Cell implements Cloneable {
     public static final int MIN_FP_SIZE = 2;
     public static final int MAX_FP_SIZE = 5;
 
-    private Position2d position;
-    private boolean isEmpty = true;
-    private boolean fog = true;
-    private int ownerPlayerId = -1;
-    private EntityType entityType = null;
-    private int healthLeft = -1;
-    private int maxHealth = -1;
+    Position2d position;
+    boolean isEmpty = true;
+    boolean isProducingMyBuildingOuterEdge = false;
+    boolean fog = true;
+    int ownerPlayerId = -1;
+    EntityType entityType = null;
+    int healthLeft = -1;
+    int maxHealth = -1;
 
-    private boolean isMineral = false;
-    private boolean isBuilding = false;
-    private boolean isUnit = false;
-    private boolean isMyEntity = false;
-    private Entity entity;
-    private EntityProperties entityProps;
-    private int sightRange = -1;
-    private int entityId = -1;
+    boolean isMineral = false;
+    boolean isBuilding = false;
+    int buildingSize = -1;
+
+    boolean isUnit = false;
+    boolean isMyEntity = false;
+    Entity entity;
+    EntityProperties entityProps;
+    int sightRange = -1;
+    int entityId = -1;
 
     private FreeSpace[] freeSpaces = new FreeSpace[MAX_FP_SIZE - MIN_FP_SIZE + 1];//size - 2 -> index ()
 
     //TODO:
-    private boolean isEdgeMineral;
-    private int mineralsNearby5;
+//    private boolean isEdgeMineral;
+//    private int mineralsNearby5;
 
 
     public boolean testOr(Predicate<? super Cell>... conditions) {
@@ -84,6 +87,7 @@ public class Cell implements Cloneable {
         Cell cell = new Cell();
         cell.entityType = entity.getEntityType();
         cell.isBuilding = true;
+        cell.buildingSize = size;
         cell.ownerPlayerId = entity.getPlayerId();
 
         withPlayerEntity(cell, entity, playerView);
@@ -255,5 +259,21 @@ public class Cell implements Cloneable {
             return Optional.empty();
         }
         return Optional.ofNullable(freeSpaces[size - MIN_FP_SIZE]);
+    }
+
+    public int getBuildingSize() {
+        return buildingSize;
+    }
+
+    public void setBuildingSize(int buildingSize) {
+        this.buildingSize = buildingSize;
+    }
+
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(int entityId) {
+        this.entityId = entityId;
     }
 }

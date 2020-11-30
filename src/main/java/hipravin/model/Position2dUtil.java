@@ -11,6 +11,60 @@ public abstract class Position2dUtil {
     public static int FIELD_MIN_X = 0;
     public static int FIELD_MIN_Y = 0;
 
+    public static int HOUSE_SIZE = 3;
+    public static int CC_SIZE = 5;
+    public static int MELEE_BASE_SIZE = 5;
+    public static int RANGED_BASE_SIZE = 5;
+    public static int TURRET_SIZE = 2;
+    public static int WALL_SIZE = 1;
+
+    public static boolean buildingsHaveSpaceInBetween(Position2d corner1, int size1, Position2d corner2, int size2) {
+        boolean xOk;
+        boolean yOk;
+
+        if(corner1.x < corner2.x) {
+            xOk = corner1.x + size1 < corner2.x;
+        } else {
+            xOk = corner2.x + size2 < corner1.x;
+        }
+
+        if(corner1.y < corner2.y) {
+            yOk = corner1.y + size1 < corner2.y;
+        } else {
+            yOk = corner2.y + size2 < corner1.y;
+        }
+
+        return xOk && yOk;
+    }
+
+    public static Set<Position2d> squareEdgeWithCorners(Position2d corner, int size) {
+        Set<Position2d> result = new HashSet<>();
+
+        for (int i = 0; i < size; i++) {
+            result.add(corner.shift(i, 0));
+            result.add(corner.shift(0, i));
+            result.add(corner.shift(i, size - 1));
+            result.add(corner.shift(size - 1, i));
+
+        }
+        result.removeIf(p -> !isPositionWithinMapBorder(p));
+        return result;
+    }
+
+    public static Set<Position2d> buildingOuterEdgeWithCorners(Position2d corner, int size) {
+        return squareEdgeWithCorners(corner.shift(-1, -1), size + 2);
+    }
+
+    public static Set<Position2d> buildingOuterEdgeWithoutCorners(Position2d corner, int size) {
+        Set<Position2d> outerSquare = buildingOuterEdgeWithCorners(corner, size);
+        outerSquare.remove(corner.shift(-1, -1));
+        outerSquare.remove(corner.shift(-1, size));
+        outerSquare.remove(corner.shift(size, size));
+        outerSquare.remove(corner.shift(size, -1));
+
+        return outerSquare;
+    }
+
     public static Stream<Position2d> closeToPositionWideSearchStream(Position2d startPosition) {
         return StreamSupport.stream(
                 Spliterators.spliteratorUnknownSize(
@@ -92,7 +146,7 @@ public abstract class Position2dUtil {
         @Override
         public Position2d next() {
             Position2d nextPos = nextUnchecked();
-            while(!isPositionWithinMapBorder(nextPos)) {
+            while (!isPositionWithinMapBorder(nextPos)) {
                 nextPos = nextUnchecked();
             }
             return nextPos;

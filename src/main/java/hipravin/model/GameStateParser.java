@@ -1,8 +1,11 @@
 package hipravin.model;
 
 import model.Entity;
+import model.EntityType;
 import model.PlayerView;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -18,13 +21,15 @@ public abstract class GameStateParser {
         ParsedGameState parsedGameState = new ParsedGameState();
         parsedGameState.playerView = playerView;
 
-
         parsedGameState.cells = emptyCellsOfSize(mapSize);
+        parsedGameState.buildingsByEntityId = new HashMap<>();
+        parsedGameState.myWorkers = new HashMap<>();
 
         for (Entity entity : playerView.getEntities()) {
             switch (entity.getEntityType()) {
                 case WALL, HOUSE, BUILDER_BASE, RANGED_BASE, MELEE_BASE, TURRET -> {
                     setCells(parsedGameState.cells, Cell.ofBuilding(entity, playerView));
+                    addBuilding(parsedGameState, entity);
                 }
                 case BUILDER_UNIT, MELEE_UNIT, RANGED_UNIT -> {
                     setCell(parsedGameState.cells,
@@ -39,6 +44,10 @@ public abstract class GameStateParser {
 
         forEachCell(parsedGameState.cells, c -> {
             c.setMyEntity(c.getOwnerPlayerId() == playerView.getMyId());
+
+            if(c.isMyEntity && c.getEntityType() == EntityType.BUILDER_UNIT) {
+                parsedGameState.myWorkers.put(c.entityId, c);
+            }
         });
 
         if (!playerView.isFogOfWar()) {
@@ -47,16 +56,21 @@ public abstract class GameStateParser {
             //TODO: set all is visible according to sight ranges
         }
 
+        parsedGameState.population = Population.of(playerView);
+
+        computeProducingBuildingEdge(parsedGameState);
         computeFreeSpaces(parsedGameState.cells);
+        computeBuildingEdgeFreeCells(parsedGameState);
         return parsedGameState;
     }
+
 
     static void computeFreeSpaces(Cell[][] cells) {
         //so far compute completely free and free with our units
         //can be optimised, but not sure it's reasonable, requires profiling
         forEachPosition(cells.length, corner -> {
             Cell cornerCell = getCell(cells, corner);
-            //for each size 2-6
+            //for each size 2-5
             for (int size = Cell.MIN_FP_SIZE; size <= Cell.MAX_FP_SIZE; size++) {
                 Optional<Stream<Position2d>> squareStream = squareInclusiveCornerStream(corner, size);
                 if(squareStream.isEmpty()) {
@@ -77,11 +91,30 @@ public abstract class GameStateParser {
                         cornerCell.setFreeSpace(size, unitFree);
                     }
                 }
+
                 if(!isEmpty && !onlyContainOurUnits) {
                     break;//save unnecessary iterations
                 }
             }
         });
+    }
+
+    static void computeBuildingEdgeFreeCells(ParsedGameState pgs) {
+        pgs.buildingsByEntityId.values().forEach(b -> {
+            b.buildingEmptyOuterEdgeWithoutCorners = new HashSet<>(b.buildingOuterEdgeWithoutCorners);
+            b.buildingEmptyOuterEdgeWithoutCorners.removeIf(p -> !pgs.at(p).isEmpty());
+        });
+    }
+
+    static void computeProducingBuildingEdge(ParsedGameState pgs) {
+        pgs.getBuildingsByEntityId().values().stream()
+                .filter(Building::isMyBuilding)
+                .filter(Building::isProducingBuilding)
+                .forEach(b -> {
+                    b.getBuildingOuterEdgeWithCorners().forEach(p -> {
+                        pgs.at(p).isProducingMyBuildingOuterEdge = true;
+                    });
+                });
     }
 
     static Cell getCell(Cell[][] cells, Position2d position2d) {
@@ -90,6 +123,11 @@ public abstract class GameStateParser {
 
     static void setCells(Cell[][] cells, List<Cell> cellsToSet) {
         cellsToSet.forEach(c -> setCell(cells, c));
+    }
+
+    static void addBuilding(ParsedGameState pgs, Entity entity) {
+        Building building = Building.of(entity, pgs.playerView, pgs.at(entity.getPosition()));
+        pgs.buildingsByEntityId.put(entity.getId(), building);
     }
 
     static void setCell(Cell[][] cells, Cell cell) {

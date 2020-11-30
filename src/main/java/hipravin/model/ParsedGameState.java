@@ -1,13 +1,25 @@
 package hipravin.model;
 
+import model.EntityType;
+import model.Player;
 import model.PlayerView;
+import model.Vec2Int;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ParsedGameState {
     PlayerView playerView;
     Cell[][] cells;
+
+    Population population;
+
+    Map<Integer, Building> buildingsByEntityId;
+    Map<Integer, Cell> myWorkers;
 
     public Stream<Cell> allCellsAsStream() {
         Stream<Cell> combined = Stream.of();
@@ -18,6 +30,23 @@ public class ParsedGameState {
         return combined;
     }
 
+    public List<Building> findMyProducingBuildings() {
+        return buildingsByEntityId.values().stream()
+                .filter(Building::isMyBuilding)
+                .filter(Building::isProducingBuilding)
+                .collect(Collectors.toList());
+    }
+
+    public List<Building> findMyBuildings(EntityType entityType) {
+        return buildingsByEntityId.values().stream()
+                .filter(Building::isMyBuilding)
+                .filter(b -> b.cornerCell.getEntity().getEntityType() == entityType)
+                .collect(Collectors.toList());
+    }
+
+    public Player getMyPlayer() {
+        return Arrays.stream(playerView.getPlayers()).filter(p -> p.getId() == playerView.getMyId()).findAny().orElseThrow();
+    }
 
     public PlayerView getPlayerView() {
         return playerView;
@@ -25,5 +54,25 @@ public class ParsedGameState {
 
     public Cell[][] getCells() {
         return cells;
+    }
+
+    public Cell at(Position2d position2d) {
+        return cells[position2d.x][position2d.y];
+    }
+
+    public Cell at(Vec2Int v) {
+        return at(Position2d.of(v));
+    }
+
+    public Map<Integer, Building> getBuildingsByEntityId() {
+        return buildingsByEntityId;
+    }
+
+    public Map<Integer, Cell> getMyWorkers() {
+        return myWorkers;
+    }
+
+    public Population getPopulation() {
+        return population;
     }
 }
