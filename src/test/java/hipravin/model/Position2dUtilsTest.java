@@ -15,6 +15,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class Position2dUtilsTest {
 
     @Test
+    void testNeighbours() {
+        Position2d p = of(1,1);
+        Position2dUtil.upRightLeftDown(p).forEach(p2 ->
+                assertEquals(1, p2.lenShiftSum(p)));
+
+        assertEquals(4, Position2dUtil.upRightLeftDown(p).distinct().count());
+    }
+
+    @Test
     void testIntersection() {
 
         assertDontHaveSpace(of(1,1), 1, of(2,2), 1);

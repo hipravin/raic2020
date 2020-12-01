@@ -7,6 +7,7 @@ import model.PlayerView;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -34,6 +35,9 @@ public class Cell implements Cloneable {
     EntityProperties entityProps;
     int sightRange = -1;
     int entityId = -1;
+    NearestUnit myNearestWorker = null;
+
+//    Map<Position2d, Integer> nearbyWorkersPathToThisCell;//from position to this, value is path length
 
     private FreeSpace[] freeSpaces = new FreeSpace[MAX_FP_SIZE - MIN_FP_SIZE + 1];//size - 2 -> index ()
 

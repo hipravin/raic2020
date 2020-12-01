@@ -13,6 +13,6 @@ public class RootStrategyReplaySampleTickTest {
 
         Action action = strategy.getAction(get0.getPlayerView(), null);
 
-        assertEquals(0, action.getEntityActions().size());
+        assertEquals(2, action.getEntityActions().size());
     }
 }

@@ -64,18 +64,18 @@ public class BuildOrderSubStrategy implements SubStrategy {
 
             if(housePosition.isPresent() && worker.isPresent()) {
 
-                EntityAction entityAction = new EntityAction();
-
-                if(worker.get().getPosition().equals(Position2d.of(0,3))) {
-                    BuildAction buildAction = new BuildAction(EntityType.HOUSE, Position2d.of(0,0).toVec2dInt());
-                    //
-                    entityAction.setBuildAction(buildAction);
-
-                } else {
-                    MoveAction moveAction = new MoveAction(Position2d.of(0,3).toVec2dInt(), false, false);
-                    entityAction.setMoveAction(moveAction);
-                }
-                assignedActions.put(worker.get().getEntityId(), new ValuedEntityAction(0.5, worker.get().getEntityId(), entityAction));
+//                EntityAction entityAction = new EntityAction();
+//
+//                if(worker.get().getPosition().equals(Position2d.of(0,3))) {
+//                    BuildAction buildAction = new BuildAction(EntityType.HOUSE, Position2d.of(0,0).toVec2dInt());
+//                    //
+//                    entityAction.setBuildAction(buildAction);
+//
+//                } else {
+//                    MoveAction moveAction = new MoveAction(Position2d.of(0,3).toVec2dInt(), false, false);
+//                    entityAction.setMoveAction(moveAction);
+//                }
+//                assignedActions.put(worker.get().getEntityId(), new ValuedEntityAction(0.5, worker.get().getEntityId(), entityAction));
 
 //                BuildAction buildAction = new BuildAction(EntityType.HOUSE, housePosition.get().toVec2dInt());
 //                //

@@ -25,12 +25,13 @@ public class Runner {
         while (true) {
             model.ServerMessage message = model.ServerMessage.readFrom(inputStream);
             if (message instanceof model.ServerMessage.GetAction) {
-                model.ServerMessage.GetAction getActionMessage = (model.ServerMessage.GetAction) message;
-                new model.ClientMessage.ActionMessage(myStrategy.getAction(getActionMessage.getPlayerView(), getActionMessage.isDebugAvailable() ? debugInterface : null)).writeTo(outputStream);
-                outputStream.flush();
                 //debug game log
                 DebugOut.writeDebugBin(((ServerMessage.GetAction) message).getPlayerView().getCurrentTick(), message);
                 //debug done
+
+                model.ServerMessage.GetAction getActionMessage = (model.ServerMessage.GetAction) message;
+                new model.ClientMessage.ActionMessage(myStrategy.getAction(getActionMessage.getPlayerView(), getActionMessage.isDebugAvailable() ? debugInterface : null)).writeTo(outputStream);
+                outputStream.flush();
             } else if (message instanceof model.ServerMessage.Finish) {
                 break;
             } else if (message instanceof model.ServerMessage.DebugUpdate) {

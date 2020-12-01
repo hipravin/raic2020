@@ -18,6 +18,16 @@ public abstract class Position2dUtil {
     public static int TURRET_SIZE = 2;
     public static int WALL_SIZE = 1;
 
+    public static Stream<Position2d> upRightLeftDown(Position2d p) {
+        return Stream.of(
+                p.shift(0, 1),
+                p.shift(1, 0),
+                p.shift(-1, 0),
+                p.shift(0, -1))
+                .filter(Position2dUtil::isPositionWithinMapBorder);
+
+    }
+
     public static boolean buildingsHaveSpaceInBetween(Position2d corner1, int size1, Position2d corner2, int size2) {
         boolean xOk;
         boolean yOk;

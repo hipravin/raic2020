@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class RootStrategy extends MyStrategy {
 
-    GameHistoryState gameHistoryState;
+    GameHistoryState gameHistoryState = new GameHistoryState();
     ParsedGameState currentParsedGameState;
     StrategyParams strategyParams;
 
@@ -83,9 +83,8 @@ public class RootStrategy extends MyStrategy {
         return new Action(entityActions);
     }
 
-    void updateGameHistoryState() {
-
-
+    void updateGameHistoryState(Action decision) {
+        gameHistoryState.setPreviousTickAction(decision);
     }
 
 
@@ -96,7 +95,7 @@ public class RootStrategy extends MyStrategy {
 
         Action decision = combineDecisions();
 
-        updateGameHistoryState();
+        updateGameHistoryState(decision );
         return decision;
 //        return new Action(new java.util.HashMap<>());
     }

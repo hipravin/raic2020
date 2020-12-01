@@ -58,6 +58,8 @@ public abstract class GameStateParser {
 
         parsedGameState.population = Population.of(playerView);
 
+        GameStateParserDjkstra.computeMyNonUniqueNearestWorkers(parsedGameState);
+
         computeProducingBuildingEdge(parsedGameState);
         computeFreeSpaces(parsedGameState.cells);
         computeBuildingEdgeFreeCells(parsedGameState);
