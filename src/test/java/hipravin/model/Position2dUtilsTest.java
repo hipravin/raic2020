@@ -25,12 +25,16 @@ class Position2dUtilsTest {
 
     @Test
     void testIntersection() {
+        assertHaveSpace(of(5,5), 5, of(0,5), 3);
+        assertHaveSpace(of(0,5), 3, of(5,5), 5);
+
 
         assertDontHaveSpace(of(1,1), 1, of(2,2), 1);
         assertDontHaveSpace(of(2,2), 1, of(1,1), 1);
         assertDontHaveSpace(of(0,0), 5, of(5,3), 3);
-        assertDontHaveSpace(of(5,3), 5, of(0,0), 3);
+        assertHaveSpace(of(5,3), 5, of(0,0), 3);
         assertHaveSpace(of(5,4), 5, of(0,0), 3);
+
     }
 
     void assertHaveSpace(Position2d c1, int size1, Position2d c2, int size2) {

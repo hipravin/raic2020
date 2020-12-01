@@ -4,10 +4,7 @@ import model.Entity;
 import model.EntityType;
 import model.PlayerView;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -24,6 +21,7 @@ public abstract class GameStateParser {
         parsedGameState.cells = emptyCellsOfSize(mapSize);
         parsedGameState.buildingsByEntityId = new HashMap<>();
         parsedGameState.myWorkers = new HashMap<>();
+        parsedGameState.entityIdToCell = new HashMap<>();
 
         for (Entity entity : playerView.getEntities()) {
             switch (entity.getEntityType()) {
@@ -49,6 +47,8 @@ public abstract class GameStateParser {
                 parsedGameState.myWorkers.put(c.entityId, c);
             }
         });
+
+        Arrays.stream(playerView.getEntities()).forEach(e -> parsedGameState.entityIdToCell.put(e.getId(), parsedGameState.at(e.getPosition())));
 
         if (!playerView.isFogOfWar()) {
             forEachCell(parsedGameState.cells, Cell::setVisible);

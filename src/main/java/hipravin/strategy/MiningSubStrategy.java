@@ -5,20 +5,19 @@ import hipravin.model.ParsedGameState;
 import hipravin.model.Position2dUtil;
 import model.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MiningSubStrategy implements SubStrategy {
     @Override
-    public void decide(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
+    public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                        StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
         stubJustMine(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
     }
 
-    public void stubJustMine(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
+    public void stubJustMine(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
 

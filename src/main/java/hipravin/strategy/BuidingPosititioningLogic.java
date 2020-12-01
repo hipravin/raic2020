@@ -13,16 +13,17 @@ import java.util.stream.Stream;
 import static hipravin.model.Position2dUtil.buildingsHaveSpaceInBetween;
 
 public class BuidingPosititioningLogic {
-    public Optional<Position2d> bestPositionFor(EntityType entityType, GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
+
+    public Optional<Position2d> bestPositionFor(EntityType entityType, GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                                                 StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         return switch (entityType) {
-            case HOUSE -> bestPositionForHouse(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+            case HOUSE -> nearestCornerPositionForHouse(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
             default -> Optional.empty();
         };
     }
 
-    public Optional<Position2d> bestPositionForHouse(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
-                                                StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+    public Optional<Position2d> nearestCornerPositionForHouse(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
+                                                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
         Stream<Position2d> closeToCorner = Position2dUtil.closeToPositionWideSearchStream(Position2dUtil.MY_CORNER);
 
@@ -37,6 +38,8 @@ public class BuidingPosititioningLogic {
 
         return bestBuildPos;
     }
+
+
 
     static boolean doesntTouchProducingBuildings(Position2d corner, int size, ParsedGameState currentParsedGameState) {
         return currentParsedGameState.findMyProducingBuildings()

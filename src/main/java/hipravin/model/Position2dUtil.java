@@ -44,7 +44,7 @@ public abstract class Position2dUtil {
             yOk = corner2.y + size2 < corner1.y;
         }
 
-        return xOk && yOk;
+        return xOk || yOk;
     }
 
     public static Set<Position2d> squareEdgeWithCorners(Position2d corner, int size) {

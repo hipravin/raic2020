@@ -5,8 +5,8 @@ import hipravin.model.ParsedGameState;
 import java.util.Map;
 
 public interface SubStrategy {
-    void decide(GameHistoryState gameHistoryState,
-                               ParsedGameState currentParsedGameState,
-                               StrategyParams strategyParams,
-                               Map<Integer, ValuedEntityAction> assignedActions);
+    void decide(GameHistoryAndSharedState gameHistoryState,
+                ParsedGameState currentParsedGameState,
+                StrategyParams strategyParams,
+                Map<Integer, ValuedEntityAction> assignedActions);
 }

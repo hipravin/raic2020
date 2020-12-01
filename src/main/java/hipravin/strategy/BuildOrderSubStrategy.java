@@ -1,17 +1,12 @@
 package hipravin.strategy;
 
-import hipravin.model.Building;
-import hipravin.model.Cell;
-import hipravin.model.ParsedGameState;
-import hipravin.model.Position2d;
+import hipravin.model.*;
+import hipravin.strategy.command.BuildingBuildCommand;
 import model.BuildAction;
 import model.EntityAction;
 import model.EntityType;
-import model.MoveAction;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * builds units and buildings
@@ -20,7 +15,7 @@ public class BuildOrderSubStrategy implements SubStrategy {
     private BuidingPosititioningLogic buildingPostitioningLogic = new BuidingPosititioningLogic();
 
     @Override
-    public void decide(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
+    public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                        StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
 
@@ -28,7 +23,7 @@ public class BuildOrderSubStrategy implements SubStrategy {
         stubBuildHouses(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
     }
 
-    public void stubBuildWorkersNonStop(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
+    public void stubBuildWorkersNonStop(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                                         StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
         List<Building> ccs = currentParsedGameState.findMyBuildings(EntityType.BUILDER_BASE);
@@ -49,46 +44,49 @@ public class BuildOrderSubStrategy implements SubStrategy {
         }
     }
 
-    public void stubBuildHouses(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
-                                          StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+    public Optional<NearestUnit> nearestWorkerToBuild(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
+                                               Position2d buildingCorner, int buildingSize) {
+
+        Set<Integer> lockedWorkers = gameHistoryState.buildOrRepairAssignedWorkersAtCurrentTick();
+        Optional<NearestUnit> nearestWorker = Position2dUtil.buildingOuterEdgeWithoutCorners(buildingCorner, buildingSize)
+                .stream()
+                .filter(p -> currentParsedGameState.at(p).getMyNearestWorker() != null)
+                .map(p -> currentParsedGameState.at(p).getMyNearestWorker())
+                .filter(w -> !lockedWorkers.contains(w.getSourceUnitCell().getEntityId()))
+                .min(Comparator.comparingInt(NearestUnit::getPathLenEmptyCellsToThisCell));
+
+        return nearestWorker;
+    }
+
+    public void stubBuildHouses(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
+                                StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         int inAdvance = 10;
 
         int hCost = currentParsedGameState.getPlayerView().getEntityProperties().get(EntityType.HOUSE).getCost();
+        int hSize = currentParsedGameState.getPlayerView().getEntityProperties().get(EntityType.HOUSE).getSize();
         int res = currentParsedGameState.getMyPlayer().getResource();
 
         if (currentParsedGameState.getPopulation().getPotentialLimit() - currentParsedGameState.getPopulation().getPopulationUse() < inAdvance
               && res >= hCost) {
-            Optional<Position2d> housePosition = buildingPostitioningLogic.bestPositionForHouse(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+            Optional<Position2d> housePosition = buildingPostitioningLogic.nearestCornerPositionForHouse(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
 
-            Optional<Cell> worker = stubSelectFirstWorker(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+            if(housePosition.isPresent()) {
 
-            if(housePosition.isPresent() && worker.isPresent()) {
+                Optional<NearestUnit> myNearestWorker =
+                        nearestWorkerToBuild(gameHistoryState, currentParsedGameState, housePosition.get(), hSize);
 
-//                EntityAction entityAction = new EntityAction();
-//
-//                if(worker.get().getPosition().equals(Position2d.of(0,3))) {
-//                    BuildAction buildAction = new BuildAction(EntityType.HOUSE, Position2d.of(0,0).toVec2dInt());
-//                    //
-//                    entityAction.setBuildAction(buildAction);
-//
-//                } else {
-//                    MoveAction moveAction = new MoveAction(Position2d.of(0,3).toVec2dInt(), false, false);
-//                    entityAction.setMoveAction(moveAction);
-//                }
-//                assignedActions.put(worker.get().getEntityId(), new ValuedEntityAction(0.5, worker.get().getEntityId(), entityAction));
+                if(myNearestWorker.isPresent()) {
+                    NearestUnit builder = myNearestWorker.get();
+                    BuildingBuildCommand bc = BuildingBuildCommand.buildSingleWorker(
+                            EntityType.HOUSE, builder.getSourceUnitCell().getEntityId(), builder.getThisCell().getPosition(),
+                            housePosition.get(),  builder.getPathLenEmptyCellsToThisCell(), currentParsedGameState);
 
-//                BuildAction buildAction = new BuildAction(EntityType.HOUSE, housePosition.get().toVec2dInt());
-//                //
-//                entityAction.setBuildAction(buildAction);
-//                assignedActions.put(worker.get().getEntityId(), new ValuedEntityAction(0.5, worker.get().getEntityId(), entityAction));
+                    gameHistoryState.addBuildCommand(bc);
+                }
             }
         }
     }
 
-    public Optional<Cell> stubSelectFirstWorker(GameHistoryState gameHistoryState, ParsedGameState currentParsedGameState,
-                                                StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        return currentParsedGameState.getMyWorkers().values().stream().findFirst();
-    }
 
 
 

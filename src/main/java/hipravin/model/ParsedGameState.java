@@ -20,6 +20,12 @@ public class ParsedGameState {
     Map<Integer, Building> buildingsByEntityId;
     Map<Integer, Cell> myWorkers;
 
+    Map<Integer, Cell> entityIdToCell; //for buildings to corner cell
+
+    public int curTick() {
+        return playerView.getCurrentTick();
+    }
+
     public Stream<Cell> allCellsAsStream() {
         Stream<Cell> combined = Stream.of();
         for (Cell[] column : cells) {
@@ -73,5 +79,9 @@ public class ParsedGameState {
 
     public Population getPopulation() {
         return population;
+    }
+
+    public Map<Integer, Cell> getEntityIdToCell() {
+        return entityIdToCell;
     }
 }

@@ -15,4 +15,14 @@ public class RootStrategyReplaySampleTickTest {
 
         assertEquals(2, action.getEntityActions().size());
     }
+
+    @Test
+    void testRound1Sample2Tick52() {
+        RootStrategy strategy = new RootStrategy();
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(1,2,52);
+
+        Action action = strategy.getAction(get0.getPlayerView(), null);
+
+        assertEquals(1, strategy.gameHistoryState.getOngoingBuildCommands().size());
+    }
 }

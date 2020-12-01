@@ -136,6 +136,8 @@ class ParsedGameStateTest {
         assertEquals(15, pgs.population.potentialLimit);
 
         assertEquals(3 * 24, countCells(pgs, c -> c.isProducingMyBuildingOuterEdge));
+
+        assertEquals(pgs.getPlayerView().getEntities().length, pgs.entityIdToCell.size());
     }
 
     long countCells(ParsedGameState pgs, Predicate<? super Cell> predicate) {

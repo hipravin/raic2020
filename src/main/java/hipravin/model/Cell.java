@@ -45,6 +45,9 @@ public class Cell implements Cloneable {
 //    private boolean isEdgeMineral;
 //    private int mineralsNearby5;
 
+    public boolean test(Predicate<? super Cell> condition) {
+        return condition.test(this);
+    }
 
     public boolean testOr(Predicate<? super Cell>... conditions) {
         return Arrays.stream(conditions).anyMatch(predicate -> predicate.test(this));
@@ -279,5 +282,9 @@ public class Cell implements Cloneable {
 
     public void setEntityId(int entityId) {
         this.entityId = entityId;
+    }
+
+    public NearestUnit getMyNearestWorker() {
+        return myNearestWorker;
     }
 }
