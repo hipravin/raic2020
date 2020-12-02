@@ -7,7 +7,6 @@ import model.PlayerView;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,7 +34,10 @@ public class Cell implements Cloneable {
     EntityProperties entityProps;
     int sightRange = -1;
     int entityId = -1;
-    NearestUnit myNearestWorker = null;
+    NearestEntity myNearestWorker = null;
+    NearestEntity nearestMineralField = null;
+    long len1MineralsCount = -1;
+    long len1MyWorkersCount = -1;
 
 //    Map<Position2d, Integer> nearbyWorkersPathToThisCell;//from position to this, value is path length
 
@@ -54,6 +56,10 @@ public class Cell implements Cloneable {
     }
     public boolean testAnd(Predicate<? super Cell>... conditions) {
         return Arrays.stream(conditions).allMatch(predicate -> predicate.test(this));
+    }
+
+    public boolean isMyWorker() {
+        return isMyUnit() && entityType == EntityType.BUILDER_UNIT;
     }
 
     public static Cell empty(Position2d position) {
@@ -284,7 +290,15 @@ public class Cell implements Cloneable {
         this.entityId = entityId;
     }
 
-    public NearestUnit getMyNearestWorker() {
+    public NearestEntity getMyNearestWorker() {
         return myNearestWorker;
+    }
+
+    public long getLen1MineralsCount() {
+        return len1MineralsCount;
+    }
+
+    public long getLen1MyWorkersCount() {
+        return len1MyWorkersCount;
     }
 }

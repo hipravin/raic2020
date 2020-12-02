@@ -12,6 +12,8 @@ import java.util.*;
  * builds units and buildings
  */
 public class BuildOrderSubStrategy implements SubStrategy {
+    static Random r = new Random();
+
     private BuidingPosititioningLogic buildingPostitioningLogic = new BuidingPosititioningLogic();
 
     @Override
@@ -32,7 +34,7 @@ public class BuildOrderSubStrategy implements SubStrategy {
             EntityAction buildWorker = new EntityAction();
 
             Optional<Position2d> randomPositionToBuildWorker = cc.getBuildingEmptyOuterEdgeWithoutCorners().stream()
-                    .reduce((p1, p2) -> p1.hashCode() < p2.hashCode() ? p1 : p2);
+                    .reduce((p1, p2) -> r.nextInt() % 2 == 0 ? p1 : p2);
 
             if(randomPositionToBuildWorker.isPresent()) {
 
@@ -44,16 +46,16 @@ public class BuildOrderSubStrategy implements SubStrategy {
         }
     }
 
-    public Optional<NearestUnit> nearestWorkerToBuild(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
-                                               Position2d buildingCorner, int buildingSize) {
+    public Optional<NearestEntity> nearestWorkerToBuild(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
+                                                        Position2d buildingCorner, int buildingSize) {
 
         Set<Integer> lockedWorkers = gameHistoryState.buildOrRepairAssignedWorkersAtCurrentTick();
-        Optional<NearestUnit> nearestWorker = Position2dUtil.buildingOuterEdgeWithoutCorners(buildingCorner, buildingSize)
+        Optional<NearestEntity> nearestWorker = Position2dUtil.buildingOuterEdgeWithoutCorners(buildingCorner, buildingSize)
                 .stream()
                 .filter(p -> currentParsedGameState.at(p).getMyNearestWorker() != null)
                 .map(p -> currentParsedGameState.at(p).getMyNearestWorker())
-                .filter(w -> !lockedWorkers.contains(w.getSourceUnitCell().getEntityId()))
-                .min(Comparator.comparingInt(NearestUnit::getPathLenEmptyCellsToThisCell));
+                .filter(w -> !lockedWorkers.contains(w.getSourceCell().getEntityId()))
+                .min(Comparator.comparingInt(NearestEntity::getPathLenEmptyCellsToThisCell));
 
         return nearestWorker;
     }
@@ -72,13 +74,13 @@ public class BuildOrderSubStrategy implements SubStrategy {
 
             if(housePosition.isPresent()) {
 
-                Optional<NearestUnit> myNearestWorker =
+                Optional<NearestEntity> myNearestWorker =
                         nearestWorkerToBuild(gameHistoryState, currentParsedGameState, housePosition.get(), hSize);
 
                 if(myNearestWorker.isPresent()) {
-                    NearestUnit builder = myNearestWorker.get();
+                    NearestEntity builder = myNearestWorker.get();
                     BuildingBuildCommand bc = BuildingBuildCommand.buildSingleWorker(
-                            EntityType.HOUSE, builder.getSourceUnitCell().getEntityId(), builder.getThisCell().getPosition(),
+                            EntityType.HOUSE, builder.getSourceCell().getEntityId(), builder.getThisCell().getPosition(),
                             housePosition.get(),  builder.getPathLenEmptyCellsToThisCell(), currentParsedGameState);
 
                     gameHistoryState.addBuildCommand(bc);

@@ -58,12 +58,27 @@ public abstract class GameStateParser {
 
         parsedGameState.population = Population.of(playerView);
 
+        calculateNeighbourMineralsAndWorkers(parsedGameState);
+
         GameStateParserDjkstra.computeMyNonUniqueNearestWorkers(parsedGameState);
+        GameStateParserDjkstra.computeClosestMinerals(parsedGameState);
 
         computeProducingBuildingEdge(parsedGameState);
         computeFreeSpaces(parsedGameState.cells);
         computeBuildingEdgeFreeCells(parsedGameState);
         return parsedGameState;
+    }
+
+    static void calculateNeighbourMineralsAndWorkers(ParsedGameState parsedGameState) {
+        parsedGameState.allCellsAsStream().forEach(eachCell -> {
+            eachCell.len1MineralsCount = Position2dUtil.upRightLeftDown(eachCell.getPosition()).map(p -> parsedGameState.at(p))
+                    .filter(mc-> mc.isMineral)
+                    .count();
+
+            eachCell.len1MyWorkersCount = Position2dUtil.upRightLeftDown(eachCell.getPosition()).map(p -> parsedGameState.at(p))
+                    .filter(wc-> wc.isMyWorker())
+                    .count();
+        });
     }
 
 

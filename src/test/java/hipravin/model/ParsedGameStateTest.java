@@ -28,7 +28,7 @@ class ParsedGameStateTest {
         assertEquals(7, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 2));
 
         pgs.allCellsAsStream().forEach(c -> {
-            assertTrue(c.myNearestWorker == null || c.myNearestWorker.sourceUnitCell.position.equals(of(4,4)));
+            assertTrue(c.myNearestWorker == null || c.myNearestWorker.sourceCell.position.equals(of(4,4)));
         });
 
         assertEquals(4025, countCells(pgs, c -> c.myNearestWorker != null));//approximately half of map is unreacheable at start. seems legit if mineral count is good
@@ -41,14 +41,46 @@ class ParsedGameStateTest {
         PlayerView pw = get0.getPlayerView();
         ParsedGameState pgs = GameStateParser.parse(pw);
 
-        pgs.allCellsAsStream().filter(c -> c.isUnit && c.getEntityType() == EntityType.BUILDER_UNIT && c.isMyEntity)
-            .forEach(c -> System.out.println(c.getPosition()));
-
-
         assertEquals(13, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 0));
         assertEquals(28, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 1));
         assertEquals(29, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 2));
         assertEquals(32, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 3));
+    }
+
+    @Test
+    void testNearestMinerals() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(1, 2, 52);
+
+        PlayerView pw = get0.getPlayerView();
+        ParsedGameState pgs = GameStateParser.parse(pw);
+
+        assertEquals(6, pgs.at(of(10,5)).nearestMineralField.pathLenEmptyCellsToThisCell);//can mine at 5, but path is actually 6
+        assertEquals(of(11,0), pgs.at(of(10,5)).nearestMineralField.sourceCell.getPosition());
+
+        assertEquals(2513, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 0));
+        assertEquals(882, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 1));
+        assertEquals(751, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 2));
+        assertEquals(695, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 3));
+        assertEquals(3, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 14));
+    }
+
+    @Test
+    void testLen1Stuff() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(1, 2, 52);
+
+        PlayerView pw = get0.getPlayerView();
+        ParsedGameState pgs = GameStateParser.parse(pw);
+
+        assertEquals(0, countCells(pgs, c -> c.getLen1MyWorkersCount() > 2));
+        assertEquals(0, countCells(pgs, c -> c.getLen1MineralsCount() > 4));
+
+        assertEquals(8, countCells(pgs, c -> c.getLen1MyWorkersCount() == 2));
+        assertEquals(33, countCells(pgs, c -> c.getLen1MyWorkersCount() == 1));
+
+        assertEquals(1496, countCells(pgs, c -> c.getLen1MineralsCount() == 4));
+        assertEquals(695, countCells(pgs, c -> c.getLen1MineralsCount() == 3));
+        assertEquals(620, countCells(pgs, c -> c.getLen1MineralsCount() == 2));
+        assertEquals(589, countCells(pgs, c -> c.getLen1MineralsCount() == 1));
     }
 
     @Test

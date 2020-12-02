@@ -16,12 +16,16 @@ public class RootStrategy extends MyStrategy {
 
     public RootStrategy() {
         strategyParams = new StrategyParams();
+
+        BuildFirstTwoHousesStrategy bfths = new BuildFirstTwoHousesStrategy();
+
         MiningSubStrategy miningSubStrategy = new MiningSubStrategy();
         MicroSubStrategy microSubStrategy = new MicroSubStrategy();
         BuildOrderSubStrategy buildOrderSubStrategy = new BuildOrderSubStrategy();
 
         PerformBuildCommandsSubStrategy performBuildCommandsSubStrategy = new PerformBuildCommandsSubStrategy();
 
+        subStrategies.add(bfths);
         subStrategies.add(miningSubStrategy);
         subStrategies.add(buildOrderSubStrategy);
         subStrategies.add(microSubStrategy);
@@ -112,7 +116,18 @@ public class RootStrategy extends MyStrategy {
     Action combineDecisions() {
         Map<Integer, ValuedEntityAction> assignedActions = new HashMap<>();
 
-        subStrategies.forEach(
+        //exclusive strategy, e.g. for game start
+        List<SubStrategy> thisTickStrategies = subStrategies.stream()
+                .filter(s -> s.isExclusivelyApplicableAtThisTick(gameHistoryState, currentParsedGameState, strategyParams, assignedActions))
+                .limit(1).collect(Collectors.toList());
+
+        if (thisTickStrategies.isEmpty()) {
+            thisTickStrategies = subStrategies.stream()
+                    .filter(s -> s.isApplicableAtThisTick(gameHistoryState, currentParsedGameState, strategyParams, assignedActions))
+                    .collect(Collectors.toList());
+        }
+
+        thisTickStrategies.forEach(
                 ss -> ss.decide(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));
 
 
