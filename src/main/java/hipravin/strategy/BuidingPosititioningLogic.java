@@ -6,6 +6,7 @@ import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
 import model.EntityType;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -13,6 +14,7 @@ import java.util.stream.Stream;
 import static hipravin.model.Position2dUtil.buildingsHaveSpaceInBetween;
 
 public class BuidingPosititioningLogic {
+
 
     public Optional<Position2d> bestPositionFor(EntityType entityType, GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                                                 StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {

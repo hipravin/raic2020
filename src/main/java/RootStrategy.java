@@ -37,6 +37,13 @@ public class RootStrategy extends MyStrategy {
     void initStaticParams(PlayerView playerView) {
         if (playerView.getCurrentTick() == 0) {
             Position2dUtil.MAP_SIZE = playerView.getMapSize();
+            Optional<Entity> myCC = Arrays.stream(playerView.getEntities())
+                    .filter(e -> e.getEntityType() == EntityType.BUILDER_BASE && e.getPlayerId().equals(playerView.getMyId()))
+                    .findAny();
+
+            myCC.ifPresent(entity -> {
+                Position2dUtil.MY_CC = Position2d.of(entity.getPosition());
+            });
 
             setMyCorner(playerView);
             setBuildingSizes(playerView);
@@ -158,5 +165,21 @@ public class RootStrategy extends MyStrategy {
     public void debugUpdate(PlayerView playerView, DebugInterface debugInterface) {
         debugInterface.send(new DebugCommand.Clear());
         debugInterface.getState();
+    }
+
+    public GameHistoryAndSharedState getGameHistoryState() {
+        return gameHistoryState;
+    }
+
+    public ParsedGameState getCurrentParsedGameState() {
+        return currentParsedGameState;
+    }
+
+    public StrategyParams getStrategyParams() {
+        return strategyParams;
+    }
+
+    public List<SubStrategy> getSubStrategies() {
+        return subStrategies;
     }
 }

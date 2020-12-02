@@ -4,13 +4,55 @@ import hipravin.strategy.StrategyParams;
 import model.Entity;
 import model.EntityType;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * (c)Copypaste 2020 hipravin
+ */
+
 public class GameStateParserDjkstra {//wide search actually
+
+    public static Map<Position2d, NearestEntity> shortWideSearch(ParsedGameState pgs, Set<Position2d> additionalNotEmptyCells,
+                                                  Set<Position2d> startPositions,
+                                                  int maxPathLen) {
+        Map<Position2d, NearestEntity> result = new HashMap<>();
+
+        Set<Position2d> visited = new HashSet<>();
+        Set<Position2d> currentSet = new HashSet<>(startPositions);
+
+        for (Position2d path0Pos : currentSet) {
+            result.put(path0Pos, new NearestEntity(pgs.at(path0Pos), pgs.at(path0Pos), 0));
+            visited.add(path0Pos);
+        }
+
+        Set<Position2d> nextCurrentSet = new HashSet<>();
+
+        for (int len = 1; len <= maxPathLen && !currentSet.isEmpty(); len++) {
+
+            for (Position2d curPathLenPos : currentSet) {
+                final int pathLen = len;
+                Stream<Position2d> neighbourstoAdd =
+                        Position2dUtil.upRightLeftDown(curPathLenPos)
+                                .filter(p -> !visited.contains(p))
+                                .filter(p -> !result.containsKey(p) || result.get(p).pathLenEmptyCellsToThisCell > pathLen);
+                neighbourstoAdd.forEach(p -> {
+                    visited.add(p);
+                    Cell atP  = pgs.at(p);
+                    result.put(p, result.get(curPathLenPos).pathPlus1(atP));
+                    if(pgs.at(p).isEmpty && !additionalNotEmptyCells.contains(p)) {
+                        nextCurrentSet.add(p);
+                    }
+                });
+            }
+            currentSet.clear();
+            currentSet.addAll(nextCurrentSet);
+            nextCurrentSet.clear();
+        }
+
+        return result;
+    }
 
     //to find closes minerals
     public static void computeClosestMinerals(ParsedGameState pgs) {
@@ -29,21 +71,22 @@ public class GameStateParserDjkstra {//wide search actually
 
         Set<Position2d> nextCurrentSet = new HashSet<>();
 
-        for (int len = 1; len < StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT && !currentSet.isEmpty(); len++) {
+        for (int len = 1; len <= StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT && !currentSet.isEmpty(); len++) {
 
             for (Position2d curPathLenPos : currentSet) {
                 final int pathLen = len;
                 Stream<Position2d> neighbourstoAdd =
                         Position2dUtil.upRightLeftDown(curPathLenPos)
                                 .filter(p -> !visited.contains(p))
-                                .filter(p -> pgs.at(p).isEmpty)
+                                .filter(p -> pgs.at(p).test(c -> c.isEmpty || c.isMyWorker()))
                                 .filter(p -> pgs.at(p).nearestMineralField == null || pgs.at(p).nearestMineralField.pathLenEmptyCellsToThisCell > pathLen);
                 neighbourstoAdd.forEach(p -> {
                     visited.add(p);
                     Cell atP  = pgs.at(p);
                     atP.nearestMineralField = pgs.at(curPathLenPos).nearestMineralField.pathPlus1(atP);
-
-                    nextCurrentSet.add(p);
+                    if(!pgs.at(p).isMyWorker()) {
+                        nextCurrentSet.add(p);
+                    }
                 });
             }
             currentSet.clear();
@@ -68,7 +111,7 @@ public class GameStateParserDjkstra {//wide search actually
         Set<Position2d> nextCurrentSet = new HashSet<>();
 
 
-        for (int len = 1; len < StrategyParams.NEAREST_WORKERS_COMPUTE_PATH_LIMIT && !currentSet.isEmpty(); len++) {
+        for (int len = 1; len <= StrategyParams.NEAREST_WORKERS_COMPUTE_PATH_LIMIT && !currentSet.isEmpty(); len++) {
 
             for (Position2d curPathLenPos : currentSet) {
                 final int pathLen = len;

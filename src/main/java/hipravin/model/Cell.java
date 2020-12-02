@@ -301,4 +301,12 @@ public class Cell implements Cloneable {
     public long getLen1MyWorkersCount() {
         return len1MyWorkersCount;
     }
+
+    public boolean isProducingMyBuildingOuterEdge() {
+        return isProducingMyBuildingOuterEdge;
+    }
+
+    public NearestEntity getNearestMineralField() {
+        return nearestMineralField;
+    }
 }

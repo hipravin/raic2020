@@ -8,6 +8,9 @@ import model.ServerMessage;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static hipravin.model.Position2d.of;
@@ -58,10 +61,26 @@ class ParsedGameStateTest {
         assertEquals(of(11,0), pgs.at(of(10,5)).nearestMineralField.sourceCell.getPosition());
 
         assertEquals(2513, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 0));
-        assertEquals(882, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 1));
-        assertEquals(751, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 2));
-        assertEquals(695, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 3));
+        assertEquals(882 + 7, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 1));
+        assertEquals(751 + 2, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 2));
+        assertEquals(696, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 3));
         assertEquals(3, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 14));
+    }
+
+    @Test
+    void testShortWideSearch() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(1, 2, 52);
+
+        PlayerView pw = get0.getPlayerView();
+        ParsedGameState pgs = GameStateParser.parse(pw);
+
+        Map<Position2d, NearestEntity> ws =
+                GameStateParserDjkstra.shortWideSearch(pgs, Collections.emptySet(), Set.of(of(0,0)), 10);
+        assertEquals(3, ws.size());
+
+        Map<Position2d, NearestEntity> ws2 =
+                GameStateParserDjkstra.shortWideSearch(pgs, Set.of(of(7,4)), Set.of(of(8,4)), 10);
+        assertEquals(4, ws2.get(of(6,4)).pathLenEmptyCellsToThisCell);
     }
 
     @Test
