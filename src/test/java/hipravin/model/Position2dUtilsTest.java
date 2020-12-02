@@ -15,6 +15,54 @@ import static org.junit.jupiter.api.Assertions.*;
 class Position2dUtilsTest {
 
     @Test
+    void testBuildByTwoWorkers() {
+        Set<Position2d> houses = Position2dUtil.housesThatCanBeBuildByTwoWorkers(
+                List.of(
+                        of(0,3),
+                        of(4,4),
+                        of(2,2)
+                ));
+
+        assertEquals(2, houses.size());
+        assertTrue(houses.contains(of(1,3)));
+        assertTrue(houses.contains(of(3,1)));
+    }
+
+    @Test
+    void testHousesBlockedBy() {
+        Position2d worker = of(4,4);
+        assertEquals(9, Position2dUtil.housePositionsThatAreBlockedByWorker(worker).distinct().count());
+
+        Set<Position2d> blocked = Position2dUtil.housePositionsThatAreBlockedByWorker(worker).collect(Collectors.toSet());
+        Set<Position2d> allowed = Position2dUtil.housePositionsThatWorkerCanBuildIfNoObstacle(worker).collect(Collectors.toSet());
+
+        int size = blocked.size();
+        blocked.addAll(allowed);
+        assertEquals(size + allowed.size(), blocked.size());
+    }
+
+    @Test
+    void testHousesCanBuild() {
+        Position2d worker = of(10,11);
+        assertEquals(12, Position2dUtil.housePositionsThatWorkerCanBuildIfNoObstacle(worker).distinct().count());
+
+        Position2dUtil.housePositionsThatWorkerCanBuildIfNoObstacle(worker)
+                .forEach(corner -> {
+                    assertTrue(Position2dUtil.buildingOuterEdgeWithoutCorners(corner, Position2dUtil.HOUSE_SIZE).contains(worker));
+                });
+    }
+
+    @Test
+    void testHousesCanBuild2() {
+        Position2d worker = of(1,1);
+
+        Position2dUtil.housePositionsThatWorkerCanBuildIfNoObstacle(worker)
+                .forEach(corner -> {
+                    assertTrue(Position2dUtil.buildingOuterEdgeWithoutCorners(corner, Position2dUtil.HOUSE_SIZE).contains(worker));
+                });
+    }
+
+    @Test
     void testNeighbours() {
         Position2d p = of(1,1);
         Position2dUtil.upRightLeftDown(p).forEach(p2 ->

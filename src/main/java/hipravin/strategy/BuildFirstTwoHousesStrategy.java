@@ -1,13 +1,14 @@
 package hipravin.strategy;
 
-import hipravin.model.GameStateParserDjkstra;
-import hipravin.model.NearestEntity;
-import hipravin.model.ParsedGameState;
-import hipravin.model.Position2d;
+import hipravin.alg.BruteForceUtil;
+import hipravin.model.*;
 import model.EntityType;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static hipravin.alg.BruteForceUtil.allCombinatonsOf;
 
 public class BuildFirstTwoHousesStrategy implements SubStrategy {
     BeforeFirstHouseBuildOrder buildOrder;
@@ -26,6 +27,46 @@ public class BuildFirstTwoHousesStrategy implements SubStrategy {
     public BeforeFirstHouseBuildOrder findOptimalBeginning(
             GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
             StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+
+        Position2d firstWorker = currentParsedGameState.getMyWorkers().values().iterator().next().getPosition();
+
+
+        MineralAndMinerPosition firstMiner = minerAndMineralClosest(firstWorker, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+
+        List<Position2d> firstMinerPositionsAfterFirstMined = Position2dUtil.upRightLeftDown(firstMiner.minerPosition)
+                .filter(p -> currentParsedGameState.at(p)
+                        .test(c -> (c.getPosition().equals(firstMiner.mineralPosition) || c.isEmpty())
+                                && c.getLen1MineralsCount() > 0))
+                .collect(Collectors.toList());
+
+        List<BeforeFirstHouseBuildOrder.BuildMine> buildMines =
+                bestBuildMines(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+
+
+        Stream<int[]> buildMinesIndices = BruteForceUtil.allCombinatonsOf(buildMines.size(), 4);
+
+        buildMinesIndices.map(ii -> {
+            List<List<Position2d>> combinationsPositionsAtHouseBuild = new ArrayList<>();
+            List<Position2d> positionsAtHouseBuild = Arrays.stream(ii)
+                    .mapToObj(i -> buildMines.get(i).workerMinePosition).collect(Collectors.toList());
+
+            if(!firstMinerPositionsAfterFirstMined.isEmpty()) {
+                for (Position2d firstWorkerPosAtHouseBuild : firstMinerPositionsAfterFirstMined) {
+                    List<Position2d> allPositionsAtHouseBuild = new ArrayList<>(positionsAtHouseBuild);
+                    allPositionsAtHouseBuild.add(firstWorkerPosAtHouseBuild);
+                    combinationsPositionsAtHouseBuild.add(allPositionsAtHouseBuild);
+                }
+            } else {
+                combinationsPositionsAtHouseBuild.add(positionsAtHouseBuild);
+            }
+            checkIfTwoWorkersCanBUILD();//////
+
+            return null;//convert to build order
+
+        });
+
+
+
 
         //1. find nearest mineral to first worker.
 
@@ -47,6 +88,26 @@ public class BuildFirstTwoHousesStrategy implements SubStrategy {
 
     }
 
+    void checkIfTwoWorkersCanBUILD() {
+
+    }
+
+    public boolean isEmptyForHouseIgnoringUnitsAnd1Mineral(Position2d housePosition, Position2d mineralToIgnore, ParsedGameState pgs) {
+        for (int i = 0; i < Position2dUtil.HOUSE_SIZE; i++) {
+            for (int j = 0; j < Position2dUtil.HOUSE_SIZE; j++) {
+                Position2d p = housePosition.shift(i, j);
+
+                if(!mineralToIgnore.equals(p)
+                        && !(pgs.at(p).test(c -> c.isUnit() || c.isEmpty()))) {
+                    return false;
+                }
+            }
+
+        }
+        return true;
+    }
+
+
     //    should return at least 4
     public List<BeforeFirstHouseBuildOrder.BuildMine> bestBuildMines(
             GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -59,7 +120,7 @@ public class BuildFirstTwoHousesStrategy implements SubStrategy {
         List<Position2d> sorted = ccOuterEdge.stream()
                 .sorted(Comparator.comparingInt(p -> pgs.at(p).getNearestMineralField().getPathLenEmptyCellsToThisCell()))
                 .collect(Collectors.toList());
-        if(sorted.size() >= workersRequred) {
+        if (sorted.size() >= workersRequred) {
             int minLen = pgs.at(sorted.get(0)).getNearestMineralField().getPathLenEmptyCellsToThisCell();
 
             long bestPositionsSameLenCount = sorted.stream().takeWhile(
@@ -84,7 +145,6 @@ public class BuildFirstTwoHousesStrategy implements SubStrategy {
 
 
         return Collections.emptyList();
-
 
 
     }

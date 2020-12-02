@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static hipravin.model.Position2d.of;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BuildFirstTwoHousesStrategyTest {
     RootStrategy strategy;
@@ -25,18 +24,33 @@ class BuildFirstTwoHousesStrategyTest {
     }
 
     @Test
+    void testIsEmptyForHouse() {
+        BuildFirstTwoHousesStrategy bft = (BuildFirstTwoHousesStrategy) strategy.getSubStrategies().get(0);
+
+        assertTrue(
+                bft.isEmptyForHouseIgnoringUnitsAnd1Mineral(
+                        of(2, 2), of(6, 13), strategy.getCurrentParsedGameState()));
+        assertTrue(
+                bft.isEmptyForHouseIgnoringUnitsAnd1Mineral(
+                        of(4, 11), of(6, 13), strategy.getCurrentParsedGameState()));
+        assertFalse(
+                bft.isEmptyForHouseIgnoringUnitsAnd1Mineral(
+                        of(3, 3), of(6, 13), strategy.getCurrentParsedGameState()));
+        assertFalse(
+                bft.isEmptyForHouseIgnoringUnitsAnd1Mineral(
+                        of(2, 1), of(6, 13), strategy.getCurrentParsedGameState()));
+
+    }
+
+    @Test
     void testBestBuildMines() {
         BuildFirstTwoHousesStrategy bft = (BuildFirstTwoHousesStrategy) strategy.getSubStrategies().get(0);
 
         List<BeforeFirstHouseBuildOrder.BuildMine> buildMines =
                 bft.bestBuildMines(strategy.getGameHistoryState(), strategy.getCurrentParsedGameState(),
-                strategy.getStrategyParams(), new HashMap<>());
+                        strategy.getStrategyParams(), new HashMap<>());
 
         assertEquals(10, buildMines.size());
-
-
-
-
     }
 
     @Test
@@ -44,13 +58,13 @@ class BuildFirstTwoHousesStrategyTest {
         BuildFirstTwoHousesStrategy bft = (BuildFirstTwoHousesStrategy) strategy.getSubStrategies().get(0);
 
         BuildFirstTwoHousesStrategy.MineralAndMinerPosition mmp =
-                bft.minerAndMineralClosest(of(4,4), strategy.getGameHistoryState(), strategy.getCurrentParsedGameState(),
-                strategy.getStrategyParams(), new HashMap<>());
+                bft.minerAndMineralClosest(of(4, 4), strategy.getGameHistoryState(), strategy.getCurrentParsedGameState(),
+                        strategy.getStrategyParams(), new HashMap<>());
 
 
         assertNotNull(mmp);
-        assertEquals(of(4,2), mmp.minerPosition);
-        assertEquals(of(4,1), mmp.mineralPosition);
+        assertEquals(of(4, 2), mmp.minerPosition);
+        assertEquals(of(4, 1), mmp.mineralPosition);
     }
 
     @Test
@@ -58,13 +72,13 @@ class BuildFirstTwoHousesStrategyTest {
         BuildFirstTwoHousesStrategy bft = (BuildFirstTwoHousesStrategy) strategy.getSubStrategies().get(0);
 
         BuildFirstTwoHousesStrategy.MineralAndMinerPosition mmp =
-                bft.minerAndMineralClosest(of(10,7), strategy.getGameHistoryState(), strategy.getCurrentParsedGameState(),
-                strategy.getStrategyParams(), new HashMap<>());
+                bft.minerAndMineralClosest(of(10, 7), strategy.getGameHistoryState(), strategy.getCurrentParsedGameState(),
+                        strategy.getStrategyParams(), new HashMap<>());
 
 
         assertNotNull(mmp);
-        assertEquals(of(12,7), mmp.minerPosition);
-        assertEquals(of(13,7), mmp.mineralPosition);
+        assertEquals(of(12, 7), mmp.minerPosition);
+        assertEquals(of(13, 7), mmp.mineralPosition);
     }
 
 }

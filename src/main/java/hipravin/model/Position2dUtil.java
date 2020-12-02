@@ -1,6 +1,7 @@
 package hipravin.model;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -19,6 +20,58 @@ public abstract class Position2dUtil {
     public static int TURRET_SIZE = 2;
     public static int WALL_SIZE = 1;
 
+    public static Stream<Position2d> housePositionsThatWorkerCanBuildIfNoObstacle(Position2d wp) {
+        return Stream.of(
+                wp.shift(-3, -2),
+                wp.shift(-3, -1),
+                wp.shift(-3, 0),
+                wp.shift(1, -2),
+                wp.shift(1, -1),
+                wp.shift(1, 0),
+                wp.shift(-2, -3),
+                wp.shift(-1, -3),
+                wp.shift(0, -3),
+                wp.shift(-2, 1),
+                wp.shift(-1, 1),
+                wp.shift(0, 1)
+        ).filter(p -> isSquareWithinMapBorder(p, HOUSE_SIZE));
+    }
+
+    public static Stream<Position2d> housePositionsThatAreBlockedByWorker(Position2d wp) {
+        return Stream.of(
+                wp.shift(-2, -2),
+                wp.shift(-2, -1),
+                wp.shift(-2, 0),
+                wp.shift(-1, -2),
+                wp.shift(-1, -1),
+                wp.shift(-1, 0),
+                wp.shift(0, -2),
+                wp.shift(0, -1),
+                wp.shift(0, 0)
+        ).filter(p -> isSquareWithinMapBorder(p, HOUSE_SIZE));
+    }
+
+    public static Set<Position2d> housesThatCanBeBuildByTwoWorkers(List<Position2d> workerPositions) {
+        Set<Position2d> result = new HashSet<>();
+
+        Set<Position2d> candidates = new HashSet<>();
+
+        Set<Position2d> allBlockedPositions = workerPositions.stream()
+                .flatMap(Position2dUtil::housePositionsThatAreBlockedByWorker).collect(Collectors.toSet());
+
+        workerPositions.forEach(wp -> {
+            housePositionsThatWorkerCanBuildIfNoObstacle(wp)
+                    .filter(bp -> !allBlockedPositions.contains(bp)).forEach(bp -> {
+                if (candidates.contains(bp)) {
+                    result.add(bp);
+                }
+                candidates.add(bp);
+            });
+        });
+
+        return result;
+    }
+
     public static Stream<Position2d> upRightLeftDown(Position2d p) {
         return Stream.of(
                 p.shift(0, 1),
@@ -33,13 +86,13 @@ public abstract class Position2dUtil {
         boolean xOk;
         boolean yOk;
 
-        if(corner1.x < corner2.x) {
+        if (corner1.x < corner2.x) {
             xOk = corner1.x + size1 < corner2.x;
         } else {
             xOk = corner2.x + size2 < corner1.x;
         }
 
-        if(corner1.y < corner2.y) {
+        if (corner1.y < corner2.y) {
             yOk = corner1.y + size1 < corner2.y;
         } else {
             yOk = corner2.y + size2 < corner1.y;
