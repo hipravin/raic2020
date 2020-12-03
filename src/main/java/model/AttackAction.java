@@ -6,11 +6,11 @@ public class AttackAction {
     private Integer target;
     public Integer getTarget() { return target; }
     public void setTarget(Integer target) { this.target = target; }
-    private AutoAttack autoAttack;
-    public AutoAttack getAutoAttack() { return autoAttack; }
-    public void setAutoAttack(AutoAttack autoAttack) { this.autoAttack = autoAttack; }
+    private model.AutoAttack autoAttack;
+    public model.AutoAttack getAutoAttack() { return autoAttack; }
+    public void setAutoAttack(model.AutoAttack autoAttack) { this.autoAttack = autoAttack; }
     public AttackAction() {}
-    public AttackAction(Integer target, AutoAttack autoAttack) {
+    public AttackAction(Integer target, model.AutoAttack autoAttack) {
         this.target = target;
         this.autoAttack = autoAttack;
     }
@@ -22,7 +22,7 @@ public class AttackAction {
             result.target = null;
         }
         if (StreamUtil.readBoolean(stream)) {
-            result.autoAttack = AutoAttack.readFrom(stream);
+            result.autoAttack = model.AutoAttack.readFrom(stream);
         } else {
             result.autoAttack = null;
         }

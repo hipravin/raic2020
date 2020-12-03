@@ -19,20 +19,20 @@ public abstract class ServerMessage {
 
     public static class GetAction extends ServerMessage {
         public static final int TAG = 0;
-        private PlayerView playerView;
-        public PlayerView getPlayerView() { return playerView; }
-        public void setPlayerView(PlayerView playerView) { this.playerView = playerView; }
+        private model.PlayerView playerView;
+        public model.PlayerView getPlayerView() { return playerView; }
+        public void setPlayerView(model.PlayerView playerView) { this.playerView = playerView; }
         private boolean debugAvailable;
         public boolean isDebugAvailable() { return debugAvailable; }
         public void setDebugAvailable(boolean debugAvailable) { this.debugAvailable = debugAvailable; }
         public GetAction() {}
-        public GetAction(PlayerView playerView, boolean debugAvailable) {
+        public GetAction(model.PlayerView playerView, boolean debugAvailable) {
             this.playerView = playerView;
             this.debugAvailable = debugAvailable;
         }
         public static GetAction readFrom(java.io.InputStream stream) throws java.io.IOException {
             GetAction result = new GetAction();
-            result.playerView = PlayerView.readFrom(stream);
+            result.playerView = model.PlayerView.readFrom(stream);
             result.debugAvailable = StreamUtil.readBoolean(stream);
             return result;
         }
@@ -59,16 +59,16 @@ public abstract class ServerMessage {
 
     public static class DebugUpdate extends ServerMessage {
         public static final int TAG = 2;
-        private PlayerView playerView;
-        public PlayerView getPlayerView() { return playerView; }
-        public void setPlayerView(PlayerView playerView) { this.playerView = playerView; }
+        private model.PlayerView playerView;
+        public model.PlayerView getPlayerView() { return playerView; }
+        public void setPlayerView(model.PlayerView playerView) { this.playerView = playerView; }
         public DebugUpdate() {}
-        public DebugUpdate(PlayerView playerView) {
+        public DebugUpdate(model.PlayerView playerView) {
             this.playerView = playerView;
         }
         public static DebugUpdate readFrom(java.io.InputStream stream) throws java.io.IOException {
             DebugUpdate result = new DebugUpdate();
-            result.playerView = PlayerView.readFrom(stream);
+            result.playerView = model.PlayerView.readFrom(stream);
             return result;
         }
         @Override

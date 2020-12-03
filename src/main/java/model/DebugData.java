@@ -40,29 +40,29 @@ public abstract class DebugData {
 
     public static class Primitives extends DebugData {
         public static final int TAG = 1;
-        private ColoredVertex[] vertices;
-        public ColoredVertex[] getVertices() { return vertices; }
-        public void setVertices(ColoredVertex[] vertices) { this.vertices = vertices; }
-        private PrimitiveType primitiveType;
-        public PrimitiveType getPrimitiveType() { return primitiveType; }
-        public void setPrimitiveType(PrimitiveType primitiveType) { this.primitiveType = primitiveType; }
+        private model.ColoredVertex[] vertices;
+        public model.ColoredVertex[] getVertices() { return vertices; }
+        public void setVertices(model.ColoredVertex[] vertices) { this.vertices = vertices; }
+        private model.PrimitiveType primitiveType;
+        public model.PrimitiveType getPrimitiveType() { return primitiveType; }
+        public void setPrimitiveType(model.PrimitiveType primitiveType) { this.primitiveType = primitiveType; }
         public Primitives() {}
-        public Primitives(ColoredVertex[] vertices, PrimitiveType primitiveType) {
+        public Primitives(model.ColoredVertex[] vertices, model.PrimitiveType primitiveType) {
             this.vertices = vertices;
             this.primitiveType = primitiveType;
         }
         public static Primitives readFrom(java.io.InputStream stream) throws java.io.IOException {
             Primitives result = new Primitives();
-            result.vertices = new ColoredVertex[StreamUtil.readInt(stream)];
+            result.vertices = new model.ColoredVertex[StreamUtil.readInt(stream)];
             for (int i = 0; i < result.vertices.length; i++) {
-                result.vertices[i] = ColoredVertex.readFrom(stream);
+                result.vertices[i] = model.ColoredVertex.readFrom(stream);
             }
             switch (StreamUtil.readInt(stream)) {
             case 0:
-                result.primitiveType = PrimitiveType.LINES;
+                result.primitiveType = model.PrimitiveType.LINES;
                 break;
             case 1:
-                result.primitiveType = PrimitiveType.TRIANGLES;
+                result.primitiveType = model.PrimitiveType.TRIANGLES;
                 break;
             default:
                 throw new java.io.IOException("Unexpected tag value");
@@ -73,7 +73,7 @@ public abstract class DebugData {
         public void writeTo(java.io.OutputStream stream) throws java.io.IOException {
             StreamUtil.writeInt(stream, TAG);
             StreamUtil.writeInt(stream, vertices.length);
-            for (ColoredVertex verticesElement : vertices) {
+            for (model.ColoredVertex verticesElement : vertices) {
                 verticesElement.writeTo(stream);
             }
             StreamUtil.writeInt(stream, primitiveType.tag);
@@ -82,9 +82,9 @@ public abstract class DebugData {
 
     public static class PlacedText extends DebugData {
         public static final int TAG = 2;
-        private ColoredVertex vertex;
-        public ColoredVertex getVertex() { return vertex; }
-        public void setVertex(ColoredVertex vertex) { this.vertex = vertex; }
+        private model.ColoredVertex vertex;
+        public model.ColoredVertex getVertex() { return vertex; }
+        public void setVertex(model.ColoredVertex vertex) { this.vertex = vertex; }
         private String text;
         public String getText() { return text; }
         public void setText(String text) { this.text = text; }
@@ -95,7 +95,7 @@ public abstract class DebugData {
         public float getSize() { return size; }
         public void setSize(float size) { this.size = size; }
         public PlacedText() {}
-        public PlacedText(ColoredVertex vertex, String text, float alignment, float size) {
+        public PlacedText(model.ColoredVertex vertex, String text, float alignment, float size) {
             this.vertex = vertex;
             this.text = text;
             this.alignment = alignment;
@@ -103,7 +103,7 @@ public abstract class DebugData {
         }
         public static PlacedText readFrom(java.io.InputStream stream) throws java.io.IOException {
             PlacedText result = new PlacedText();
-            result.vertex = ColoredVertex.readFrom(stream);
+            result.vertex = model.ColoredVertex.readFrom(stream);
             result.text = StreamUtil.readString(stream);
             result.alignment = StreamUtil.readFloat(stream);
             result.size = StreamUtil.readFloat(stream);

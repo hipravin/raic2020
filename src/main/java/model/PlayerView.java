@@ -2,8 +2,6 @@ package model;
 
 import util.StreamUtil;
 
-import java.util.Arrays;
-
 public class PlayerView {
     private int myId;
     public int getMyId() { return myId; }
@@ -14,9 +12,9 @@ public class PlayerView {
     private boolean fogOfWar;
     public boolean isFogOfWar() { return fogOfWar; }
     public void setFogOfWar(boolean fogOfWar) { this.fogOfWar = fogOfWar; }
-    private java.util.Map<EntityType, EntityProperties> entityProperties;
-    public java.util.Map<EntityType, EntityProperties> getEntityProperties() { return entityProperties; }
-    public void setEntityProperties(java.util.Map<EntityType, EntityProperties> entityProperties) { this.entityProperties = entityProperties; }
+    private java.util.Map<model.EntityType, model.EntityProperties> entityProperties;
+    public java.util.Map<model.EntityType, model.EntityProperties> getEntityProperties() { return entityProperties; }
+    public void setEntityProperties(java.util.Map<model.EntityType, model.EntityProperties> entityProperties) { this.entityProperties = entityProperties; }
     private int maxTickCount;
     public int getMaxTickCount() { return maxTickCount; }
     public void setMaxTickCount(int maxTickCount) { this.maxTickCount = maxTickCount; }
@@ -26,14 +24,14 @@ public class PlayerView {
     private int currentTick;
     public int getCurrentTick() { return currentTick; }
     public void setCurrentTick(int currentTick) { this.currentTick = currentTick; }
-    private Player[] players;
-    public Player[] getPlayers() { return players; }
-    public void setPlayers(Player[] players) { this.players = players; }
-    private Entity[] entities;
-    public Entity[] getEntities() { return entities; }
-    public void setEntities(Entity[] entities) { this.entities = entities; }
+    private model.Player[] players;
+    public model.Player[] getPlayers() { return players; }
+    public void setPlayers(model.Player[] players) { this.players = players; }
+    private model.Entity[] entities;
+    public model.Entity[] getEntities() { return entities; }
+    public void setEntities(model.Entity[] entities) { this.entities = entities; }
     public PlayerView() {}
-    public PlayerView(int myId, int mapSize, boolean fogOfWar, java.util.Map<EntityType, EntityProperties> entityProperties, int maxTickCount, int maxPathfindNodes, int currentTick, Player[] players, Entity[] entities) {
+    public PlayerView(int myId, int mapSize, boolean fogOfWar, java.util.Map<model.EntityType, model.EntityProperties> entityProperties, int maxTickCount, int maxPathfindNodes, int currentTick, model.Player[] players, model.Entity[] entities) {
         this.myId = myId;
         this.mapSize = mapSize;
         this.fogOfWar = fogOfWar;
@@ -52,55 +50,55 @@ public class PlayerView {
         int entityPropertiesSize = StreamUtil.readInt(stream);
         result.entityProperties = new java.util.HashMap<>(entityPropertiesSize);
         for (int i = 0; i < entityPropertiesSize; i++) {
-            EntityType entityPropertiesKey;
+            model.EntityType entityPropertiesKey;
             switch (StreamUtil.readInt(stream)) {
             case 0:
-                entityPropertiesKey = EntityType.WALL;
+                entityPropertiesKey = model.EntityType.WALL;
                 break;
             case 1:
-                entityPropertiesKey = EntityType.HOUSE;
+                entityPropertiesKey = model.EntityType.HOUSE;
                 break;
             case 2:
-                entityPropertiesKey = EntityType.BUILDER_BASE;
+                entityPropertiesKey = model.EntityType.BUILDER_BASE;
                 break;
             case 3:
-                entityPropertiesKey = EntityType.BUILDER_UNIT;
+                entityPropertiesKey = model.EntityType.BUILDER_UNIT;
                 break;
             case 4:
-                entityPropertiesKey = EntityType.MELEE_BASE;
+                entityPropertiesKey = model.EntityType.MELEE_BASE;
                 break;
             case 5:
-                entityPropertiesKey = EntityType.MELEE_UNIT;
+                entityPropertiesKey = model.EntityType.MELEE_UNIT;
                 break;
             case 6:
-                entityPropertiesKey = EntityType.RANGED_BASE;
+                entityPropertiesKey = model.EntityType.RANGED_BASE;
                 break;
             case 7:
-                entityPropertiesKey = EntityType.RANGED_UNIT;
+                entityPropertiesKey = model.EntityType.RANGED_UNIT;
                 break;
             case 8:
-                entityPropertiesKey = EntityType.RESOURCE;
+                entityPropertiesKey = model.EntityType.RESOURCE;
                 break;
             case 9:
-                entityPropertiesKey = EntityType.TURRET;
+                entityPropertiesKey = model.EntityType.TURRET;
                 break;
             default:
                 throw new java.io.IOException("Unexpected tag value");
             }
-            EntityProperties entityPropertiesValue;
-            entityPropertiesValue = EntityProperties.readFrom(stream);
+            model.EntityProperties entityPropertiesValue;
+            entityPropertiesValue = model.EntityProperties.readFrom(stream);
             result.entityProperties.put(entityPropertiesKey, entityPropertiesValue);
         }
         result.maxTickCount = StreamUtil.readInt(stream);
         result.maxPathfindNodes = StreamUtil.readInt(stream);
         result.currentTick = StreamUtil.readInt(stream);
-        result.players = new Player[StreamUtil.readInt(stream)];
+        result.players = new model.Player[StreamUtil.readInt(stream)];
         for (int i = 0; i < result.players.length; i++) {
-            result.players[i] = Player.readFrom(stream);
+            result.players[i] = model.Player.readFrom(stream);
         }
-        result.entities = new Entity[StreamUtil.readInt(stream)];
+        result.entities = new model.Entity[StreamUtil.readInt(stream)];
         for (int i = 0; i < result.entities.length; i++) {
-            result.entities[i] = Entity.readFrom(stream);
+            result.entities[i] = model.Entity.readFrom(stream);
         }
         return result;
     }
@@ -109,9 +107,9 @@ public class PlayerView {
         StreamUtil.writeInt(stream, mapSize);
         StreamUtil.writeBoolean(stream, fogOfWar);
         StreamUtil.writeInt(stream, entityProperties.size());
-        for (java.util.Map.Entry<EntityType, EntityProperties> entityPropertiesEntry : entityProperties.entrySet()) {
-            EntityType entityPropertiesKey = entityPropertiesEntry.getKey();
-            EntityProperties entityPropertiesValue = entityPropertiesEntry.getValue();
+        for (java.util.Map.Entry<model.EntityType, model.EntityProperties> entityPropertiesEntry : entityProperties.entrySet()) {
+            model.EntityType entityPropertiesKey = entityPropertiesEntry.getKey();
+            model.EntityProperties entityPropertiesValue = entityPropertiesEntry.getValue();
             StreamUtil.writeInt(stream, entityPropertiesKey.tag);
             entityPropertiesValue.writeTo(stream);
         }
@@ -119,27 +117,12 @@ public class PlayerView {
         StreamUtil.writeInt(stream, maxPathfindNodes);
         StreamUtil.writeInt(stream, currentTick);
         StreamUtil.writeInt(stream, players.length);
-        for (Player playersElement : players) {
+        for (model.Player playersElement : players) {
             playersElement.writeTo(stream);
         }
         StreamUtil.writeInt(stream, entities.length);
-        for (Entity entitiesElement : entities) {
+        for (model.Entity entitiesElement : entities) {
             entitiesElement.writeTo(stream);
         }
-    }
-
-    @Override
-    public String toString() {
-        return "PlayerView{" +
-                "myId=" + myId +
-                ", mapSize=" + mapSize +
-                ", fogOfWar=" + fogOfWar +
-                ", entityProperties=" + entityProperties +
-                ", maxTickCount=" + maxTickCount +
-                ", maxPathfindNodes=" + maxPathfindNodes +
-                ", currentTick=" + currentTick +
-                ", players=" + Arrays.toString(players) +
-                ", entities=" + Arrays.toString(entities) +
-                '}';
     }
 }

@@ -21,16 +21,16 @@ public abstract class ClientMessage {
 
     public static class DebugMessage extends ClientMessage {
         public static final int TAG = 0;
-        private DebugCommand command;
-        public DebugCommand getCommand() { return command; }
-        public void setCommand(DebugCommand command) { this.command = command; }
+        private model.DebugCommand command;
+        public model.DebugCommand getCommand() { return command; }
+        public void setCommand(model.DebugCommand command) { this.command = command; }
         public DebugMessage() {}
-        public DebugMessage(DebugCommand command) {
+        public DebugMessage(model.DebugCommand command) {
             this.command = command;
         }
         public static DebugMessage readFrom(java.io.InputStream stream) throws java.io.IOException {
             DebugMessage result = new DebugMessage();
-            result.command = DebugCommand.readFrom(stream);
+            result.command = model.DebugCommand.readFrom(stream);
             return result;
         }
         @Override
@@ -42,16 +42,16 @@ public abstract class ClientMessage {
 
     public static class ActionMessage extends ClientMessage {
         public static final int TAG = 1;
-        private Action action;
-        public Action getAction() { return action; }
-        public void setAction(Action action) { this.action = action; }
+        private model.Action action;
+        public model.Action getAction() { return action; }
+        public void setAction(model.Action action) { this.action = action; }
         public ActionMessage() {}
-        public ActionMessage(Action action) {
+        public ActionMessage(model.Action action) {
             this.action = action;
         }
         public static ActionMessage readFrom(java.io.InputStream stream) throws java.io.IOException {
             ActionMessage result = new ActionMessage();
-            result.action = Action.readFrom(stream);
+            result.action = model.Action.readFrom(stream);
             return result;
         }
         @Override

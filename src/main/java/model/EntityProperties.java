@@ -24,26 +24,26 @@ public class EntityProperties {
     private int maxHealth;
     public int getMaxHealth() { return maxHealth; }
     public void setMaxHealth(int maxHealth) { this.maxHealth = maxHealth; }
-    private int cost;
-    public int getCost() { return cost; }
-    public void setCost(int cost) { this.cost = cost; }
+    private int initialCost;
+    public int getInitialCost() { return initialCost; }
+    public void setInitialCost(int initialCost) { this.initialCost = initialCost; }
     private int sightRange;
     public int getSightRange() { return sightRange; }
     public void setSightRange(int sightRange) { this.sightRange = sightRange; }
     private int resourcePerHealth;
     public int getResourcePerHealth() { return resourcePerHealth; }
     public void setResourcePerHealth(int resourcePerHealth) { this.resourcePerHealth = resourcePerHealth; }
-    private BuildProperties build;
-    public BuildProperties getBuild() { return build; }
-    public void setBuild(BuildProperties build) { this.build = build; }
-    private AttackProperties attack;
-    public AttackProperties getAttack() { return attack; }
-    public void setAttack(AttackProperties attack) { this.attack = attack; }
-    private RepairProperties repair;
-    public RepairProperties getRepair() { return repair; }
-    public void setRepair(RepairProperties repair) { this.repair = repair; }
+    private model.BuildProperties build;
+    public model.BuildProperties getBuild() { return build; }
+    public void setBuild(model.BuildProperties build) { this.build = build; }
+    private model.AttackProperties attack;
+    public model.AttackProperties getAttack() { return attack; }
+    public void setAttack(model.AttackProperties attack) { this.attack = attack; }
+    private model.RepairProperties repair;
+    public model.RepairProperties getRepair() { return repair; }
+    public void setRepair(model.RepairProperties repair) { this.repair = repair; }
     public EntityProperties() {}
-    public EntityProperties(int size, int buildScore, int destroyScore, boolean canMove, int populationProvide, int populationUse, int maxHealth, int cost, int sightRange, int resourcePerHealth, BuildProperties build, AttackProperties attack, RepairProperties repair) {
+    public EntityProperties(int size, int buildScore, int destroyScore, boolean canMove, int populationProvide, int populationUse, int maxHealth, int initialCost, int sightRange, int resourcePerHealth, model.BuildProperties build, model.AttackProperties attack, model.RepairProperties repair) {
         this.size = size;
         this.buildScore = buildScore;
         this.destroyScore = destroyScore;
@@ -51,7 +51,7 @@ public class EntityProperties {
         this.populationProvide = populationProvide;
         this.populationUse = populationUse;
         this.maxHealth = maxHealth;
-        this.cost = cost;
+        this.initialCost = initialCost;
         this.sightRange = sightRange;
         this.resourcePerHealth = resourcePerHealth;
         this.build = build;
@@ -67,21 +67,21 @@ public class EntityProperties {
         result.populationProvide = StreamUtil.readInt(stream);
         result.populationUse = StreamUtil.readInt(stream);
         result.maxHealth = StreamUtil.readInt(stream);
-        result.cost = StreamUtil.readInt(stream);
+        result.initialCost = StreamUtil.readInt(stream);
         result.sightRange = StreamUtil.readInt(stream);
         result.resourcePerHealth = StreamUtil.readInt(stream);
         if (StreamUtil.readBoolean(stream)) {
-            result.build = BuildProperties.readFrom(stream);
+            result.build = model.BuildProperties.readFrom(stream);
         } else {
             result.build = null;
         }
         if (StreamUtil.readBoolean(stream)) {
-            result.attack = AttackProperties.readFrom(stream);
+            result.attack = model.AttackProperties.readFrom(stream);
         } else {
             result.attack = null;
         }
         if (StreamUtil.readBoolean(stream)) {
-            result.repair = RepairProperties.readFrom(stream);
+            result.repair = model.RepairProperties.readFrom(stream);
         } else {
             result.repair = null;
         }
@@ -95,7 +95,7 @@ public class EntityProperties {
         StreamUtil.writeInt(stream, populationProvide);
         StreamUtil.writeInt(stream, populationUse);
         StreamUtil.writeInt(stream, maxHealth);
-        StreamUtil.writeInt(stream, cost);
+        StreamUtil.writeInt(stream, initialCost);
         StreamUtil.writeInt(stream, sightRange);
         StreamUtil.writeInt(stream, resourcePerHealth);
         if (build == null) {

@@ -1,6 +1,4 @@
-import model.Action;
-import model.DebugCommand;
-import model.PlayerView;
+import model.*;
 
 public class MyStrategy {
     public Action getAction(PlayerView playerView, DebugInterface debugInterface) {

@@ -1,5 +1,7 @@
 package model;
 
+import util.StreamUtil;
+
 public enum EntityType {
     WALL(0),
     HOUSE(1),

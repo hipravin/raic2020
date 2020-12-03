@@ -3,26 +3,26 @@ package model;
 import util.StreamUtil;
 
 public class DebugState {
-    private Vec2Int windowSize;
-    public Vec2Int getWindowSize() { return windowSize; }
-    public void setWindowSize(Vec2Int windowSize) { this.windowSize = windowSize; }
-    private Vec2Float mousePosWindow;
-    public Vec2Float getMousePosWindow() { return mousePosWindow; }
-    public void setMousePosWindow(Vec2Float mousePosWindow) { this.mousePosWindow = mousePosWindow; }
-    private Vec2Float mousePosWorld;
-    public Vec2Float getMousePosWorld() { return mousePosWorld; }
-    public void setMousePosWorld(Vec2Float mousePosWorld) { this.mousePosWorld = mousePosWorld; }
+    private model.Vec2Int windowSize;
+    public model.Vec2Int getWindowSize() { return windowSize; }
+    public void setWindowSize(model.Vec2Int windowSize) { this.windowSize = windowSize; }
+    private model.Vec2Float mousePosWindow;
+    public model.Vec2Float getMousePosWindow() { return mousePosWindow; }
+    public void setMousePosWindow(model.Vec2Float mousePosWindow) { this.mousePosWindow = mousePosWindow; }
+    private model.Vec2Float mousePosWorld;
+    public model.Vec2Float getMousePosWorld() { return mousePosWorld; }
+    public void setMousePosWorld(model.Vec2Float mousePosWorld) { this.mousePosWorld = mousePosWorld; }
     private String[] pressedKeys;
     public String[] getPressedKeys() { return pressedKeys; }
     public void setPressedKeys(String[] pressedKeys) { this.pressedKeys = pressedKeys; }
-    private Camera camera;
-    public Camera getCamera() { return camera; }
-    public void setCamera(Camera camera) { this.camera = camera; }
+    private model.Camera camera;
+    public model.Camera getCamera() { return camera; }
+    public void setCamera(model.Camera camera) { this.camera = camera; }
     private int playerIndex;
     public int getPlayerIndex() { return playerIndex; }
     public void setPlayerIndex(int playerIndex) { this.playerIndex = playerIndex; }
     public DebugState() {}
-    public DebugState(Vec2Int windowSize, Vec2Float mousePosWindow, Vec2Float mousePosWorld, String[] pressedKeys, Camera camera, int playerIndex) {
+    public DebugState(model.Vec2Int windowSize, model.Vec2Float mousePosWindow, model.Vec2Float mousePosWorld, String[] pressedKeys, model.Camera camera, int playerIndex) {
         this.windowSize = windowSize;
         this.mousePosWindow = mousePosWindow;
         this.mousePosWorld = mousePosWorld;
@@ -32,14 +32,14 @@ public class DebugState {
     }
     public static DebugState readFrom(java.io.InputStream stream) throws java.io.IOException {
         DebugState result = new DebugState();
-        result.windowSize = Vec2Int.readFrom(stream);
-        result.mousePosWindow = Vec2Float.readFrom(stream);
-        result.mousePosWorld = Vec2Float.readFrom(stream);
+        result.windowSize = model.Vec2Int.readFrom(stream);
+        result.mousePosWindow = model.Vec2Float.readFrom(stream);
+        result.mousePosWorld = model.Vec2Float.readFrom(stream);
         result.pressedKeys = new String[StreamUtil.readInt(stream)];
         for (int i = 0; i < result.pressedKeys.length; i++) {
             result.pressedKeys[i] = StreamUtil.readString(stream);
         }
-        result.camera = Camera.readFrom(stream);
+        result.camera = model.Camera.readFrom(stream);
         result.playerIndex = StreamUtil.readInt(stream);
         return result;
     }

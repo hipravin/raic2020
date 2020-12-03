@@ -64,7 +64,7 @@ public class BuildOrderSubStrategy implements SubStrategy {
                                 StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         int inAdvance = 10;
 
-        int hCost = currentParsedGameState.getPlayerView().getEntityProperties().get(EntityType.HOUSE).getCost();
+        int hCost = currentParsedGameState.getPlayerView().getEntityProperties().get(EntityType.HOUSE).getInitialCost();
         int hSize = currentParsedGameState.getPlayerView().getEntityProperties().get(EntityType.HOUSE).getSize();
         int res = currentParsedGameState.getMyPlayer().getResource();
 

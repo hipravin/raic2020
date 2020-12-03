@@ -3,9 +3,9 @@ package model;
 import util.StreamUtil;
 
 public class Camera {
-    private Vec2Float center;
-    public Vec2Float getCenter() { return center; }
-    public void setCenter(Vec2Float center) { this.center = center; }
+    private model.Vec2Float center;
+    public model.Vec2Float getCenter() { return center; }
+    public void setCenter(model.Vec2Float center) { this.center = center; }
     private float rotation;
     public float getRotation() { return rotation; }
     public void setRotation(float rotation) { this.rotation = rotation; }
@@ -19,7 +19,7 @@ public class Camera {
     public boolean isPerspective() { return perspective; }
     public void setPerspective(boolean perspective) { this.perspective = perspective; }
     public Camera() {}
-    public Camera(Vec2Float center, float rotation, float attack, float distance, boolean perspective) {
+    public Camera(model.Vec2Float center, float rotation, float attack, float distance, boolean perspective) {
         this.center = center;
         this.rotation = rotation;
         this.attack = attack;
@@ -28,7 +28,7 @@ public class Camera {
     }
     public static Camera readFrom(java.io.InputStream stream) throws java.io.IOException {
         Camera result = new Camera();
-        result.center = Vec2Float.readFrom(stream);
+        result.center = model.Vec2Float.readFrom(stream);
         result.rotation = StreamUtil.readFloat(stream);
         result.attack = StreamUtil.readFloat(stream);
         result.distance = StreamUtil.readFloat(stream);

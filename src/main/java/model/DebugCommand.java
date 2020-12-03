@@ -17,16 +17,16 @@ public abstract class DebugCommand {
 
     public static class Add extends DebugCommand {
         public static final int TAG = 0;
-        private DebugData data;
-        public DebugData getData() { return data; }
-        public void setData(DebugData data) { this.data = data; }
+        private model.DebugData data;
+        public model.DebugData getData() { return data; }
+        public void setData(model.DebugData data) { this.data = data; }
         public Add() {}
-        public Add(DebugData data) {
+        public Add(model.DebugData data) {
             this.data = data;
         }
         public static Add readFrom(java.io.InputStream stream) throws java.io.IOException {
             Add result = new Add();
-            result.data = DebugData.readFrom(stream);
+            result.data = model.DebugData.readFrom(stream);
             return result;
         }
         @Override
