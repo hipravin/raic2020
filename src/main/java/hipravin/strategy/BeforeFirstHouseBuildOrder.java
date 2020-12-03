@@ -20,6 +20,24 @@ public class BeforeFirstHouseBuildOrder {
             this.workerMinePosition = workerMinePosition;
             this.mineralToMinePosition = mineralToMinePosition;
         }
+
+        @Override
+        public String toString() {
+            return "BuildMine{" +
+                    "workerBuildPosition=" + workerBuildPosition +
+                    ", workerMinePosition=" + workerMinePosition +
+                    ", mineralToMinePosition=" + mineralToMinePosition +
+                    '}';
+        }
     }
 
+    @Override
+    public String toString() {
+        return "BeforeFirstHouseBuildOrder{" +
+                "firstMineralToMine=" + firstMineralToMine +
+                ", whereToMoveAfterFirstMineralBeingMined=" + whereToMoveAfterFirstMineralBeingMined +
+                ", workersWhereToBuild=" + workersWhereToBuild +
+                ", firstHouseWhereToBuild=" + firstHouseWhereToBuild +
+                '}';
+    }
 }

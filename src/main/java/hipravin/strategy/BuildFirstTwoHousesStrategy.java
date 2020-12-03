@@ -5,10 +5,9 @@ import hipravin.model.*;
 import model.EntityType;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static hipravin.alg.BruteForceUtil.allCombinatonsOf;
 
 public class BuildFirstTwoHousesStrategy implements SubStrategy {
     BeforeFirstHouseBuildOrder buildOrder;
@@ -24,6 +23,7 @@ public class BuildFirstTwoHousesStrategy implements SubStrategy {
 
     }
 
+    //extremely weak code, but no time :(
     public BeforeFirstHouseBuildOrder findOptimalBeginning(
             GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
             StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
@@ -41,55 +41,76 @@ public class BuildFirstTwoHousesStrategy implements SubStrategy {
 
         List<BeforeFirstHouseBuildOrder.BuildMine> buildMines =
                 bestBuildMines(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+        Collections.shuffle(buildMines, new Random(0));//otherwise workers will spawn at one side
+
+        //workerMinePos -> buildmine
+        Map<Position2d, BeforeFirstHouseBuildOrder.BuildMine> buildMineMap = buildMines.stream()
+                .collect(Collectors.toMap(bm -> bm.workerMinePosition, Function.identity(), (buildMine, buildMine2) -> buildMine));
 
 
         Stream<int[]> buildMinesIndices = BruteForceUtil.allCombinatonsOf(buildMines.size(), 4);
 
-        buildMinesIndices.map(ii -> {
+        long counter = 0;
+
+        for (Iterator<int[]> iterator = buildMinesIndices.iterator(); iterator.hasNext(); counter++) {
+            if (counter > StrategyParams.MAX_COMBINATIONS_BF) {
+                break;
+            }
+
+            int[] ii = iterator.next();
+
             List<List<Position2d>> combinationsPositionsAtHouseBuild = new ArrayList<>();
             List<Position2d> positionsAtHouseBuild = Arrays.stream(ii)
                     .mapToObj(i -> buildMines.get(i).workerMinePosition).collect(Collectors.toList());
 
-            if(!firstMinerPositionsAfterFirstMined.isEmpty()) {
+            if (!firstMinerPositionsAfterFirstMined.isEmpty()) {
                 for (Position2d firstWorkerPosAtHouseBuild : firstMinerPositionsAfterFirstMined) {
-                    List<Position2d> allPositionsAtHouseBuild = new ArrayList<>(positionsAtHouseBuild);
-                    allPositionsAtHouseBuild.add(firstWorkerPosAtHouseBuild);
-                    combinationsPositionsAtHouseBuild.add(allPositionsAtHouseBuild);
+                    if (!positionsAtHouseBuild.contains(firstWorkerPosAtHouseBuild)) {
+                        List<Position2d> allPositionsAtHouseBuild = new ArrayList<>(positionsAtHouseBuild);
+                        allPositionsAtHouseBuild.add(0, firstWorkerPosAtHouseBuild);
+                        combinationsPositionsAtHouseBuild.add(allPositionsAtHouseBuild);
+                    }
                 }
             } else {
                 combinationsPositionsAtHouseBuild.add(positionsAtHouseBuild);
             }
-            checkIfTwoWorkersCanBUILD();//////
 
-            return null;//convert to build order
+            for (List<Position2d> workerHouseBuildPositions : combinationsPositionsAtHouseBuild) {
+                Optional<Position2d> housePosition =
+                        checkIfTwoWorkerCanBuild(workerHouseBuildPositions, firstMiner.mineralPosition, currentParsedGameState, strategyParams);
 
-        });
+                if (housePosition.isPresent()) {
+                    BeforeFirstHouseBuildOrder bo = new BeforeFirstHouseBuildOrder();
+                    bo.firstHouseWhereToBuild = housePosition.get();
+                    bo.firstMineralToMine = firstMiner.mineralPosition;
+                    bo.whereToMoveAfterFirstMineralBeingMined = (workerHouseBuildPositions.size() > 4) ? workerHouseBuildPositions.get(0) : null;
 
+                    bo.workersWhereToBuild = lastFourElements(workerHouseBuildPositions)
+                            .stream().map(wmp -> buildMineMap.get(wmp)).collect(Collectors.toList());
 
-
-
-        //1. find nearest mineral to first worker.
-
-        //2. find other minerals at same distance. Skip for now, choose random (first). Probability is too low, code is to complex.
-
-        //3. For each mineral from step 2:
-
-        //4. Lock mineral collected by first worker. Skip. too comlicated
-        //5. Find best distinct positions to spawn workers (M positions >= 4)
-        //6. randomly choose 4 out of M, remember seed
-        //7. If first worker requires moving after mineral collection then iterate over all options:
-        //8. Check if there is a house that can be built with 2 workers. If true -> stop
-
-        //9. If no option to build house with two workers, repeat, but try to build 1 house.
-        //10. If can't build event 1 house -> then choose option to send 3 workers to bottom or to left to clear space asap
-
+                    return bo;
+                }
+            }
+        }
 
         return null;
-
     }
 
-    void checkIfTwoWorkersCanBUILD() {
+    static List<Position2d> lastFourElements(List<Position2d> workerHouseBuildPositions) {
+        return workerHouseBuildPositions.size() > 4
+                ? workerHouseBuildPositions.subList(1, workerHouseBuildPositions.size())
+                : workerHouseBuildPositions;
+    }
 
+    Optional<Position2d> checkIfTwoWorkerCanBuild(List<Position2d> workers, Position2d firstMineralToMine, ParsedGameState pgs,
+                                                  StrategyParams strategyParams) {
+
+        Set<Position2d> options = Position2dUtil.housesThatCanBeBuildByTwoWorkers(workers);
+
+        return options.stream().filter(hp ->
+                isEmptyForHouseIgnoringUnitsAnd1Mineral(hp, firstMineralToMine, pgs)
+                        && !strategyParams.firstHouseNonDesiredPositions().contains(hp))
+                .findFirst();
     }
 
     public boolean isEmptyForHouseIgnoringUnitsAnd1Mineral(Position2d housePosition, Position2d mineralToIgnore, ParsedGameState pgs) {
@@ -97,7 +118,7 @@ public class BuildFirstTwoHousesStrategy implements SubStrategy {
             for (int j = 0; j < Position2dUtil.HOUSE_SIZE; j++) {
                 Position2d p = housePosition.shift(i, j);
 
-                if(!mineralToIgnore.equals(p)
+                if (!mineralToIgnore.equals(p)
                         && !(pgs.at(p).test(c -> c.isUnit() || c.isEmpty()))) {
                     return false;
                 }

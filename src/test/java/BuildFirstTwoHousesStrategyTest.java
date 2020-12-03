@@ -6,6 +6,7 @@ import model.ServerMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,6 +21,22 @@ class BuildFirstTwoHousesStrategyTest {
         ServerMessage.GetAction get0 = TestServerUtil.readGet(1, 3, 0);
         strategy = new RootStrategy();
         Action action = strategy.getAction(get0.getPlayerView(), null);
+
+    }
+
+    @Test
+    void testFirstHouseBo() {
+        System.out.println(LocalDateTime.now());
+        BuildFirstTwoHousesStrategy bft = (BuildFirstTwoHousesStrategy) strategy.getSubStrategies().get(0);
+
+        BeforeFirstHouseBuildOrder beg = bft.findOptimalBeginning(strategy.getGameHistoryState(), strategy.getCurrentParsedGameState(),
+                strategy.getStrategyParams(), new HashMap<>());
+
+
+        System.out.println(LocalDateTime.now());
+        assertNotNull(beg);
+        System.out.println(beg);
+
 
     }
 
