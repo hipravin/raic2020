@@ -9,9 +9,16 @@ public class StrategyParams {
     public static final int NEAREST_WORKERS_COMPUTE_PATH_LIMIT = Integer.MAX_VALUE;
     public static final int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = Integer.MAX_VALUE;
 
-    public static final int MAX_COMBINATIONS_BF = 2000;
+    public static final int MAX_COMBINATIONS_BF = 5000;
 
     public int buildCommandMaxWaitTicks = 5;
+    public int autoRepairMaxWaitTicks = 5;
+
+
+
+    public int housesCLoseToEachOtherTreshhold = 4; // if 5 houses on map -> next should have space in between
+
+
 
     public Set<Position2d> firstHouseNonDesiredPositions() {
         Position2d cc = Position2dUtil.MY_CC;

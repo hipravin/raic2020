@@ -1,9 +1,12 @@
-package hipravin.strategy;
+package hipravin.strategy.deprecated;
 
 import hipravin.model.FreeSpace;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
+import hipravin.strategy.GameHistoryAndSharedState;
+import hipravin.strategy.StrategyParams;
+import hipravin.strategy.ValuedEntityAction;
 import model.EntityType;
 
 import java.util.List;
@@ -13,6 +16,7 @@ import java.util.stream.Stream;
 
 import static hipravin.model.Position2dUtil.buildingsHaveSpaceInBetween;
 
+@Deprecated
 public class BuidingPosititioningLogic {
 
 

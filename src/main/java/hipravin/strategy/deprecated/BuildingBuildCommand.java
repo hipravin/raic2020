@@ -1,4 +1,4 @@
-package hipravin.strategy.command;
+package hipravin.strategy.deprecated;
 
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
@@ -12,6 +12,7 @@ import java.util.stream.Stream;
  * When build command is created, worker is immediately asked to move to builderPosition
  */
 
+@Deprecated
 public class BuildingBuildCommand {
     int commandCreatedTick;
     int startBuildTick;

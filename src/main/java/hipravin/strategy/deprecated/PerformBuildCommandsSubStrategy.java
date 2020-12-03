@@ -1,17 +1,18 @@
-package hipravin.strategy;
+package hipravin.strategy.deprecated;
 
 
 import hipravin.model.Cell;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
-import hipravin.strategy.command.BuildingBuildCommand;
-import hipravin.strategy.command.RepairCommand;
+import hipravin.strategy.GameHistoryAndSharedState;
+import hipravin.strategy.StrategyParams;
+import hipravin.strategy.SubStrategy;
+import hipravin.strategy.ValuedEntityAction;
 import model.BuildAction;
 import model.EntityAction;
 import model.MoveAction;
 import model.RepairAction;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,6 +21,7 @@ import java.util.Set;
  * <p>
  * If for some reason build can't be performed, try to repeat for a few ticks, then DROP the commmand
  */
+@Deprecated
 public class PerformBuildCommandsSubStrategy implements SubStrategy {
 
 
@@ -27,12 +29,12 @@ public class PerformBuildCommandsSubStrategy implements SubStrategy {
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                        StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
-        Set<Integer> buildersUsedEntityIds = new HashSet<>();//check for conflicts, use first build commands with top priority
-
-        gameHistoryState.getOngoingBuildCommands().forEach(bc -> {
-            performBuildCommand(bc, buildersUsedEntityIds, gameHistoryState,
-                    currentParsedGameState, strategyParams, assignedActions);
-        });
+//        Set<Integer> buildersUsedEntityIds = new HashSet<>();//check for conflicts, use first build commands with top priority
+//
+//        gameHistoryState.getOngoingBuildCommands().forEach(bc -> {
+//            performBuildCommand(bc, buildersUsedEntityIds, gameHistoryState,
+//                    currentParsedGameState, strategyParams, assignedActions);
+//        });
     }
 
     void performBuildCommand(BuildingBuildCommand command, Set<Integer> buildUsedEntityIds,

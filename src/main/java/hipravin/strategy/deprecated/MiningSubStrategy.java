@@ -1,14 +1,19 @@
-package hipravin.strategy;
+package hipravin.strategy.deprecated;
 
 import hipravin.model.Cell;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2dUtil;
+import hipravin.strategy.GameHistoryAndSharedState;
+import hipravin.strategy.StrategyParams;
+import hipravin.strategy.SubStrategy;
+import hipravin.strategy.ValuedEntityAction;
 import model.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class MiningSubStrategy implements SubStrategy {
     @Override
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,

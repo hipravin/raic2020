@@ -1,9 +1,6 @@
 package hipravin.model;
 
-import model.EntityType;
-import model.Player;
-import model.PlayerView;
-import model.Vec2Int;
+import model.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +21,13 @@ public class ParsedGameState {
 
     public int curTick() {
         return playerView.getCurrentTick();
+    }
+
+    public Entity getMyCc() {
+        return Arrays.stream(playerView.getEntities())
+                .filter(e -> e.getEntityType() == EntityType.BUILDER_BASE
+                        && e.getPlayerId() != null && e.getPlayerId() == e.getId())
+                .findAny().orElse(null);
     }
 
     public Stream<Cell> allCellsAsStream() {
@@ -84,4 +88,8 @@ public class ParsedGameState {
     public Map<Integer, Cell> getEntityIdToCell() {
         return entityIdToCell;
     }
+
+
 }
+
+

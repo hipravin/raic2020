@@ -1,9 +1,10 @@
-package hipravin.strategy.command;
+package hipravin.strategy.deprecated;
 
 import hipravin.model.Position2d;
 
 import java.util.Optional;
 
+@Deprecated
 public class RepairCommand {
     int repairerEntityId;
     int repairStartTick;

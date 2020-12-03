@@ -1,6 +1,9 @@
+import hipravin.DebugOut;
 import hipravin.model.*;
 import hipravin.strategy.*;
-import hipravin.strategy.command.BuildingBuildCommand;
+import hipravin.strategy.deprecated.BuildingBuildCommand;
+import hipravin.strategy.command.Command;
+import hipravin.strategy.deprecated.PerformBuildCommandsSubStrategy;
 import model.*;
 
 import java.util.*;
@@ -17,20 +20,15 @@ public class RootStrategy extends MyStrategy {
     public RootStrategy() {
         strategyParams = new StrategyParams();
 
-        BuildFirstTwoHousesStrategy bfths = new BuildFirstTwoHousesStrategy();
+        BuildFirstHouseFinalStrategy buildFirstHouseFinalStrategy = new BuildFirstHouseFinalStrategy();
 
-        MiningSubStrategy miningSubStrategy = new MiningSubStrategy();
-        MicroSubStrategy microSubStrategy = new MicroSubStrategy();
-        BuildOrderSubStrategy buildOrderSubStrategy = new BuildOrderSubStrategy();
+        AutomineFallbackStrategy autoMine = new AutomineFallbackStrategy();
 
         PerformBuildCommandsSubStrategy performBuildCommandsSubStrategy = new PerformBuildCommandsSubStrategy();
 
-        subStrategies.add(bfths);
-        subStrategies.add(miningSubStrategy);
-        subStrategies.add(buildOrderSubStrategy);
-        subStrategies.add(microSubStrategy);
+        subStrategies.add(buildFirstHouseFinalStrategy);
 
-        subStrategies.add(performBuildCommandsSubStrategy);
+        subStrategies.add(autoMine);
 
     }
 
@@ -82,13 +80,38 @@ public class RootStrategy extends MyStrategy {
 
     void parseDataForSingleTick(PlayerView playerView) {
         currentParsedGameState = GameStateParser.parse(playerView);
-        removeCompletedOrStaleBuildActions();
+        removeCompletedOrStaleCommands();
 
     }
 
-    void removeCompletedOrStaleBuildActions() {
-        gameHistoryState.getOngoingBuildCommands()
-                .removeIf(this::isBuildCommandCompletedOrStale);
+    void removeCompletedOrStaleCommands() {
+//        gameHistoryState.getOngoingBuildCommands()
+//                .removeIf(this::isBuildCommandCompletedOrStale);
+
+        for (ListIterator<Command> iterator = gameHistoryState.getOngoingCommands().listIterator(); iterator.hasNext(); ) {
+            Command command = iterator.next();
+
+            if(!command.isValid(gameHistoryState, currentParsedGameState, strategyParams)) {
+                iterator.remove();
+            } else if (command.isCompleted(gameHistoryState, currentParsedGameState, strategyParams)) {
+                Command next = command.getNextCommand();
+                while(next != null && !next.isCompleted(gameHistoryState, currentParsedGameState, strategyParams)) {
+                    next = command.getNextCommand();
+                }
+
+                if (next != null) {
+                    iterator.remove();
+                    iterator.add(command.getNextCommand());
+                }
+            } else if (command.isStale(gameHistoryState, currentParsedGameState, strategyParams)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    void updateAssignedActions(Map<Integer, ValuedEntityAction> assignedActions) {
+        getGameHistoryState().getOngoingCommands()
+                .forEach(c -> c.updateAssignedActions(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));
     }
 
     boolean isBuildCommandCompletedOrStale(BuildingBuildCommand bc) {
@@ -137,6 +160,7 @@ public class RootStrategy extends MyStrategy {
         thisTickStrategies.forEach(
                 ss -> ss.decide(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));
 
+        updateAssignedActions(assignedActions);
 
         Map<Integer, EntityAction> entityActions = assignedActions.entrySet()
                 .stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getEntityAction()));
@@ -150,15 +174,19 @@ public class RootStrategy extends MyStrategy {
         gameHistoryState.getPlayerInfo().put(currentParsedGameState.curTick(), currentParsedGameState.getPlayerView().getPlayers());
     }
 
-
     @Override
     public Action getAction(PlayerView playerView, DebugInterface debugInterface) {
-        initStaticParams(playerView);
-        parseDataForSingleTick(playerView);
+        try {
+            initStaticParams(playerView);
+            parseDataForSingleTick(playerView);
 
-        Action decision = combineDecisions();
-        updateGameHistoryState(decision);
-        return decision;
+            Action decision = combineDecisions();
+            updateGameHistoryState(decision);
+            return decision;
+        } catch (RuntimeException e) {
+            DebugOut.println(e.getMessage());
+            return new Action();
+        }
     }
 
     @Override

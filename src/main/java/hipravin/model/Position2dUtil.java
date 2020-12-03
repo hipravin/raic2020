@@ -176,11 +176,11 @@ public abstract class Position2dUtil {
                 p -> (p.x < maxX - 1) ? p.right() : p.right().shift(-size, 1)));
     }
 
-    static boolean isSquareWithinMapBorder(Position2d corner, int size) {
+    public static boolean isSquareWithinMapBorder(Position2d corner, int size) {
         return isPositionWithinMapBorder(corner) && isPositionWithinMapBorder(corner.shift(size, size));
     }
 
-    static boolean isPositionWithinMapBorder(Position2d p) {
+    public static boolean isPositionWithinMapBorder(Position2d p) {
         return p.x >= FIELD_MIN_X && p.x < MAP_SIZE
                 && p.y >= FIELD_MIN_Y && p.y < MAP_SIZE;
     }

@@ -1,7 +1,10 @@
-package hipravin.strategy;
+package hipravin.strategy.deprecated;
 
 import hipravin.model.*;
-import hipravin.strategy.command.BuildingBuildCommand;
+import hipravin.strategy.GameHistoryAndSharedState;
+import hipravin.strategy.StrategyParams;
+import hipravin.strategy.SubStrategy;
+import hipravin.strategy.ValuedEntityAction;
 import model.BuildAction;
 import model.EntityAction;
 import model.EntityType;
@@ -11,6 +14,7 @@ import java.util.*;
 /**
  * builds units and buildings
  */
+@Deprecated
 public class BuildOrderSubStrategy implements SubStrategy {
     static Random r = new Random();
 
@@ -49,15 +53,16 @@ public class BuildOrderSubStrategy implements SubStrategy {
     public Optional<NearestEntity> nearestWorkerToBuild(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                                                         Position2d buildingCorner, int buildingSize) {
 
-        Set<Integer> lockedWorkers = gameHistoryState.buildOrRepairAssignedWorkersAtCurrentTick();
-        Optional<NearestEntity> nearestWorker = Position2dUtil.buildingOuterEdgeWithoutCorners(buildingCorner, buildingSize)
-                .stream()
-                .filter(p -> currentParsedGameState.at(p).getMyNearestWorker() != null)
-                .map(p -> currentParsedGameState.at(p).getMyNearestWorker())
-                .filter(w -> !lockedWorkers.contains(w.getSourceCell().getEntityId()))
-                .min(Comparator.comparingInt(NearestEntity::getPathLenEmptyCellsToThisCell));
-
-        return nearestWorker;
+//        Set<Integer> lockedWorkers = gameHistoryState.buildOrRepairAssignedWorkersAtCurrentTick();
+//        Optional<NearestEntity> nearestWorker = Position2dUtil.buildingOuterEdgeWithoutCorners(buildingCorner, buildingSize)
+//                .stream()
+//                .filter(p -> currentParsedGameState.at(p).getMyNearestWorker() != null)
+//                .map(p -> currentParsedGameState.at(p).getMyNearestWorker())
+//                .filter(w -> !lockedWorkers.contains(w.getSourceCell().getEntityId()))
+//                .min(Comparator.comparingInt(NearestEntity::getPathLenEmptyCellsToThisCell));
+//
+//        return nearestWorker;
+        return null;
     }
 
     public void stubBuildHouses(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
@@ -83,7 +88,7 @@ public class BuildOrderSubStrategy implements SubStrategy {
                             EntityType.HOUSE, builder.getSourceCell().getEntityId(), builder.getThisCell().getPosition(),
                             housePosition.get(),  builder.getPathLenEmptyCellsToThisCell(), currentParsedGameState);
 
-                    gameHistoryState.addBuildCommand(bc);
+//                    gameHistoryState.addBuildCommand(bc);
                 }
             }
         }

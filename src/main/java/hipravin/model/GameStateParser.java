@@ -1,5 +1,6 @@
 package hipravin.model;
 
+import hipravin.DebugOut;
 import model.Entity;
 import model.EntityType;
 import model.PlayerView;
@@ -13,6 +14,7 @@ import static hipravin.model.Position2dUtil.squareInclusiveCornerStream;
 
 public abstract class GameStateParser {
     public static ParsedGameState parse(PlayerView playerView) {
+        DebugOut.println("Tick: " + playerView.getCurrentTick());
         int mapSize = playerView.getMapSize();
 
         ParsedGameState parsedGameState = new ParsedGameState();

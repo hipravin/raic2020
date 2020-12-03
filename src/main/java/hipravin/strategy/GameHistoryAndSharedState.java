@@ -1,17 +1,23 @@
 package hipravin.strategy;
 
+import hipravin.DebugOut;
 import hipravin.model.ParsedGameState;
-import hipravin.strategy.command.BuildingBuildCommand;
+import hipravin.strategy.command.Command;
 import model.Action;
 import model.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GameHistoryAndSharedState {
-    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
+//    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
+    List<Command> ongoingCommands = new ArrayList<>();
+
     ParsedGameState previousParsedGameState = null;
     Map<Integer, Player[]> playerInfo = new HashMap<>();
+
+
 
     Action previousTickAction;
 
@@ -23,19 +29,19 @@ public class GameHistoryAndSharedState {
         this.previousTickAction = previousTickAction;
     }
 
-    public void addBuildCommand(BuildingBuildCommand bc) {
-        ongoingBuildCommands.add(bc);
-    }
+//    public void addBuildCommand(BuildingBuildCommand bc) {
+//        ongoingBuildCommands.add(bc);
+//    }
 
-    public List<BuildingBuildCommand> getOngoingBuildCommands() {
-        return ongoingBuildCommands;
-    }
-
-    public Set<Integer> buildOrRepairAssignedWorkersAtCurrentTick() {
-        return ongoingBuildCommands.stream()
-                .flatMap(BuildingBuildCommand::buidersAndRepairers)
-                .collect(Collectors.toSet());
-    }
+//    public List<BuildingBuildCommand> getOngoingBuildCommands() {
+//        return ongoingBuildCommands;
+//    }
+//
+//    public Set<Integer> buildOrRepairAssignedWorkersAtCurrentTick() {
+//        return ongoingBuildCommands.stream()
+//                .flatMap(BuildingBuildCommand::buidersAndRepairers)
+//                .collect(Collectors.toSet());
+//    }
 
     public ParsedGameState getPreviousParsedGameState() {
         return previousParsedGameState;
@@ -51,5 +57,48 @@ public class GameHistoryAndSharedState {
 
     public void setPlayerInfo(Map<Integer, Player[]> playerInfo) {
         this.playerInfo = playerInfo;
+    }
+
+    public boolean addOngoingCommand(Command command, boolean force) {
+        DebugOut.println("Adding command:" + command.toString());
+
+        if(force) {
+            ongoingCommands.removeIf(oc -> twoSetFirstIntersection(oc.getRelatedEntityIds(), command.getRelatedEntityIds()).isPresent());
+            ongoingCommands.add(command);
+
+            return true;
+        } else {
+            boolean conflict = ongoingCommands.stream().anyMatch(c -> twoSetFirstIntersection(c.getRelatedEntityIds(), command.getRelatedEntityIds()).isPresent());
+            if(conflict) {
+               return false;
+            } else {
+                ongoingCommands.add(command);
+                return true;
+            }
+        }
+    }
+
+    static Optional<Integer> twoSetFirstIntersection(Set<Integer> set1, Set<Integer> set2) {
+        if (set1.size() < set2.size()) {
+            return twoSetFirstIntersection(set2, set1);
+        } else {
+            for (Integer p : set2) {
+                if (set1.contains(p)) {
+                    return Optional.of(p);
+                }
+            }
+            return Optional.empty();
+        }
+    }
+
+    public Stream<Integer> allOngoingCommandRelatedEntitiIds() {
+        return ongoingCommands.stream().flatMap(c -> c.getRelatedEntityIds().stream());
+    }
+    public Set<Integer> allOngoingCommandRelatedEntitiIdsSet() {
+        return allOngoingCommandRelatedEntitiIds().collect(Collectors.toSet());
+    }
+
+    public List<Command> getOngoingCommands() {
+        return ongoingCommands;
     }
 }

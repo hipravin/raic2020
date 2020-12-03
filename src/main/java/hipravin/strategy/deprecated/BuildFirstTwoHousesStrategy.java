@@ -1,7 +1,8 @@
-package hipravin.strategy;
+package hipravin.strategy.deprecated;
 
 import hipravin.alg.BruteForceUtil;
 import hipravin.model.*;
+import hipravin.strategy.*;
 import model.EntityType;
 
 import java.util.*;
@@ -9,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Deprecated
 public class BuildFirstTwoHousesStrategy implements SubStrategy {
     BeforeFirstHouseBuildOrder buildOrder;
 
@@ -41,7 +43,6 @@ public class BuildFirstTwoHousesStrategy implements SubStrategy {
 
         List<BeforeFirstHouseBuildOrder.BuildMine> buildMines =
                 bestBuildMines(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
-        Collections.shuffle(buildMines, new Random(0));//otherwise workers will spawn at one side
 
         //workerMinePos -> buildmine
         Map<Position2d, BeforeFirstHouseBuildOrder.BuildMine> buildMineMap = buildMines.stream()
@@ -78,18 +79,18 @@ public class BuildFirstTwoHousesStrategy implements SubStrategy {
             for (List<Position2d> workerHouseBuildPositions : combinationsPositionsAtHouseBuild) {
                 Optional<Position2d> housePosition =
                         checkIfTwoWorkerCanBuild(workerHouseBuildPositions, firstMiner.mineralPosition, currentParsedGameState, strategyParams);
-
-                if (housePosition.isPresent()) {
-                    BeforeFirstHouseBuildOrder bo = new BeforeFirstHouseBuildOrder();
-                    bo.firstHouseWhereToBuild = housePosition.get();
-                    bo.firstMineralToMine = firstMiner.mineralPosition;
-                    bo.whereToMoveAfterFirstMineralBeingMined = (workerHouseBuildPositions.size() > 4) ? workerHouseBuildPositions.get(0) : null;
-
-                    bo.workersWhereToBuild = lastFourElements(workerHouseBuildPositions)
-                            .stream().map(wmp -> buildMineMap.get(wmp)).collect(Collectors.toList());
-
-                    return bo;
-                }
+//
+//                if (housePosition.isPresent()) {
+//                    BeforeFirstHouseBuildOrder bo = new BeforeFirstHouseBuildOrder();
+//                    bo.firstHouseWhereToBuild = housePosition.get();
+//                    bo.firstMineralToMine = firstMiner.mineralPosition;
+//                    bo.whereToMoveAfterFirstMineralBeingMined = (workerHouseBuildPositions.size() > 4) ? workerHouseBuildPositions.get(0) : null;
+//
+//                    bo.workersWhereToBuild = lastFourElements(workerHouseBuildPositions)
+//                            .stream().map(wmp -> buildMineMap.get(wmp)).collect(Collectors.toList());
+//
+//                    return bo;
+//                }
             }
         }
 
@@ -145,7 +146,7 @@ public class BuildFirstTwoHousesStrategy implements SubStrategy {
             int minLen = pgs.at(sorted.get(0)).getNearestMineralField().getPathLenEmptyCellsToThisCell();
 
             long bestPositionsSameLenCount = sorted.stream().takeWhile(
-                    p -> pgs.at(p).getNearestMineralField().getPathLenEmptyCellsToThisCell() == minLen)
+                    p -> pgs.at(p).getNearestMineralField().getPathLenEmptyCellsToThisCell() <= minLen + 3) //faster house buuild is more important than this
                     .count();
 
             List<Position2d> bestPositions = sorted.subList(0, (int) Math.max(workersRequred, bestPositionsSameLenCount));
