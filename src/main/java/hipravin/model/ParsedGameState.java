@@ -19,6 +19,20 @@ public class ParsedGameState {
 
     Map<Integer, Cell> entityIdToCell; //for buildings to corner cell
 
+    int workersAtMiningPositions;
+
+    public int getMyEstimatedResourceThisTick() {
+        return getMyPlayer().getResource() + (workersAtMiningPositions - 1);
+    }
+
+    public int getEstimatedResourceAfterTicks(int ticks) {
+        return getMyPlayer().getResource()  + (workersAtMiningPositions - 1) * ticks - 1;
+    }
+
+    public int getHouseCost() {
+        return playerView.getEntityProperties().get(EntityType.HOUSE).getInitialCost();
+    }
+
     public int curTick() {
         return playerView.getCurrentTick();
     }
@@ -26,7 +40,7 @@ public class ParsedGameState {
     public Entity getMyCc() {
         return Arrays.stream(playerView.getEntities())
                 .filter(e -> e.getEntityType() == EntityType.BUILDER_BASE
-                        && e.getPlayerId() != null && e.getPlayerId() == e.getId())
+                        && e.getPlayerId() != null && e.getPlayerId() == playerView.getMyId())
                 .findAny().orElse(null);
     }
 

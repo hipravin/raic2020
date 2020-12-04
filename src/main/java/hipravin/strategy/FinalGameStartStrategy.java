@@ -1,7 +1,9 @@
 package hipravin.strategy;
 
+import hipravin.DebugOut;
 import hipravin.alg.BruteForceUtil;
 import hipravin.model.*;
+import hipravin.strategy.command.*;
 import model.EntityType;
 
 import java.util.*;
@@ -9,31 +11,172 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static hipravin.strategy.StrategyParams.MAX_VAL;
+
 
 /**
  * According to my perfect calculations we need to build first house with exact 3 workers. And 2 workers at desperate
  */
-public class BuildFirstHouseFinalStrategy implements SubStrategy {
+public class FinalGameStartStrategy implements SubStrategy {
 
     BeforeFirstHouseBuildOrder buildOrder;
 
+    boolean gameStartStrategyDone = false;
+
     @Override
-    public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
+    public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                        StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
-        if (currentParsedGameState.curTick() == 0) {
-            buildOrder = tryToFind2Build1DiagRepair(gameHistoryState, currentParsedGameState, strategyParams, assignedActions).orElse(null);
+        if (pgs.curTick() == 0) {
+            buildOrder = tryToFind2Build1DiagRepair(gameHistoryState, pgs, strategyParams, assignedActions).orElse(null);
 
+            if(buildOrder != null) {
+                if(DebugOut.enabled) {
+                    DebugOut.println(buildOrder.toString());
+                }
+                createFirstWorkerMineMove(gameHistoryState, pgs);
+                createBuildWorkerCommands(gameHistoryState, pgs, strategyParams, assignedActions);
+            } else {
+                if(DebugOut.enabled) {
+                    DebugOut.println("Unable to find start build");
+                }
+                gameStartStrategyDone = true;
+            }
+        }
 
+        if(buildOrder != null
+            && pgs.getPopulation().getPopulationUse() >= pgs.getPopulation().getActiveLimit()
+              && pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost()) {
+            tryToBuildHouseAccordingPlan(gameHistoryState, pgs, strategyParams);
+
+            gameStartStrategyDone = true;
         }
     }
 
-    void createBuildWorkerCommands(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
-                                   StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+    void tryToBuildHouseAccordingPlan(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                      StrategyParams strategyParams) {
 
+        Position2d firstHouseWhereToBuild = buildOrder.firstHouseWhereToBuild;
 
+        FreeSpace fs = pgs.at(firstHouseWhereToBuild).getFreeSpace(Position2dUtil.HOUSE_SIZE).orElse(null);
+        if(fs != null && fs.isCompletelyFree()) {
+            Set<Position2d> houseEdge = Position2dUtil.buildingOuterEdgeWithoutCorners(firstHouseWhereToBuild, Position2dUtil.HOUSE_SIZE);
+            List<Position2d> len0Workers = houseEdge.stream().filter(he -> pgs.at(he).isMyWorker()).collect(Collectors.toList());
+
+            if(len0Workers.size() >= 3) {
+                build3Workers(firstHouseWhereToBuild, len0Workers.subList(0, 3), gameHistoryState, pgs, strategyParams);
+            } else if(len0Workers.size() < 2) {
+                //can't follow algorithm
+                return;
+            }
+            //find repairer len 2
+            Optional<List<Position2d>> repairer2 = canRepair2(firstHouseWhereToBuild, len0Workers, gameHistoryState, pgs, strategyParams);
+            if(repairer2.isPresent()) {
+                build2Workers1Repairer2(firstHouseWhereToBuild, len0Workers,
+                        repairer2.get().get(0), repairer2.get().get(1),
+                        gameHistoryState, pgs, strategyParams);
+            }
+        }
     }
 
+    void build3Workers(Position2d firstHouseWhereToBuild, List<Position2d> workers, GameHistoryAndSharedState gameHistoryState,
+                       ParsedGameState pgs, StrategyParams strategyParams) {
+        Command brp1 = new BuildThenRepairCommand(firstHouseWhereToBuild, EntityType.HOUSE, pgs.at(workers.get(0)).getEntityId(), pgs, strategyParams);
+        Command brp2 = new AutoRepairCommand(firstHouseWhereToBuild, pgs.at(workers.get(1)).getEntityId(), pgs, strategyParams);
+        Command brp3 = new AutoRepairCommand(firstHouseWhereToBuild, pgs.at(workers.get(2)).getEntityId(), pgs, strategyParams);
+
+        gameHistoryState.addOngoingCommand(brp1, true);
+        gameHistoryState.addOngoingCommand(brp2, true);
+        gameHistoryState.addOngoingCommand(brp3, true);
+    }
+
+    void build2Workers1Repairer2(Position2d firstHouseWhereToBuild, List<Position2d> len0Workers,
+                                 Position2d len2Worker, Position2d len2WorkerMoveTo,
+                                 GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+
+        Command brp1 = new BuildThenRepairCommand(firstHouseWhereToBuild, EntityType.HOUSE, pgs.at(len0Workers.get(0)).getEntityId(), pgs, strategyParams);
+        Command brp2 = new AutoRepairCommand(firstHouseWhereToBuild, pgs.at(len0Workers.get(1)).getEntityId(), pgs, strategyParams);
+        Command moveThenAutoRepair = new MoveSingleCommand(pgs,  pgs.at(len2Worker).getEntityId(), len2WorkerMoveTo, MAX_VAL);
+        Command arp3 = new AutoRepairCommand(firstHouseWhereToBuild, pgs.at(len2Worker).getEntityId(), pgs, strategyParams);
+        //sometimes after repair worker just stays... try to send him back
+        Command moveBack = new MoveSingleCommand(pgs,  pgs.at(len2Worker).getEntityId(), len2Worker, MAX_VAL);
+
+        CommandUtil.chainCommands(moveThenAutoRepair, arp3, moveBack);
+
+        gameHistoryState.addOngoingCommand(brp1, true);
+        gameHistoryState.addOngoingCommand(brp2, true);
+        gameHistoryState.addOngoingCommand(moveThenAutoRepair, true);
+    }
+
+    Optional<List<Position2d>> canRepair2(Position2d firstHouseWhereToBuild, List<Position2d> builders,
+                                    GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                    StrategyParams strategyParams) {
+        Set<Position2d> houseEdgeWithoutBuilders = Position2dUtil.buildingOuterEdgeWithoutCorners(firstHouseWhereToBuild, Position2dUtil.HOUSE_SIZE);
+        houseEdgeWithoutBuilders.removeIf(rp -> builders.contains(rp));
+
+        for (Cell workerCell : pgs.getMyWorkers().values()) {
+            Position2d workerPosition = workerCell.getPosition();
+            if(builders.contains(workerPosition)) {
+                continue;
+            }
+
+            Map<Position2d, NearestEntity> nearest = GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(workerPosition), 2);
+
+            for (Position2d outerEdgePosition : houseEdgeWithoutBuilders) {
+
+                if(nearest.containsKey(outerEdgePosition)) {
+                    return Optional.of(List.of(workerPosition, outerEdgePosition));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    void createFirstWorkerMineMove(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs) {
+        MineralAndMinerPosition firstMiner = buildOrder.firstMiner;
+        Position2d whereToMoveAfterMine = buildOrder.whereToMoveAfterFirstMineralBeingMined;
+        int firstWorkerEntityId = pgs.getMyWorkers().keySet().iterator().next();//preconditions check that size ==1
+
+
+        Command moveTo = new MoveSingleCommand(pgs, firstWorkerEntityId, firstMiner.minerPosition, MAX_VAL);
+        Command mineExact = new MineExactMineral(firstWorkerEntityId, firstMiner.mineralPosition);
+        Command moveTo2 = new MoveSingleCommand(pgs, firstWorkerEntityId, whereToMoveAfterMine, MAX_VAL);
+        //automine will be automated
+
+        CommandUtil.chainCommands(moveTo, mineExact, moveTo2);
+
+        gameHistoryState.addOngoingCommand(moveTo, false);
+    }
+
+    void createBuildWorkerCommands(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                   StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        if(buildOrder == null) {
+            return;
+        }
+
+        Command prev = null;
+
+        for (BeforeFirstHouseBuildOrder.BuildMine buildMine : buildOrder.workersWhereToBuild) {
+            Command current = buildMineCommand(buildMine, pgs);
+
+            if(prev == null) {
+                gameHistoryState.addOngoingCommand(current, false);
+            } else {
+                CommandUtil.addNextCommands(prev, List.of(current));
+            }
+
+            prev = current;
+        }
+    }
+
+    Command buildMineCommand(BeforeFirstHouseBuildOrder.BuildMine buildMine, ParsedGameState pgs) {
+
+        Command buildWorker = new BuildWorkerCommand(buildMine.workerBuildPosition, pgs);
+        Command mineFromExact = new MineFromExactPositionCommand(buildMine.workerBuildPosition, buildMine.workerMinePosition, buildMine.mineralToMinePosition);
+
+        CommandUtil.chainCommands(buildWorker, mineFromExact);
+        return buildWorker;
+    }
 
     //loot at this! what the heck is going on? can this method be 1000 lines long?
     //but what can I do is time is limited and rules are changing so fast
@@ -44,7 +187,7 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
         Position2d firstWorker = currentParsedGameState.getMyWorkers().values().iterator().next().getPosition();
 
 
-        BuildFirstHouseFinalStrategy.MineralAndMinerPosition firstMiner = minerAndMineralClosest(firstWorker, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+        FinalGameStartStrategy.MineralAndMinerPosition firstMiner = minerAndMineralClosest(firstWorker, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
 
         List<Position2d> firstMinerPositionsAfterFirstMined = Position2dUtil.upRightLeftDown(firstMiner.minerPosition)
                 .filter(p -> currentParsedGameState.at(p)
@@ -52,10 +195,18 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
                                 && c.getLen1MineralsCount() > 0))
                 .collect(Collectors.toList());
 
+        if(firstMinerPositionsAfterFirstMined.isEmpty()) {
+            firstMinerPositionsAfterFirstMined = Position2dUtil.upRightLeftDown(firstMiner.mineralPosition)//
+                    .filter(p -> currentParsedGameState.at(p)
+                            .test(c -> (c.getPosition().equals(firstMiner.mineralPosition) || c.isEmpty())
+                                    && c.getLen1MineralsCount() > 0))
+                    .collect(Collectors.toList());
+        }
+
 
         for (Position2d firstWorkerAfterMinePosition : firstMinerPositionsAfterFirstMined) {
             List<BeforeFirstHouseBuildOrder.BuildMine> buildMines =
-                    bestBuildMines(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+                    bestBuildMines(firstMiner.mineralPosition, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
 
             Map<Position2d, BeforeFirstHouseBuildOrder.BuildMine> buildMineMap = buildMines.stream()
                     .collect(Collectors.toMap(bm -> bm.workerMinePosition, Function.identity(), (buildMine, buildMine2) -> buildMine));
@@ -83,7 +234,6 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
             for (Iterator<int[]> iterator = buildMinesIndices.iterator();
                  iterator.hasNext() && counter < StrategyParams.MAX_COMBINATIONS_BF; counter++) {
                 int[] ii = iterator.next();
-
 
                 List<Position2d> positionsAtHouseBuild = Arrays.stream(ii)
                         .mapToObj(i -> buildMines.get(i).workerMinePosition).collect(Collectors.toList());
@@ -128,7 +278,8 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
                                 }
 
                                 if (foundHousePosition.isPresent() && !blockedByThis5Workers.contains(foundHousePosition.get())
-                                        && !strategyParams.firstHouseNonDesiredPositions().contains(foundHousePosition.get())) {
+                                        && !strategyParams.firstHouseNonDesiredPositions().contains(foundHousePosition.get())
+                                        && mineralMiningsAreDistinct(ii, buildMines)) {
                                     BeforeFirstHouseBuildOrder bo = new BeforeFirstHouseBuildOrder();
                                     bo.firstHouseWhereToBuild = foundHousePosition.get();
                                     bo.firstMineralToMine = firstMiner.mineralPosition;
@@ -137,6 +288,8 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
                                     bo.workersWhereToBuild =
                                             positionsAtHouseBuild.subList(0, 4)
                                                     .stream().map(wmp -> buildMineMap.get(wmp)).collect(Collectors.toList());
+
+                                    bo.firstMiner = firstMiner;
 
                                     return Optional.of(bo);
                                 }
@@ -148,6 +301,15 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
             }
         }
         return Optional.empty();
+    }
+
+    public boolean mineralMiningsAreDistinct(int[] ii, List<BeforeFirstHouseBuildOrder.BuildMine> buildMines) {
+        Set<Position2d> minePosition =
+                Arrays.stream(ii)
+                        .mapToObj(i -> buildMines.get(i).mineralToMinePosition).collect(Collectors.toSet());
+
+        return minePosition.size() == ii.length;
+
     }
 
     //check minerals and this worker
@@ -216,6 +378,7 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
 
     //    should return at least 4
     public List<BeforeFirstHouseBuildOrder.BuildMine> bestBuildMines(
+            Position2d firstWorkerMineralToMinePosition,
             GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
             StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         Set<Position2d> ccOuterEdge = pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
@@ -238,15 +401,17 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
 
             List<Position2d> bestPositions = sorted.subList(0, (int) Math.max(workersRequred, bestPositionsSameLenCount));
 
-            List<BuildFirstHouseFinalStrategy.MineralAndMinerPosition> mmps = bestPositions.stream()
+            List<FinalGameStartStrategy.MineralAndMinerPosition> mmps = bestPositions.stream()
                     .map(p -> minerAndMineralClosest(p, gameHistoryState, pgs, strategyParams, assignedActions))
                     .collect(Collectors.toList());
 
             List<BeforeFirstHouseBuildOrder.BuildMine> bestBuildMines = new ArrayList<>();
 
             for (int i = 0; i < bestPositions.size(); i++) {
-                bestBuildMines.add(new BeforeFirstHouseBuildOrder.BuildMine(bestPositions.get(i),
-                        mmps.get(i).minerPosition, mmps.get(i).mineralPosition));
+                if(!mmps.get(i).mineralPosition.equals(firstWorkerMineralToMinePosition)) { //if mine same mineral tey both move and result is unpredicted
+                    bestBuildMines.add(new BeforeFirstHouseBuildOrder.BuildMine(bestPositions.get(i),
+                            mmps.get(i).minerPosition, mmps.get(i).mineralPosition));
+                }
 
             }
             return bestBuildMines;
@@ -258,7 +423,7 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
 
     }
 
-    public BuildFirstHouseFinalStrategy.MineralAndMinerPosition minerAndMineralClosest(
+    public FinalGameStartStrategy.MineralAndMinerPosition minerAndMineralClosest(
             Position2d workerPosition,
             GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
             StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
@@ -281,7 +446,7 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
                     .findAny().orElse(null);
 
             if (miningPos != null) {
-                return new BuildFirstHouseFinalStrategy.MineralAndMinerPosition(miningPos, mineralPosition);
+                return new FinalGameStartStrategy.MineralAndMinerPosition(miningPos, mineralPosition);
             }
         }
 
@@ -290,17 +455,16 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
 
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        if(gameStartStrategyDone) {
+            return false;
+        }
+
         return currentParsedGameState.findMyBuildings(EntityType.HOUSE).size() == 0
                 && currentParsedGameState.findMyBuildings(EntityType.MELEE_BASE).size() == 0
                 && currentParsedGameState.findMyBuildings(EntityType.RANGED_BASE).size() == 0
                 && currentParsedGameState.findMyBuildings(EntityType.BUILDER_BASE).size() == 1
-                && currentParsedGameState.getPlayerView().getCurrentTick() < 100; //just in case
+                && currentParsedGameState.getPlayerView().getCurrentTick() < 200; //just in case
 
-    }
-
-    @Override
-    public boolean isExclusivelyApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        return isApplicableAtThisTick(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
     }
 
     public static class MineralAndMinerPosition {
@@ -310,6 +474,14 @@ public class BuildFirstHouseFinalStrategy implements SubStrategy {
         public MineralAndMinerPosition(Position2d minerPosition, Position2d mineralPosition) {
             this.minerPosition = minerPosition;
             this.mineralPosition = mineralPosition;
+        }
+
+        @Override
+        public String toString() {
+            return "MineralAndMinerPosition{" +
+                    "minerPosition=" + minerPosition +
+                    ", mineralPosition=" + mineralPosition +
+                    '}';
         }
     }
 

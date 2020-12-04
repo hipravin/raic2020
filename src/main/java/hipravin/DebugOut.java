@@ -10,8 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public abstract class DebugOut {
-    private static final boolean enabled = "true".equals(System.getProperty("LOCAL"));
-    public static Path gameLog = Path.of("game_log");
+    public static final boolean enabled = "true".equals(System.getProperty("LOCAL"));
+    public static Path gameLog = Path.of("../game_log");
     static {
         //clean debug folder
 //        if(enabled) {

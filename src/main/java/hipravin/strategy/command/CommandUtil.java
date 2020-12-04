@@ -1,20 +1,23 @@
 package hipravin.strategy.command;
 
+import java.util.List;
+
 public abstract class CommandUtil {
 
-    public static Command chainCommands(Command... commands) {
+    public static void addNextCommands(Command currentCommand, List<Command> nextCommands) {
+        currentCommand.getNextCommands().addAll(nextCommands);
+    }
+
+    public static void chainCommands(Command... commands) {
         Command prevCommand = null;
         for (Command command : commands) {
             if(prevCommand != null) {
-                prevCommand.setNextCommand(command);
+                prevCommand.getNextCommands().add(command);
             }
 
             prevCommand = command;
         }
-
-        return commands[0];
     }
-
 
     private CommandUtil() {
     }

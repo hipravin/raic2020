@@ -13,6 +13,7 @@ public class BeforeFirstHouseBuildOrder {
 
     Position2d firstHouseWhereToBuild;
     Position2d repairer3Len2Position;
+    FinalGameStartStrategy.MineralAndMinerPosition firstMiner;
 
     public static class BuildMine {
         public Position2d workerBuildPosition;
@@ -58,6 +59,7 @@ public class BeforeFirstHouseBuildOrder {
                 ", workersWhereToBuild=" + workersWhereToBuild +
                 ", firstHouseWhereToBuild=" + firstHouseWhereToBuild +
                 ", repairer3Len2Position=" + repairer3Len2Position +
+                ", firstMiner=" + firstMiner +
                 '}';
     }
 }

@@ -12,6 +12,7 @@ public interface SubStrategy {
         return true;
     }
 
+    @Deprecated
     default boolean isExclusivelyApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState,
                                 ParsedGameState currentParsedGameState,
                                 StrategyParams strategyParams,

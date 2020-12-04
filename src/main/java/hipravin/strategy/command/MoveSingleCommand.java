@@ -15,7 +15,7 @@ public class MoveSingleCommand extends Command {
     final int entityId;
     final Position2d targetPosition;
 
-    protected MoveSingleCommand(ParsedGameState pgs, int entityId, Position2d targetPosition, int expectedPathLen) {
+    public MoveSingleCommand(ParsedGameState pgs, int entityId, Position2d targetPosition, int expectedPathLen) {
         super(pgs.curTick() + expectedPathLen, Set.of(entityId));
         this.entityId = entityId;
         this.targetPosition = targetPosition;
@@ -40,5 +40,13 @@ public class MoveSingleCommand extends Command {
 
         action.setMoveAction(moveAction);
         assignedActions.put(entityId, new ValuedEntityAction(0.5, entityId, action));
+    }
+
+    @Override
+    public String toString() {
+        return "MoveSingleCommand{" +
+                "entityId=" + entityId +
+                ", targetPosition=" + targetPosition +
+                '}';
     }
 }

@@ -20,7 +20,7 @@ public class RootStrategy extends MyStrategy {
     public RootStrategy() {
         strategyParams = new StrategyParams();
 
-        BuildFirstHouseFinalStrategy buildFirstHouseFinalStrategy = new BuildFirstHouseFinalStrategy();
+        FinalGameStartStrategy buildFirstHouseFinalStrategy = new FinalGameStartStrategy();
 
         AutomineFallbackStrategy autoMine = new AutomineFallbackStrategy();
 
@@ -91,20 +91,48 @@ public class RootStrategy extends MyStrategy {
         for (ListIterator<Command> iterator = gameHistoryState.getOngoingCommands().listIterator(); iterator.hasNext(); ) {
             Command command = iterator.next();
 
-            if(!command.isValid(gameHistoryState, currentParsedGameState, strategyParams)) {
+            if (!command.isValid(gameHistoryState, currentParsedGameState, strategyParams)) {
+                if (DebugOut.enabled) {
+                    DebugOut.println("_Invalid:" + command.toString());
+                }
                 iterator.remove();
             } else if (command.isCompleted(gameHistoryState, currentParsedGameState, strategyParams)) {
-                Command next = command.getNextCommand();
-                while(next != null && !next.isCompleted(gameHistoryState, currentParsedGameState, strategyParams)) {
-                    next = command.getNextCommand();
+                if (DebugOut.enabled) {
+                    DebugOut.println("_Completed:" + command.toString());
                 }
 
-                if (next != null) {
-                    iterator.remove();
-                    iterator.add(command.getNextCommand());
-                }
+                iterator.remove();
+                handleNextCommands(command, iterator);
             } else if (command.isStale(gameHistoryState, currentParsedGameState, strategyParams)) {
                 iterator.remove();
+                if (DebugOut.enabled) {
+                    DebugOut.println("_Remove stale command:" + command.toString());
+                }
+            }
+        }
+    }
+
+    void handleNextCommands(Command command, ListIterator<Command> iterator) {
+        if (DebugOut.enabled) {
+            DebugOut.println("Handle next commands for:" + command.toString());
+        }
+        for (Command nextCommand : command.getNextCommands()) {
+            if (nextCommand.isCompleted(gameHistoryState, currentParsedGameState, strategyParams)) {
+                if (DebugOut.enabled) {
+                    DebugOut.println("Command completed immediately:" + nextCommand.toString());
+                }
+                handleNextCommands(nextCommand, iterator);
+            } else if (nextCommand.isValid(gameHistoryState, currentParsedGameState, strategyParams)
+                    && !nextCommand.isStale(gameHistoryState, currentParsedGameState, strategyParams)) {
+                if (DebugOut.enabled) {
+                    DebugOut.println("Adding command from chain:" + nextCommand.toString());
+                }
+
+                iterator.add(nextCommand);
+            } else {
+                if (DebugOut.enabled) {
+                    DebugOut.println("Ignoring command (stale or invalis):" + nextCommand.toString());
+                }
             }
         }
     }
@@ -146,16 +174,9 @@ public class RootStrategy extends MyStrategy {
     Action combineDecisions() {
         Map<Integer, ValuedEntityAction> assignedActions = new HashMap<>();
 
-        //exclusive strategy, e.g. for game start
         List<SubStrategy> thisTickStrategies = subStrategies.stream()
-                .filter(s -> s.isExclusivelyApplicableAtThisTick(gameHistoryState, currentParsedGameState, strategyParams, assignedActions))
-                .limit(1).collect(Collectors.toList());
-
-        if (thisTickStrategies.isEmpty()) {
-            thisTickStrategies = subStrategies.stream()
-                    .filter(s -> s.isApplicableAtThisTick(gameHistoryState, currentParsedGameState, strategyParams, assignedActions))
-                    .collect(Collectors.toList());
-        }
+                .filter(s -> s.isApplicableAtThisTick(gameHistoryState, currentParsedGameState, strategyParams, assignedActions))
+                .collect(Collectors.toList());
 
         thisTickStrategies.forEach(
                 ss -> ss.decide(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));

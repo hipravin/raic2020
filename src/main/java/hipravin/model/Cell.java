@@ -5,9 +5,7 @@ import model.EntityProperties;
 import model.EntityType;
 import model.PlayerView;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -36,6 +34,9 @@ public class Cell implements Cloneable {
     int entityId = -1;
     NearestEntity myNearestWorker = null;
     NearestEntity nearestMineralField = null;
+
+    Map<Position2d, NearestEntity> workersNearby = new HashMap<>();
+
     long len1MineralsCount = -1;
     long len1MyWorkersCount = -1;
 

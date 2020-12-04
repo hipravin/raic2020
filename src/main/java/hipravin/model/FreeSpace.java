@@ -1,5 +1,7 @@
 package hipravin.model;
 
+import hipravin.strategy.StrategyParams;
+
 public class FreeSpace {
     int size = -1;
 //    int mineralCellsCount = 0;
@@ -9,7 +11,7 @@ public class FreeSpace {
 //    int enemyBuildingCellsCount = 0;
 //    int fogCellsCount = 0;
     boolean isCompletelyFree = false;
-    int lenToNearestWorker = Integer.MAX_VALUE;
+    int lenToNearestWorker = StrategyParams.MAX_VAL;
     int numberOfWorkersAtOuterEdge = -1;//to find instant build & repair without worker movement
 
     boolean isFreeButContainOurUnits = false;

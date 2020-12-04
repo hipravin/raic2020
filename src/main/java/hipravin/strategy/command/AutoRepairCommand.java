@@ -23,7 +23,7 @@ public class AutoRepairCommand extends Command {
     final int workerEntityId;
 
     public AutoRepairCommand(Position2d buildingCorner, int workerEntityId, ParsedGameState pgs, StrategyParams strategyParams) {
-        super(Integer.MAX_VALUE, Set.of(workerEntityId));//command is eternal until building isActive.
+        super(StrategyParams.MAX_VAL, Set.of(workerEntityId));//command is eternal until building isActive.
         this.commandCreatedTick = pgs.curTick();
         this.buildingCorner = buildingCorner;
         this.workerEntityId = workerEntityId;
@@ -36,7 +36,7 @@ public class AutoRepairCommand extends Command {
         }
 
         return pgs.curTick() <= commandCreatedTick + strategyParams.autoRepairMaxWaitTicks
-                || pgs.at(buildingCorner).test(c -> c.isMyBuilding() && !c.getEntity().isActive());
+                || pgs.at(buildingCorner).test(c -> c.isMyBuilding());
     }
 
     @Override
@@ -53,7 +53,7 @@ public class AutoRepairCommand extends Command {
             assignedActions.put(workerEntityId, new ValuedEntityAction(0.5, workerEntityId, action));
         } else {
             EntityAction autoAttack = new EntityAction();
-            AttackAction attackAction = new AttackAction(null, new AutoAttack(0, new EntityType[]{EntityType.RESOURCE}));
+            AttackAction attackAction = new AttackAction(null, new AutoAttack(1, new EntityType[]{EntityType.RESOURCE}));
             autoAttack.setAttackAction(attackAction);
             assignedActions.put(workerEntityId, new ValuedEntityAction(0.5, workerEntityId, autoAttack));
         }

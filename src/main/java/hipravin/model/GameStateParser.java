@@ -45,7 +45,7 @@ public abstract class GameStateParser {
         forEachCell(parsedGameState.cells, c -> {
             c.setMyEntity(c.getOwnerPlayerId() == playerView.getMyId());
 
-            if(c.isMyEntity && c.getEntityType() == EntityType.BUILDER_UNIT) {
+            if (c.isMyEntity && c.getEntityType() == EntityType.BUILDER_UNIT) {
                 parsedGameState.myWorkers.put(c.entityId, c);
             }
         });
@@ -68,17 +68,27 @@ public abstract class GameStateParser {
         computeProducingBuildingEdge(parsedGameState);
         computeFreeSpaces(parsedGameState.cells);
         computeBuildingEdgeFreeCells(parsedGameState);
+
+        calculateWorkersAtMiningPositions(parsedGameState);
         return parsedGameState;
     }
+
+    static void calculateWorkersAtMiningPositions(ParsedGameState pgs) {
+        pgs.workersAtMiningPositions = (int) pgs.myWorkers.values()
+                .stream().filter(c -> c.len1MineralsCount > 0)
+                .count();
+
+    }
+
 
     static void calculateNeighbourMineralsAndWorkers(ParsedGameState parsedGameState) {
         parsedGameState.allCellsAsStream().forEach(eachCell -> {
             eachCell.len1MineralsCount = Position2dUtil.upRightLeftDown(eachCell.getPosition()).map(p -> parsedGameState.at(p))
-                    .filter(mc-> mc.isMineral)
+                    .filter(mc -> mc.isMineral)
                     .count();
 
             eachCell.len1MyWorkersCount = Position2dUtil.upRightLeftDown(eachCell.getPosition()).map(p -> parsedGameState.at(p))
-                    .filter(wc-> wc.isMyWorker())
+                    .filter(wc -> wc.isMyWorker())
                     .count();
         });
     }
@@ -92,26 +102,26 @@ public abstract class GameStateParser {
             //for each size 2-5
             for (int size = Cell.MIN_FP_SIZE; size <= Cell.MAX_FP_SIZE; size++) {
                 Optional<Stream<Position2d>> squareStream = squareInclusiveCornerStream(corner, size);
-                if(squareStream.isEmpty()) {
+                if (squareStream.isEmpty()) {
                     break;
                 }
 
                 boolean onlyContainOurUnits = false;
                 boolean isEmpty = squareStream.get()
                         .allMatch(p -> getCell(cells, p).isEmpty());
-                if(isEmpty) {
+                if (isEmpty) {
                     FreeSpace free = FreeSpace.completelyFree(size);
                     cornerCell.setFreeSpace(size, free);
                 } else {
                     onlyContainOurUnits = squareInclusiveCornerStream(corner, size).get()
                             .allMatch(p -> getCell(cells, p).testOr(Cell::isEmpty, Cell::isMyUnit));
-                    if(onlyContainOurUnits) {
+                    if (onlyContainOurUnits) {
                         FreeSpace unitFree = FreeSpace.freeButContainOutUnits(size);
                         cornerCell.setFreeSpace(size, unitFree);
                     }
                 }
 
-                if(!isEmpty && !onlyContainOurUnits) {
+                if (!isEmpty && !onlyContainOurUnits) {
                     break;//save unnecessary iterations
                 }
             }

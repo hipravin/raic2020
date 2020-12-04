@@ -1,5 +1,6 @@
 package hipravin.strategy;
 
+import hipravin.DebugOut;
 import hipravin.model.Cell;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2dUtil;
@@ -26,13 +27,18 @@ public class AutomineFallbackStrategy implements SubStrategy {
     public void autoAttackAllUnboundWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
-        Set<Integer> busyWorkers = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
+        Set<Integer> busyEntities = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
 
 
         List<Entity> notBusyWorkers = currentParsedGameState.getMyWorkers()
                 .values().stream().map(Cell::getEntity)
-                .filter(e -> !busyWorkers.contains(e.getId()))
+                .filter(e -> !busyEntities.contains(e.getId()))
                 .collect(Collectors.toList());
+
+        if(DebugOut.enabled) {
+            DebugOut.println("Busy workers: " +  busyEntities);
+            DebugOut.println("Not busy workers: " +  notBusyWorkers.stream().map(Entity::getId).collect(Collectors.toSet()));
+        }
 
 
         notBusyWorkers.forEach(w -> {

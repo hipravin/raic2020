@@ -12,6 +12,8 @@ import model.EntityType;
 import java.util.Map;
 import java.util.Set;
 
+import static hipravin.strategy.StrategyParams.MAX_VAL;
+
 public class BuildWorkerCommand extends Command {
 
     final Position2d spawnLocation;
@@ -19,7 +21,7 @@ public class BuildWorkerCommand extends Command {
 
 
     public BuildWorkerCommand(Position2d spawnLocation, ParsedGameState pgs) {
-        super(Integer.MAX_VALUE, Set.of(pgs.getMyCc().getId()));
+        super(MAX_VAL, Set.of(pgs.getMyCc().getId()));
         this.spawnLocation = spawnLocation;
         this.myCcEntityId = pgs.getMyCc().getId();
     }
@@ -41,5 +43,13 @@ public class BuildWorkerCommand extends Command {
         action.setBuildAction(ba);
 
         assignedActions.put(myCcEntityId, new ValuedEntityAction(0.5, myCcEntityId, action));
+    }
+
+    @Override
+    public String toString() {
+        return "BuildWorkerCommand{" +
+                "spawnLocation=" + spawnLocation +
+                ", myCcEntityId=" + myCcEntityId +
+                '}';
     }
 }

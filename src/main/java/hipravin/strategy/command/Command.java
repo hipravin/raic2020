@@ -5,19 +5,17 @@ import hipravin.strategy.GameHistoryAndSharedState;
 import hipravin.strategy.StrategyParams;
 import hipravin.strategy.ValuedEntityAction;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public abstract class Command {
     private final Set<Integer> relatedEntityIds = new HashSet<>();
     private final int expiryTick;//if currentTick >= expiryTick then command is removed at start of processing
 
-    private Command nextCommand;
+    private List<Command> nextCommands = new ArrayList<>();
 
     protected Command(int expiryTick, Collection<Integer> relatedEntityIds) {
         this.expiryTick = expiryTick;
+        this.relatedEntityIds.addAll(relatedEntityIds);
     }
 
 
@@ -49,11 +47,7 @@ public abstract class Command {
         return expiryTick;
     }
 
-    public Command getNextCommand() {
-        return nextCommand;
-    }
-
-    public void setNextCommand(Command nextCommand) {
-        this.nextCommand = nextCommand;
+    public List<Command> getNextCommands() {
+        return nextCommands;
     }
 }
