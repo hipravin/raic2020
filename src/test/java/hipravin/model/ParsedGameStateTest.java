@@ -65,6 +65,9 @@ class ParsedGameStateTest {
         assertEquals(751 + 2, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 2));
         assertEquals(696, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 3));
         assertEquals(3, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 14));
+
+        assertEquals(9, pgs.getMineralsAtMapCorner());
+        assertEquals(7, pgs.getMyWorkersAtMapCorner());
     }
 
     @Test
@@ -130,9 +133,8 @@ class ParsedGameStateTest {
             }
         }
 
-        assertEquals(7916, freeTotal);
-//        assertEquals(7680, freeTotal);//TODO: WTF???
-        assertEquals(43, freeButUnitsTotal);
+        assertEquals(277, freeTotal);
+        assertEquals(39, freeButUnitsTotal);
     }
 
     long countCompletelyFree(ParsedGameState pgs, int size) {
@@ -189,6 +191,9 @@ class ParsedGameStateTest {
         assertEquals(3 * 24, countCells(pgs, c -> c.isProducingMyBuildingOuterEdge));
 
         assertEquals(pgs.getPlayerView().getEntities().length, pgs.entityIdToCell.size());
+
+        assertEquals(4, pgs.getMaxWorkerX());
+        assertEquals(4, pgs.getMaxWorkerY());
     }
 
     long countCells(ParsedGameState pgs, Predicate<? super Cell> predicate) {

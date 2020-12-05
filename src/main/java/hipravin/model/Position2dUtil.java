@@ -1,5 +1,7 @@
 package hipravin.model;
 
+import hipravin.strategy.StrategyParams;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,6 +21,10 @@ public abstract class Position2dUtil {
     public static int RANGED_BASE_SIZE = 5;
     public static int TURRET_SIZE = 2;
     public static int WALL_SIZE = 1;
+
+    public static boolean isMapMyCornerPosition(Position2d pos) {
+        return pos.x < StrategyParams.MAP_CORNER_SIZE && pos.y < StrategyParams.MAP_CORNER_SIZE;
+    }
 
     public static Stream<Position2d> housePositionsThatWorkerCanBuildIfNoObstacle(Position2d wp) {
         return Stream.of(

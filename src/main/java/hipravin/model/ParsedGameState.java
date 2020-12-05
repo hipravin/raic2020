@@ -21,6 +21,12 @@ public class ParsedGameState {
 
     int workersAtMiningPositions;
 
+    int mineralsAtMapCorner = 0;
+    int myWorkersAtMapCorner = 0;
+
+    int maxWorkerX = -1;
+    int maxWorkerY = -1;
+
     public int getMyEstimatedResourceThisTick() {
         return getMyPlayer().getResource() + (workersAtMiningPositions - 1);
     }
@@ -104,6 +110,25 @@ public class ParsedGameState {
     }
 
 
+    public int getMaxWorkerX() {
+        return maxWorkerX;
+    }
+
+    public int getMaxWorkerY() {
+        return maxWorkerY;
+    }
+
+    public int getWorkersAtMiningPositions() {
+        return workersAtMiningPositions;
+    }
+
+    public int getMineralsAtMapCorner() {
+        return mineralsAtMapCorner;
+    }
+
+    public int getMyWorkersAtMapCorner() {
+        return myWorkersAtMapCorner;
+    }
 }
 
 

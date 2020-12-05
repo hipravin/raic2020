@@ -99,9 +99,9 @@ public class FinalGameStartStrategy implements SubStrategy {
         Command moveThenAutoRepair = new MoveSingleCommand(pgs,  pgs.at(len2Worker).getEntityId(), len2WorkerMoveTo, MAX_VAL);
         Command arp3 = new AutoRepairCommand(firstHouseWhereToBuild, pgs.at(len2Worker).getEntityId(), pgs, strategyParams);
         //sometimes after repair worker just stays... try to send him back
-        Command moveBack = new MoveSingleCommand(pgs,  pgs.at(len2Worker).getEntityId(), len2Worker, MAX_VAL);
+//        Command moveBack = new MoveSingleCommand(pgs,  pgs.at(len2Worker).getEntityId(), len2Worker, MAX_VAL);
 
-        CommandUtil.chainCommands(moveThenAutoRepair, arp3, moveBack);
+        CommandUtil.chainCommands(moveThenAutoRepair, arp3/**, moveBack**/);
 
         gameHistoryState.addOngoingCommand(brp1, true);
         gameHistoryState.addOngoingCommand(brp2, true);

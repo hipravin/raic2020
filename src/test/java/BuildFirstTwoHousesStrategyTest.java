@@ -13,6 +13,7 @@ import java.util.List;
 import static hipravin.model.Position2d.of;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Deprecated
 class BuildFirstTwoHousesStrategyTest {
     RootStrategy strategy;
 

@@ -9,14 +9,18 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static hipravin.strategy.StrategyParams.MAX_VAL;
+
 public class Cell implements Cloneable {
     public static final int MIN_FP_SIZE = 2;
     public static final int MAX_FP_SIZE = 5;
 
     Position2d position;
     boolean isEmpty = true;
+    boolean wasEmptyWhileVisible = false;
     boolean isProducingMyBuildingOuterEdge = false;
     boolean fog = true;
+
     int ownerPlayerId = -1;
     EntityType entityType = null;
     int healthLeft = -1;
@@ -67,6 +71,7 @@ public class Cell implements Cloneable {
         Cell cell = new Cell();
         cell.isEmpty = true;
         cell.position = position;
+        cell.fog = true;
 
         return cell;
     }
@@ -305,6 +310,11 @@ public class Cell implements Cloneable {
 
     public boolean isProducingMyBuildingOuterEdge() {
         return isProducingMyBuildingOuterEdge;
+    }
+
+    public int getPathLenToNearestMineralOrInf() {
+        return Optional.ofNullable(nearestMineralField).map(NearestEntity::getPathLenEmptyCellsToThisCell)
+                .orElse(MAX_VAL);
     }
 
     public NearestEntity getNearestMineralField() {
