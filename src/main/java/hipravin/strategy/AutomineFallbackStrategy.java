@@ -29,7 +29,6 @@ public class AutomineFallbackStrategy implements SubStrategy {
 
         Set<Integer> busyEntities = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
 
-
         List<Entity> notBusyWorkers = currentParsedGameState.getMyWorkers()
                 .values().stream().map(Cell::getEntity)
                 .filter(e -> !busyEntities.contains(e.getId()))

@@ -189,6 +189,10 @@ public class FinalGameStartStrategy implements SubStrategy {
 
         FinalGameStartStrategy.MineralAndMinerPosition firstMiner = minerAndMineralClosest(firstWorker, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
 
+        if(firstMiner == null) {
+            return Optional.empty();
+        }
+
         List<Position2d> firstMinerPositionsAfterFirstMined = Position2dUtil.upRightLeftDown(firstMiner.minerPosition)
                 .filter(p -> currentParsedGameState.at(p)
                         .test(c -> (c.getPosition().equals(firstMiner.mineralPosition) || c.isEmpty())
@@ -427,6 +431,10 @@ public class FinalGameStartStrategy implements SubStrategy {
             Position2d workerPosition,
             GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
             StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+
+        if(pgs.at(workerPosition).getNearestMineralField() == null) {
+            return null;
+        }
 
         int toNearestMineral = pgs.at(workerPosition).getNearestMineralField().getPathLenEmptyCellsToThisCell();
         Map<Position2d, NearestEntity> toMinerals =

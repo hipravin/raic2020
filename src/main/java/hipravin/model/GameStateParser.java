@@ -2,6 +2,7 @@ package hipravin.model;
 
 import hipravin.DebugOut;
 import model.Entity;
+import model.EntityProperties;
 import model.EntityType;
 import model.PlayerView;
 
@@ -71,6 +72,13 @@ public abstract class GameStateParser {
 
         calculateWorkersAtMiningPositions(parsedGameState);
         return parsedGameState;
+    }
+
+    static void markupFog(ParsedGameState pgs) {
+//        Map<EntityType, EntityProperties> entityProperties = pgs.getPlayerView().getEntityProperties();
+//
+//        Arrays.stream(pgs.getPlayerView().getEntities())
+//                .filter(e -> e.getPlayerId() != null && e.getPlayerId() == pgs.getPlayerView().getMyId())
     }
 
     static void calculateWorkersAtMiningPositions(ParsedGameState pgs) {

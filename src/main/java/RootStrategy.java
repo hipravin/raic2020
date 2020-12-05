@@ -22,14 +22,12 @@ public class RootStrategy extends MyStrategy {
 
         FinalGameStartStrategy buildFirstHouseFinalStrategy = new FinalGameStartStrategy();
 
+        UnsetBuildCommandsStrategy unsetStrategy = new UnsetBuildCommandsStrategy();
         AutomineFallbackStrategy autoMine = new AutomineFallbackStrategy();
 
-        PerformBuildCommandsSubStrategy performBuildCommandsSubStrategy = new PerformBuildCommandsSubStrategy();
-
         subStrategies.add(buildFirstHouseFinalStrategy);
-
         subStrategies.add(autoMine);
-
+        subStrategies.add(unsetStrategy);
     }
 
     void initStaticParams(PlayerView playerView) {
