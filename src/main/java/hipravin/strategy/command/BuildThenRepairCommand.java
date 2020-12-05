@@ -67,4 +67,16 @@ public class BuildThenRepairCommand extends Command {
                 ", builderWorkerId=" + builderWorkerId +
                 '}';
     }
+
+    public Position2d getCornerPosition() {
+        return cornerPosition;
+    }
+
+    public EntityType getBuildingType() {
+        return buildingType;
+    }
+
+    public int getBuilderWorkerId() {
+        return builderWorkerId;
+    }
 }

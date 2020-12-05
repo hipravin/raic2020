@@ -73,9 +73,29 @@ public class SpawnWorkersStrategy implements SubStrategy {
         if(sorted.size() > 0) {
             return Optional.of(sorted.get(0));
         } else {
-            return Optional.empty();//impossible if code is correct
+            //spawn randomly
+            return spawnIfNoPathToMinerals(gameHistoryState, pgs, strategyParams);
         }
     }
 
+    Optional<Position2d> spawnIfNoPathToMinerals(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                                 StrategyParams strategyParams) {
+        Set<Position2d> ccOuterEdge = pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
+                .getBuildingOuterEdgeWithoutCorners();
 
+        ccOuterEdge.removeIf(p -> !pgs.at(p).isEmpty());
+        Comparator<Position2d> topRight = Comparator.comparing(p -> p.x + p.y, Comparator.reverseOrder());
+
+        List<Position2d> sorted = ccOuterEdge.stream()
+                .sorted(topRight)
+                .collect(Collectors.toList());
+        if(sorted.isEmpty()) {
+            return Optional.empty();
+        } else if(sorted.size() == 1) {
+            return Optional.of(sorted.get(0));
+        } else {
+            int idx = GameHistoryAndSharedState.random.nextInt() % 2;//first or second element
+            return Optional.of(sorted.get(idx));
+        }
+    }
 }

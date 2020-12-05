@@ -1,0 +1,197 @@
+package hipravin.strategy;
+
+import hipravin.DebugOut;
+import hipravin.model.*;
+import hipravin.strategy.command.*;
+import model.EntityType;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static hipravin.model.Position2dUtil.buildingsHaveSpaceInBetween;
+import static hipravin.strategy.StrategyParams.MAX_VAL;
+
+public class BuildHousesStrategy implements SubStrategy {
+
+    boolean shouldBuildHouse(ParsedGameState pgs, StrategyParams strategyParams) {
+        //TODO: check houses already in progress, other stuff
+        boolean populationAheadRequired = pgs.getPopulation().getPotentialLimit() <
+                pgs.getPopulation().getPopulationUse() + strategyParams.getHousesAheadPopulation(pgs.getPopulation().getPopulationUse());
+
+        return populationAheadRequired;
+    }
+
+    boolean willHaveResourcesIn2Ticks(ParsedGameState pgs) {
+        return pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost();
+    }
+
+    @Override
+    public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        if (!FinalGameStartStrategy.gameStartStrategyDone) {
+            return false;
+        }
+        if (pgs.getActiveHouseCount() == 0
+                && gameHistoryState.ongoingHouseBuildCommandCount() > 0) {
+            return false;
+        }
+
+
+        return true;
+    }
+
+    @Override
+    public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                       StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        if (!shouldBuildHouse(pgs, strategyParams)) {
+            return;
+        }
+
+        if (!willHaveResourcesIn2Ticks(pgs)) {
+            return;
+        }
+
+        tryToBuildHouseShortDistance(gameHistoryState, pgs, strategyParams);
+    }
+
+    public void tryToBuildHouseShortDistance(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                             StrategyParams strategyParams) {
+
+        int distance = 3;
+
+        //permitted to build without spacing
+        boolean pbws = pgs.getActiveHouseCount() <= strategyParams.maxHousesBeforeMandatorySpacing;
+
+        boolean success =
+                tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true)
+                        || pbws && tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true)
+                        || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildHouseShortDistance(1, distance, gameHistoryState, pgs, strategyParams, true)
+                        || pbws && tryToBuildHouseShortDistance(1, distance, gameHistoryState, pgs, strategyParams, false);
+    }
+
+    public boolean tryToBuildHouseShortDistance(int workers, int maxDistanceToWorker, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                                StrategyParams strategyParams, boolean withNonDesiredAndSpacingFiltering) {
+        DebugOut.println("Try to build house with workers: " + workers + " with spacing: " + withNonDesiredAndSpacingFiltering);
+
+        int size = Position2dUtil.HOUSE_SIZE;
+
+        Map<Position2d, FreeSpace> houseOptions = pgs.allCellsAsStream()
+                .filter(c -> c.getFreeSpace(size).map(FreeSpace::isCompletelyFree).orElse(false))
+                .collect(Collectors.toMap(Cell::getPosition, c -> c.getFreeSpace(size).get()));
+
+        if (withNonDesiredAndSpacingFiltering) {
+            houseOptions.entrySet().removeIf(e -> strategyParams.houseNonDesiredPositions().contains(e.getKey()));
+            houseOptions.entrySet().removeIf(e -> !doesntTouchOtherBuildings(e.getKey(), size, pgs));
+        }
+
+        //housePosition -> [uniqueWorkerPosition -> NearestEntity]
+        Map<Position2d, List<NearestEntity>> hpUniqueBestWorkers = new HashMap<>();
+        Set<Integer> busyWorkers = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
+
+        houseOptions.forEach((hp, fs) -> {
+
+            List<NearestEntity> workersNearEdge =
+                    Position2dUtil.buildingOuterEdgeWithoutCorners(hp, size)
+                            .stream().filter(edge -> pgs.at(edge).test(c -> c.isEmpty() || c.isMyWorker()))
+                            .flatMap(edge -> workersAtDistanceLesThan(pgs.at(edge).getWorkersNearby(), maxDistanceToWorker).stream())
+                            .collect(Collectors.toList()); //non-unique workers nearby
+
+            workersNearEdge.removeIf(ne -> busyWorkers.contains(ne.getSourceCell().getEntityId()));//only not busy workers
+            Set<Position2d> uniqueWorkerPositions = workersNearEdge.stream().map(ne -> ne.getSourceCell().getPosition())
+                    .collect(Collectors.toSet());
+
+            if (uniqueWorkerPositions.size() >= workers) {
+                Set<Position2d> workerUsed = new HashSet<>();
+                Set<Position2d> edgePositionsUsed = new HashSet<>();
+                Map<Position2d, NearestEntity> workerRepairPositions = new HashMap<>();
+
+                int foundCount = 0;
+                for (int distance = 0; distance <= maxDistanceToWorker; distance++) {
+                    for (NearestEntity workerNe : workersNearEdge) {
+                        if(workerNe.getPathLenEmptyCellsToThisCell() == distance
+                                && !workerUsed.contains(workerNe.getSourceCell().getPosition())
+                                && !edgePositionsUsed.contains(workerNe.getThisCell().getPosition()) ) {
+                            workerUsed.add(workerNe.getSourceCell().getPosition());
+                            edgePositionsUsed.add(workerNe.getThisCell().getPosition());
+
+                            workerRepairPositions.put(workerNe.getThisCell().getPosition(), workerNe);
+
+                            foundCount ++;
+
+                            if(foundCount >= workers) {
+                                break;
+                            }
+                        }
+                    }
+                    if(foundCount >= workers) {
+                        break;
+                    }
+                }
+                //now we have exact workers
+
+                if(foundCount >= workers) {
+                    hpUniqueBestWorkers.put(hp, new ArrayList<>(workerRepairPositions.values()));
+                }
+            }
+        });
+
+        Map<Position2d, Integer> sumPathLenMap = new HashMap<>();
+        hpUniqueBestWorkers.forEach((hp, nes) -> {
+            sumPathLenMap.put(hp, sumPathLen(nes));
+        });
+
+        Comparator<Position2d> sumPathLen = Comparator.comparingInt(sumPathLenMap::get);
+
+        List<Position2d> acceptableHousePositions = new ArrayList<>(hpUniqueBestWorkers.keySet());
+        Collections.sort(acceptableHousePositions, sumPathLen);
+
+        if (!acceptableHousePositions.isEmpty()) {
+            Position2d hp = acceptableHousePositions.get(0);
+            createBuildAndRepairCommands(hp, hpUniqueBestWorkers.get(hp), gameHistoryState, pgs, strategyParams);
+            return true;
+        }
+
+        return false;
+    }
+
+    void createBuildAndRepairCommands(Position2d housePosition, List<NearestEntity> workers, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                      StrategyParams strategyParams) {
+
+        NearestEntity builder = workers.get(0);
+        Command moveThenBuild = new MoveSingleCommand(pgs, builder.getSourceCell().getEntityId(),
+                builder.getThisCell().getPosition(), MAX_VAL);
+        Command bc = new BuildThenRepairCommand(housePosition, EntityType.HOUSE, builder.getSourceCell().getEntityId(), pgs, strategyParams);
+        CommandUtil.chainCommands(moveThenBuild, bc);
+
+        gameHistoryState.addOngoingCommand(moveThenBuild, false);
+        for (int i = 1; i < workers.size(); i++) {
+            NearestEntity repairer = workers.get(i);
+            int repairerEntityId = repairer.getSourceCell().getEntityId();
+
+            Command moveThenAutoRepair = new MoveSingleCommand(pgs, repairerEntityId,
+                    repairer.getThisCell().getPosition(), MAX_VAL);
+            Command arp = new AutoRepairCommand(housePosition, repairerEntityId, pgs, strategyParams);
+            CommandUtil.chainCommands(moveThenAutoRepair, arp);
+
+            gameHistoryState.addOngoingCommand(moveThenAutoRepair, false);
+        }
+    }
+
+    static int sumPathLen(List<NearestEntity> nes) {
+        return nes.stream().mapToInt(NearestEntity::getPathLenEmptyCellsToThisCell).sum();
+    }
+
+
+    List<NearestEntity> workersAtDistanceLesThan(Map<Position2d, NearestEntity> nearbyWorkers, int maxDistance) {
+        return nearbyWorkers.values().stream().filter(ne -> ne.getPathLenEmptyCellsToThisCell() <= maxDistance)
+                .collect(Collectors.toList());
+    }
+
+    static boolean doesntTouchOtherBuildings(Position2d corner, int size, ParsedGameState pgs) {
+        return pgs.findAllMyBuildings()
+                .stream().allMatch(b ->
+                        buildingsHaveSpaceInBetween(corner, size,
+                                b.getCornerCell().getPosition(), b.getCornerCell().getBuildingSize()));
+    }
+}

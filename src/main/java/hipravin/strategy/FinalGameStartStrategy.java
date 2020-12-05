@@ -18,10 +18,9 @@ import static hipravin.strategy.StrategyParams.MAX_VAL;
  * According to my perfect calculations we need to build first house with exact 3 workers. And 2 workers at desperate
  */
 public class FinalGameStartStrategy implements SubStrategy {
-
     BeforeFirstHouseBuildOrder buildOrder;
 
-    boolean gameStartStrategyDone = false;
+    public static boolean gameStartStrategyDone = false;
 
     @Override
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -467,12 +466,17 @@ public class FinalGameStartStrategy implements SubStrategy {
             return false;
         }
 
-        return currentParsedGameState.findMyBuildings(EntityType.HOUSE).size() == 0
+        boolean applicable = currentParsedGameState.findMyBuildings(EntityType.HOUSE).size() == 0
                 && currentParsedGameState.findMyBuildings(EntityType.MELEE_BASE).size() == 0
                 && currentParsedGameState.findMyBuildings(EntityType.RANGED_BASE).size() == 0
                 && currentParsedGameState.findMyBuildings(EntityType.BUILDER_BASE).size() == 1
                 && currentParsedGameState.getPlayerView().getCurrentTick() < 200; //just in case
 
+        if(!applicable) {
+            gameStartStrategyDone = true;
+        }
+
+        return applicable;
     }
 
     public static class MineralAndMinerPosition {

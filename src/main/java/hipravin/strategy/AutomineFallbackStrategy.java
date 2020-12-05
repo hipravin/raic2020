@@ -35,7 +35,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
                 .collect(Collectors.toList());
 
         if(DebugOut.enabled) {
-            DebugOut.println("Busy workers: " +  busyEntities);
+            DebugOut.println("Busy entities: " +  busyEntities);
             DebugOut.println("Not busy workers: " +  notBusyWorkers.stream().map(Entity::getId).collect(Collectors.toSet()));
         }
 

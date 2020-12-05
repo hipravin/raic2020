@@ -2,8 +2,10 @@ package hipravin.strategy;
 
 import hipravin.DebugOut;
 import hipravin.model.ParsedGameState;
+import hipravin.strategy.command.BuildThenRepairCommand;
 import hipravin.strategy.command.Command;
 import model.Action;
+import model.EntityType;
 import model.Player;
 
 import java.util.*;
@@ -11,14 +13,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GameHistoryAndSharedState {
-//    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
+    public static Random random = new Random(0);
+
+    //    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
     List<Command> ongoingCommands = new ArrayList<>();
 
     ParsedGameState previousParsedGameState = null;
     Map<Integer, Player[]> playerInfo = new HashMap<>();
-
-
-
 
 
     Action previousTickAction;
@@ -64,15 +65,15 @@ public class GameHistoryAndSharedState {
     public boolean addOngoingCommand(Command command, boolean force) {
         DebugOut.println("Adding command:" + command.toString());
 
-        if(force) {
+        if (force) {
             ongoingCommands.removeIf(oc -> twoSetFirstIntersection(oc.getRelatedEntityIds(), command.getRelatedEntityIds()).isPresent());
             ongoingCommands.add(command);
 
             return true;
         } else {
             boolean conflict = ongoingCommands.stream().anyMatch(c -> twoSetFirstIntersection(c.getRelatedEntityIds(), command.getRelatedEntityIds()).isPresent());
-            if(conflict) {
-               return false;
+            if (conflict) {
+                return false;
             } else {
                 ongoingCommands.add(command);
                 return true;
@@ -93,9 +94,21 @@ public class GameHistoryAndSharedState {
         }
     }
 
+    public int ongoingHouseBuildCommandCount() {
+        return (int)ongoingCommands.stream()
+                .filter(c -> {
+                    if(c instanceof BuildThenRepairCommand) {
+                        return ((BuildThenRepairCommand) c).getBuildingType() == EntityType.HOUSE;
+                    }
+
+                    return false;
+                }).count();
+    }
+
     public Stream<Integer> allOngoingCommandRelatedEntitiIds() {
         return ongoingCommands.stream().flatMap(c -> c.getRelatedEntityIds().stream());
     }
+
     public Set<Integer> allOngoingCommandRelatedEntitiIdsSet() {
         return allOngoingCommandRelatedEntitiIds().collect(Collectors.toSet());
     }

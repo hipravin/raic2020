@@ -53,7 +53,7 @@ public class AutoRepairCommand extends Command {
             assignedActions.put(workerEntityId, new ValuedEntityAction(0.5, workerEntityId, action));
         } else {
             EntityAction autoAttack = new EntityAction();
-            AttackAction attackAction = new AttackAction(null, new AutoAttack(1, new EntityType[]{EntityType.RESOURCE}));
+            AttackAction attackAction = new AttackAction(null, new AutoAttack(0, new EntityType[]{EntityType.RESOURCE}));
             autoAttack.setAttackAction(attackAction);
             assignedActions.put(workerEntityId, new ValuedEntityAction(0.5, workerEntityId, autoAttack));
         }

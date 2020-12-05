@@ -76,11 +76,24 @@ public abstract class GameStateParser {
         GameStateParserDjkstra.computeClosestMinerals(parsedGameState);
 
         computeProducingBuildingEdge(parsedGameState);
+        computeWorkersNearby(parsedGameState);
+
         computeFreeSpaces(parsedGameState);
         computeBuildingEdgeFreeCells(parsedGameState);
 
         calculateWorkersAtMiningPositions(parsedGameState);
         return parsedGameState;
+    }
+
+    static void computeWorkersNearby(ParsedGameState pgs) {
+        for (Cell myWorker : pgs.getMyWorkers().values()) {
+            Map<Position2d, NearestEntity> nearestEntityMap =
+                    GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), StrategyParams.WORKERS_NEARBY_MAX_PATH);
+
+            nearestEntityMap.forEach((p, ne) -> {
+                pgs.at(p).workersNearby.put(myWorker.position, ne);
+            });
+        }
     }
 
     static void calculateWorkerXY(ParsedGameState pgs) {

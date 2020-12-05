@@ -35,6 +35,14 @@ public class ParsedGameState {
         return getMyPlayer().getResource()  + (workersAtMiningPositions - 1) * ticks - 1;
     }
 
+    public int getActiveHouseCount() {
+        return (int) Arrays.stream(playerView.getEntities())
+                .filter(e -> e.getEntityType() == EntityType.HOUSE
+                        && e.getPlayerId() != null && e.getPlayerId() == playerView.getMyId()
+                        && e.isActive())
+                .count();
+    }
+
     public int getHouseCost() {
         return playerView.getEntityProperties().get(EntityType.HOUSE).getInitialCost();
     }
@@ -70,6 +78,12 @@ public class ParsedGameState {
         return buildingsByEntityId.values().stream()
                 .filter(Building::isMyBuilding)
                 .filter(b -> b.cornerCell.getEntity().getEntityType() == entityType)
+                .collect(Collectors.toList());
+    }
+
+    public List<Building> findAllMyBuildings() {
+        return buildingsByEntityId.values().stream()
+                .filter(Building::isMyBuilding)
                 .collect(Collectors.toList());
     }
 

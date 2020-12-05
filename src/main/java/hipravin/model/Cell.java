@@ -39,6 +39,7 @@ public class Cell implements Cloneable {
     NearestEntity myNearestWorker = null;
     NearestEntity nearestMineralField = null;
 
+    //worker position -> ne
     Map<Position2d, NearestEntity> workersNearby = new HashMap<>();
 
     long len1MineralsCount = -1;
@@ -319,5 +320,13 @@ public class Cell implements Cloneable {
 
     public NearestEntity getNearestMineralField() {
         return nearestMineralField;
+    }
+
+    public boolean isWasEmptyWhileVisible() {
+        return wasEmptyWhileVisible;
+    }
+
+    public Map<Position2d, NearestEntity> getWorkersNearby() {
+        return workersNearby;
     }
 }

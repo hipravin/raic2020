@@ -20,6 +20,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ParsedGameStateTest {
 
     @Test
+    void testWorkersNearby() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 1, 68);
+
+        PlayerView pw = get0.getPlayerView();
+        ParsedGameState pgs = GameStateParser.parse(pw);
+
+        Cell c = pgs.at(of(3,10));
+        assertEquals(4, c.getWorkersNearby().size());
+
+
+    }
+
+    @Test
     void testNearestSingleWorker() {
         ServerMessage.GetAction get0 = TestServerUtil.readGet(1, 1, 0);
 

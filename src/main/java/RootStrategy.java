@@ -22,12 +22,14 @@ public class RootStrategy extends MyStrategy {
 
         FinalGameStartStrategy buildFirstHouseFinalStrategy = new FinalGameStartStrategy();
         SpawnWorkersStrategy spawnWorkersStrategy = new SpawnWorkersStrategy();
+        BuildHousesStrategy buildHousesStrategy = new BuildHousesStrategy();
 
         UnsetBuildCommandsStrategy unsetStrategy = new UnsetBuildCommandsStrategy();
         AutomineFallbackStrategy autoMine = new AutomineFallbackStrategy();
 
         subStrategies.add(buildFirstHouseFinalStrategy);
         subStrategies.add(spawnWorkersStrategy);
+        subStrategies.add(buildHousesStrategy);
         subStrategies.add(autoMine);
         subStrategies.add(unsetStrategy);
     }

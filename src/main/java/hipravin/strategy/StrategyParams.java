@@ -11,6 +11,8 @@ public class StrategyParams {
     public static final int NEAREST_WORKERS_COMPUTE_PATH_LIMIT = MAX_VAL;
     public static final int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = MAX_VAL;
 
+    public static final int WORKERS_NEARBY_MAX_PATH = 10;
+
     public static final int MAX_COMBINATIONS_BF = 5000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
@@ -21,9 +23,11 @@ public class StrategyParams {
 
     public double mapCornerMiningRatio = 3/10.0; //spawn rokers only if workers / minerals < {value}
 
+    public int maxHousesBeforeMandatorySpacing = 5;
 
-
-
+    public int getHousesAheadPopulation(int currentPopulation) {
+        return 3 * 5;
+    }
 
     public Set<Position2d> firstHouseNonDesiredPositions() {
         Position2d cc = Position2dUtil.MY_CC;
