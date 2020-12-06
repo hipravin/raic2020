@@ -7,6 +7,7 @@ import model.EntityProperties;
 import model.EntityType;
 import model.PlayerView;
 
+import javax.swing.text.Position;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -76,16 +77,20 @@ public abstract class GameStateParser {
         GameStateParserDjkstra.computeClosestMinerals(parsedGameState);
 
         computeProducingBuildingEdge(parsedGameState);
-        computeWorkersNearby(parsedGameState);
+//        computeUniqueWorkersNearby(parsedGameState);
 
-        computeFreeSpaces(parsedGameState);
+//        computeFreeSpaces(parsedGameState);
         computeBuildingEdgeFreeCells(parsedGameState);
 
         calculateWorkersAtMiningPositions(parsedGameState);
         return parsedGameState;
     }
 
-    static void computeWorkersNearby(ParsedGameState pgs) {
+    /**
+     * perf tuning  - perform only when needed
+     *
+     */
+    public static void computeUniqueWorkersNearby(ParsedGameState pgs) {
         for (Cell myWorker : pgs.getMyWorkers().values()) {
             Map<Position2d, NearestEntity> nearestEntityMap =
                     GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), StrategyParams.WORKERS_NEARBY_MAX_PATH);
@@ -148,19 +153,42 @@ public abstract class GameStateParser {
     }
 
 
-    static void calculateNeighbourMineralsAndWorkers(ParsedGameState parsedGameState) {
-        parsedGameState.allCellsAsStream().forEach(eachCell -> {
-            eachCell.len1MineralsCount = Position2dUtil.upRightLeftDown(eachCell.getPosition()).map(p -> parsedGameState.at(p))
-                    .filter(mc -> mc.isMineral)
-                    .count();
+    static void calculateNeighbourMineralsAndWorkers(ParsedGameState pgs) {
+        forEachCell(pgs.cells, c -> {
+            Position2d p = c.getPosition();
 
-            eachCell.len1MyWorkersCount = Position2dUtil.upRightLeftDown(eachCell.getPosition()).map(p -> parsedGameState.at(p))
-                    .filter(wc -> wc.isMyWorker())
-                    .count();
+            Position2d[] len1Positions = new Position2d[]{
+                    p.shift(0, 1),
+                    p.shift(1, 0),
+                    p.shift(-1, 0),
+                    p.shift(0, -1)};
+
+            int isWorkerCount = 0;
+            int isMineralCount = 0;
+
+            for (Position2d len1Position : len1Positions) {
+                if(Position2dUtil.isPositionWithinMapBorder(len1Position)) {
+                    Cell atl1 = pgs.at(len1Position);
+
+                    if(atl1.isMineral) {
+                        isMineralCount ++;
+                    } else if(atl1.isMyWorker()) {
+                        isWorkerCount ++;
+                    }
+                }
+            }
+            c.len1MyWorkersCount = isWorkerCount;
+            c.len1MineralsCount = isMineralCount;
+
         });
     }
 
 
+    /**
+     * Compute free spaces only when requested
+     * @param pgs
+     */
+    @Deprecated
     static void computeFreeSpaces(ParsedGameState pgs) {
         Cell[][] cells = pgs.cells;
 

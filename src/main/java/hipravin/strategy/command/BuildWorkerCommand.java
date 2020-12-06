@@ -28,7 +28,7 @@ public class BuildWorkerCommand extends Command {
 
     @Override
     public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
-        return pgs.getMyCc() != null && pgs.at(spawnLocation).isEmpty();
+        return pgs.getMyCc() != null && (pgs.at(spawnLocation).isEmpty() || pgs.at(spawnLocation).isMyWorker());
     }
 
     @Override

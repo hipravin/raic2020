@@ -3,6 +3,7 @@ package hipravin.model;
 import hipravin.strategy.StrategyParams;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -76,6 +77,30 @@ public abstract class Position2dUtil {
         });
 
         return result;
+    }
+
+    public static List<Position2d> upRightLeftDownFiltered(Position2d p, Collection<Predicate<? super Position2d>> filters) {
+        List<Position2d> pfiltered = new ArrayList<>(4);
+
+        withingMapBorderAndPassesAllFilters(p.shift(0, 1), filters, pfiltered);
+        withingMapBorderAndPassesAllFilters(p.shift(1, 0), filters, pfiltered);
+        withingMapBorderAndPassesAllFilters(p.shift(-1, 0), filters, pfiltered);
+        withingMapBorderAndPassesAllFilters(p.shift(0, -1), filters, pfiltered);
+
+        return pfiltered;
+    }
+
+    static void withingMapBorderAndPassesAllFilters(Position2d p, Collection<Predicate<? super Position2d>> filters, List<Position2d> toAdd) {
+        if (!Position2dUtil.isPositionWithinMapBorder(p)) {
+            return;
+        }
+        for (Predicate<? super Position2d> filter : filters) {
+            if (!filter.test(p)) {
+                return;
+            }
+        }
+
+        toAdd.add(p);
     }
 
     public static Stream<Position2d> upRightLeftDown(Position2d p) {

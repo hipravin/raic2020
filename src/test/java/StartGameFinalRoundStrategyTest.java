@@ -69,24 +69,6 @@ class StartGameFinalRoundStrategyTest {
     }
 
     @Test
-    void testBuilOrderToCommands() {
-
-        FinalGameStartStrategy bfs = new FinalGameStartStrategy();
-
-//        bfs.decide(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>());
-
-        assertEquals(2, strategy.gameHistoryState.getOngoingCommands().size());
-        BuildWorkerCommand buildChain = (BuildWorkerCommand)strategy.gameHistoryState.getOngoingCommands().get(1);
-
-        System.out.println(buildChain);
-
-
-
-
-    }
-
-
-    @Test
     void testFind2b1r() {
 
         FinalGameStartStrategy bfs = new FinalGameStartStrategy();

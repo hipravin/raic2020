@@ -1,12 +1,16 @@
 package hipravin.model;
 
+import hipravin.strategy.StrategyParams;
 import model.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import javax.swing.text.Position;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static hipravin.model.GameStateParser.forEachPosition;
+import static hipravin.model.Position2dUtil.isSquareWithinMapBorder;
+import static hipravin.model.Position2dUtil.squareInclusiveCornerStream;
 
 public class ParsedGameState {
     PlayerView playerView;
@@ -32,7 +36,33 @@ public class ParsedGameState {
     }
 
     public int getEstimatedResourceAfterTicks(int ticks) {
-        return getMyPlayer().getResource()  + (workersAtMiningPositions - 1) * ticks - 1;
+        return getMyPlayer().getResource() + (workersAtMiningPositions - 1) * ticks - 1;
+    }
+
+    public Optional<FreeSpace> calculateFreeSpace(Cell cell, int size) {
+        boolean containUnits = false;
+        Position2d corner = cell.getPosition();
+
+        if (!isSquareWithinMapBorder(corner, size)) {
+            return Optional.empty();
+        }
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                Cell c = at(corner.shift(i, j));
+
+                if (c.isMyUnit()) {
+                    containUnits = true;
+                } else if (!c.isEmpty) {
+                    return Optional.empty();
+                }
+            }
+        }
+        if (containUnits) {
+            return Optional.of(FreeSpace.freeButContainOutUnits(size));
+        } else {
+            return Optional.of(FreeSpace.completelyFree(size));
+        }
     }
 
     public int getActiveHouseCount() {
@@ -65,6 +95,18 @@ public class ParsedGameState {
         }
 
         return combined;
+    }
+
+    public List<Cell> myWorkersSquareCellsAsStream() {
+        List<Cell> cells = new ArrayList<>();
+
+        forEachPosition(0, maxWorkerX + StrategyParams.FREE_SPACE_COMPUTE_RANGE,
+                0, maxWorkerY + StrategyParams.FREE_SPACE_COMPUTE_RANGE, corner -> {
+                    cells.add(at(corner));
+                });
+
+        return cells;
+
     }
 
     public List<Building> findMyProducingBuildings() {

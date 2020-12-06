@@ -33,10 +33,13 @@ public class GameStateParserDjkstra {//wide search actually
 
             for (Position2d curPathLenPos : currentSet) {
                 final int pathLen = len;
-                Stream<Position2d> neighbourstoAdd =
-                        Position2dUtil.upRightLeftDown(curPathLenPos)
-                                .filter(p -> !visited.contains(p))
-                                .filter(p -> !result.containsKey(p) || result.get(p).pathLenEmptyCellsToThisCell > pathLen);
+
+                List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
+                        Arrays.asList(
+                                p -> !visited.contains(p),
+                                p -> !result.containsKey(p) || result.get(p).pathLenEmptyCellsToThisCell > pathLen
+                        ));
+
                 neighbourstoAdd.forEach(p -> {
                     visited.add(p);
                     Cell atP  = pgs.at(p);
@@ -75,11 +78,14 @@ public class GameStateParserDjkstra {//wide search actually
 
             for (Position2d curPathLenPos : currentSet) {
                 final int pathLen = len;
-                Stream<Position2d> neighbourstoAdd =
-                        Position2dUtil.upRightLeftDown(curPathLenPos)
-                                .filter(p -> !visited.contains(p))
-                                .filter(p -> pgs.at(p).test(c -> c.isEmpty || c.isMyWorker()))
-                                .filter(p -> pgs.at(p).nearestMineralField == null || pgs.at(p).nearestMineralField.pathLenEmptyCellsToThisCell > pathLen);
+
+                List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
+                        Arrays.asList(
+                                p -> !visited.contains(p),
+                                p -> pgs.at(p).test(c -> c.isEmpty || c.isMyWorker()),
+                                p -> pgs.at(p).nearestMineralField == null || pgs.at(p).nearestMineralField.pathLenEmptyCellsToThisCell > pathLen
+                        ));
+
                 neighbourstoAdd.forEach(p -> {
                     visited.add(p);
                     Cell atP  = pgs.at(p);
@@ -115,11 +121,13 @@ public class GameStateParserDjkstra {//wide search actually
 
             for (Position2d curPathLenPos : currentSet) {
                 final int pathLen = len;
-                Stream<Position2d> neighbourstoAdd =
-                        Position2dUtil.upRightLeftDown(curPathLenPos)
-                                .filter(p -> !visited.contains(p))
-                                .filter(p -> pgs.at(p).isEmpty)
-                                .filter(p -> pgs.at(p).myNearestWorker == null || pgs.at(p).myNearestWorker.pathLenEmptyCellsToThisCell > pathLen);
+                List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
+                        Arrays.asList(
+                                p -> !visited.contains(p),
+                                p -> pgs.at(p).isEmpty,
+                                p -> pgs.at(p).myNearestWorker == null || pgs.at(p).myNearestWorker.pathLenEmptyCellsToThisCell > pathLen
+                        ));
+
                 neighbourstoAdd.forEach(p -> {
                     visited.add(p);
                     Cell atP  = pgs.at(p);

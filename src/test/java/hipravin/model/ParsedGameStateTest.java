@@ -26,10 +26,10 @@ class ParsedGameStateTest {
         PlayerView pw = get0.getPlayerView();
         ParsedGameState pgs = GameStateParser.parse(pw);
 
+        GameStateParser.computeUniqueWorkersNearby(pgs);
+
         Cell c = pgs.at(of(3,10));
-        assertEquals(4, c.getWorkersNearby().size());
-
-
+        assertEquals(3, c.getWorkersNearby().size());
     }
 
     @Test
@@ -47,7 +47,7 @@ class ParsedGameStateTest {
             assertTrue(c.myNearestWorker == null || c.myNearestWorker.sourceCell.position.equals(of(4,4)));
         });
 
-        assertEquals(4025, countCells(pgs, c -> c.myNearestWorker != null));//approximately half of map is unreacheable at start. seems legit if mineral count is good
+        assertEquals(252, countCells(pgs, c -> c.myNearestWorker != null));//approximately half of map is unreacheable at start. seems legit if mineral count is good
     }
 
     @Test
@@ -146,15 +146,15 @@ class ParsedGameStateTest {
             }
         }
 
-        assertEquals(277, freeTotal);
-        assertEquals(39, freeButUnitsTotal);
+        assertEquals(7916, freeTotal);
+        assertEquals(43, freeButUnitsTotal);
     }
 
     long countCompletelyFree(ParsedGameState pgs, int size) {
-        return pgs.allCellsAsStream().filter(c -> c.getFreeSpace(size).map(f -> f.isCompletelyFree).orElse(false)).count();
+        return pgs.allCellsAsStream().filter(c -> pgs.calculateFreeSpace(c, size).map(f -> f.isCompletelyFree).orElse(false)).count();
     }
     long countFreeButUnits(ParsedGameState pgs, int size) {
-        return pgs.allCellsAsStream().filter(c -> c.getFreeSpace(size).map(f -> f.isFreeButContainOurUnits).orElse(false)).count();
+        return pgs.allCellsAsStream().filter(c -> pgs.calculateFreeSpace(c, size).map(f -> f.isFreeButContainOurUnits).orElse(false)).count();
     }
 
     @Test

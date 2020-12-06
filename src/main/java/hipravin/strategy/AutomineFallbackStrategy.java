@@ -34,12 +34,6 @@ public class AutomineFallbackStrategy implements SubStrategy {
                 .filter(e -> !busyEntities.contains(e.getId()))
                 .collect(Collectors.toList());
 
-        if(DebugOut.enabled) {
-            DebugOut.println("Busy entities: " +  busyEntities);
-            DebugOut.println("Not busy workers: " +  notBusyWorkers.stream().map(Entity::getId).collect(Collectors.toSet()));
-        }
-
-
         notBusyWorkers.forEach(w -> {
             EntityAction autoAttack = new EntityAction();
             AttackAction attackAction = new AttackAction(null, new AutoAttack(2 * Position2dUtil.MAP_SIZE, new EntityType[]{EntityType.RESOURCE}));

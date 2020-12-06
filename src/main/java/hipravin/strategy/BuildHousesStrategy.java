@@ -61,6 +61,8 @@ public class BuildHousesStrategy implements SubStrategy {
         //permitted to build without spacing
         boolean pbws = pgs.getActiveHouseCount() <= strategyParams.maxHousesBeforeMandatorySpacing;
 
+        GameStateParser.computeUniqueWorkersNearby(pgs);
+
         boolean success =
                 tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true)
                         || pbws && tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, false)
@@ -76,9 +78,10 @@ public class BuildHousesStrategy implements SubStrategy {
 
         int size = Position2dUtil.HOUSE_SIZE;
 
-        Map<Position2d, FreeSpace> houseOptions = pgs.allCellsAsStream()
-                .filter(c -> c.getFreeSpace(size).map(FreeSpace::isCompletelyFree).orElse(false))
-                .collect(Collectors.toMap(Cell::getPosition, c -> c.getFreeSpace(size).get()));
+        Map<Position2d, FreeSpace> houseOptions = pgs.myWorkersSquareCellsAsStream().stream()
+                .filter(c -> pgs.calculateFreeSpace(c, size).map(FreeSpace::isCompletelyFree).orElse(false))
+                .collect(Collectors.toMap(Cell::getPosition, c -> pgs.calculateFreeSpace(c, size).get()));
+
 
         if (withNonDesiredAndSpacingFiltering) {
             houseOptions.entrySet().removeIf(e -> strategyParams.houseNonDesiredPositions().contains(e.getKey()));

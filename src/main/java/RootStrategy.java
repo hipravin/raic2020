@@ -1,11 +1,15 @@
 import hipravin.DebugOut;
-import hipravin.model.*;
+import hipravin.model.GameStateParser;
+import hipravin.model.ParsedGameState;
+import hipravin.model.Position2d;
+import hipravin.model.Position2dUtil;
 import hipravin.strategy.*;
-import hipravin.strategy.deprecated.BuildingBuildCommand;
 import hipravin.strategy.command.Command;
-import hipravin.strategy.deprecated.PerformBuildCommandsSubStrategy;
+import hipravin.strategy.deprecated.BuildingBuildCommand;
 import model.*;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -144,35 +148,6 @@ public class RootStrategy extends MyStrategy {
                 .forEach(c -> c.updateAssignedActions(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));
     }
 
-    boolean isBuildCommandCompletedOrStale(BuildingBuildCommand bc) {
-        //completed
-        if (currentParsedGameState.at(bc.getBuildingCornerPosition())
-                .test(c -> c.isBuilding() && c.getEntity().isActive())) {
-            return true;
-        }
-        //not empty, but expected to start building already - need new position
-        if (bc.getStartBuildTick() <= currentParsedGameState.curTick()
-                && currentParsedGameState.at(bc.getBuildingCornerPosition())
-                .test(c -> !c.isMyBuilding()
-                        && c.getFreeSpace(bc.getSize()).map(fs -> !fs.isCompletelyFree()).orElse(true))) {
-            return true;
-        }
-        //not started to build
-        if (currentParsedGameState.at(bc.getBuildingCornerPosition())
-                .test(c -> !c.isBuilding()) //empty or contains something else
-                && bc.getStartBuildTick() + strategyParams.buildCommandMaxWaitTicks
-                < currentParsedGameState.getPlayerView().getCurrentTick()) {
-            return true;
-        }
-        //builder is dead
-        if (!currentParsedGameState.getMyWorkers().containsKey(bc.getBuilderEntityId())) {
-            return true;
-        }
-        bc.getRepairCommands().removeIf(rc -> !currentParsedGameState.getMyWorkers().containsKey(rc.getRepairerEntityId()));
-
-        return false;
-    }
-
     Action combineDecisions() {
         Map<Integer, ValuedEntityAction> assignedActions = new HashMap<>();
 
@@ -197,11 +172,19 @@ public class RootStrategy extends MyStrategy {
         gameHistoryState.getPlayerInfo().put(currentParsedGameState.curTick(), currentParsedGameState.getPlayerView().getPlayers());
     }
 
+    static Duration totalTimeConsumed = Duration.ZERO;
+
     @Override
     public Action getAction(PlayerView playerView, DebugInterface debugInterface) {
+
+        Instant start = Instant.now();
+        Instant afterParse = Instant.now();
+
         try {
             initStaticParams(playerView);
             parseDataForSingleTick(playerView);
+
+            afterParse = Instant.now();
 
             Action decision = combineDecisions();
             updateGameHistoryState(decision);
@@ -209,6 +192,14 @@ public class RootStrategy extends MyStrategy {
         } catch (RuntimeException e) {
             DebugOut.println(e.getMessage());
             return new Action();
+        } finally {
+            if(DebugOut.enabled) {
+                Duration tickSpent = Duration.between(start, Instant.now());
+                totalTimeConsumed = totalTimeConsumed.plus(tickSpent);
+
+                DebugOut.println("Tick: " + playerView.getCurrentTick() +  " dur:  " + tickSpent + ", total: / " + totalTimeConsumed
+                        + " / avg: " + totalTimeConsumed.dividedBy(playerView.getCurrentTick() + 1) + " / afterParse: " + Duration.between(afterParse, Instant.now()));
+            }
         }
     }
 

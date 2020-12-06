@@ -273,13 +273,13 @@ public class Cell implements Cloneable {
         freeSpaces[size - MIN_FP_SIZE] = freeSpace;
     }
 
-    public Optional<FreeSpace> getFreeSpace(int size) {
-        if(size - MIN_FP_SIZE >= freeSpaces.length) {
-            //in case building size will be increased unexpectedly
-            return Optional.empty();
-        }
-        return Optional.ofNullable(freeSpaces[size - MIN_FP_SIZE]);
-    }
+//    public Optional<FreeSpace> getFreeSpace(int size) {
+//        if(size - MIN_FP_SIZE >= freeSpaces.length) {
+//            //in case building size will be increased unexpectedly
+//            return Optional.empty();
+//        }
+//        return Optional.ofNullable(freeSpaces[size - MIN_FP_SIZE]);
+//    }
 
     public int getBuildingSize() {
         return buildingSize;

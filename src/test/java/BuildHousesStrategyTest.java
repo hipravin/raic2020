@@ -1,3 +1,4 @@
+import hipravin.model.GameStateParser;
 import hipravin.strategy.BuildHousesStrategy;
 import hipravin.strategy.TestServerUtil;
 import model.Action;
@@ -28,6 +29,8 @@ public class BuildHousesStrategyTest {
 
         BuildHousesStrategy bhs = new BuildHousesStrategy();
 
+        GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState);
+
         boolean built = bhs.tryToBuildHouseShortDistance(3, 3,
                 rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), false);
         assertTrue(built);
@@ -45,7 +48,7 @@ public class BuildHousesStrategyTest {
         Action action = rstrategy.getAction(get0.getPlayerView(), null);
 
         BuildHousesStrategy bhs = new BuildHousesStrategy();
-
+        GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState);
         boolean built = bhs.tryToBuildHouseShortDistance(2, 3,
                 rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), false);
         assertTrue(built);
@@ -58,7 +61,7 @@ public class BuildHousesStrategyTest {
         Action action = rstrategy.getAction(get0.getPlayerView(), null);
 
         BuildHousesStrategy bhs = new BuildHousesStrategy();
-
+        GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState);
         boolean built = bhs.tryToBuildHouseShortDistance(1, 3,
                 rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), true);
         assertTrue(built);

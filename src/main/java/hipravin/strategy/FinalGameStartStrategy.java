@@ -57,7 +57,7 @@ public class FinalGameStartStrategy implements SubStrategy {
 
         Position2d firstHouseWhereToBuild = buildOrder.firstHouseWhereToBuild;
 
-        FreeSpace fs = pgs.at(firstHouseWhereToBuild).getFreeSpace(Position2dUtil.HOUSE_SIZE).orElse(null);
+        FreeSpace fs = pgs.calculateFreeSpace(pgs.at(firstHouseWhereToBuild), Position2dUtil.HOUSE_SIZE).orElse(null);
         if(fs != null && fs.isCompletelyFree()) {
             Set<Position2d> houseEdge = Position2dUtil.buildingOuterEdgeWithoutCorners(firstHouseWhereToBuild, Position2dUtil.HOUSE_SIZE);
             List<Position2d> len0Workers = houseEdge.stream().filter(he -> pgs.at(he).isMyWorker()).collect(Collectors.toList());
@@ -184,7 +184,6 @@ public class FinalGameStartStrategy implements SubStrategy {
             StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
         Position2d firstWorker = currentParsedGameState.getMyWorkers().values().iterator().next().getPosition();
-
 
         FinalGameStartStrategy.MineralAndMinerPosition firstMiner = minerAndMineralClosest(firstWorker, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
 
