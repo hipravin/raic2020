@@ -19,6 +19,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ParsedGameStateTest {
 
+
+    @Test
+    void testFogAndEdge() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 2, 66);
+
+        PlayerView pw = get0.getPlayerView();
+        ParsedGameState pgs = GameStateParser.parse(pw);
+
+        assertEquals(396, countCells(pgs, c -> !c.fog));
+        assertEquals(35, countCells(pgs, c -> c.isFogEdge));
+        assertEquals(46, countCells(pgs, c -> c.isMineralEdge));
+    }
+
     @Test
     void testWorkersNearby() {
         ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 1, 68);
@@ -91,11 +104,11 @@ class ParsedGameStateTest {
         ParsedGameState pgs = GameStateParser.parse(pw);
 
         Map<Position2d, NearestEntity> ws =
-                GameStateParserDjkstra.shortWideSearch(pgs, Collections.emptySet(), Set.of(of(0,0)), 10);
+                GameStateParserDjkstra.shortWideSearch(pgs, Collections.emptySet(), Set.of(of(0,0)), 10, true);
         assertEquals(3, ws.size());
 
         Map<Position2d, NearestEntity> ws2 =
-                GameStateParserDjkstra.shortWideSearch(pgs, Set.of(of(7,4)), Set.of(of(8,4)), 10);
+                GameStateParserDjkstra.shortWideSearch(pgs, Set.of(of(7,4)), Set.of(of(8,4)), 10, true);
         assertEquals(4, ws2.get(of(6,4)).pathLenEmptyCellsToThisCell);
     }
 

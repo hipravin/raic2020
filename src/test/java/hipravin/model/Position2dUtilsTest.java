@@ -15,22 +15,50 @@ import static org.junit.jupiter.api.Assertions.*;
 class Position2dUtilsTest {
 
     @Test
+    void testIterAllPositionsInRange() {
+        Set<Position2d> inRange = new HashSet<>();
+        Position2d dot = of(40, 40);
+        int range = 10;
+
+        Position2dUtil.iterAllPositionsInRangeInclusive(dot, range, inRange::add);
+
+        inRange.forEach(p ->
+                assertTrue(p.lenShiftSum(dot) <= range));
+
+        assertEquals(1 + 4 + 8 + 12 + 16 + 20 + 24 + 28 + 32 + 36 + 40, inRange.size());
+    }
+
+    @Test
+    void testIterAllPositionsInRangeBuilding() {
+        Set<Position2d> inRange = new HashSet<>();
+        Position2d dot = of(40, 40);
+        int range = 5;
+
+        Position2dUtil.iterAllPositionsBuildingSightRange(dot, 5, range, inRange::add);
+
+        inRange.forEach(p ->
+                assertTrue(p.lenShiftSum(dot) <= range));
+
+        assertEquals(61, inRange.size());
+    }
+
+    @Test
     void testBuildByTwoWorkers() {
         Set<Position2d> houses = Position2dUtil.housesThatCanBeBuildByTwoWorkers(
                 List.of(
-                        of(0,3),
-                        of(4,4),
-                        of(2,2)
+                        of(0, 3),
+                        of(4, 4),
+                        of(2, 2)
                 ));
 
         assertEquals(2, houses.size());
-        assertTrue(houses.contains(of(1,3)));
-        assertTrue(houses.contains(of(3,1)));
+        assertTrue(houses.contains(of(1, 3)));
+        assertTrue(houses.contains(of(3, 1)));
     }
 
     @Test
     void testHousesBlockedBy() {
-        Position2d worker = of(4,4);
+        Position2d worker = of(4, 4);
         assertEquals(9, Position2dUtil.housePositionsThatAreBlockedByWorker(worker).distinct().count());
 
         Set<Position2d> blocked = Position2dUtil.housePositionsThatAreBlockedByWorker(worker).collect(Collectors.toSet());
@@ -43,7 +71,7 @@ class Position2dUtilsTest {
 
     @Test
     void testHousesCanBuild() {
-        Position2d worker = of(10,11);
+        Position2d worker = of(10, 11);
         assertEquals(12, Position2dUtil.housePositionsThatWorkerCanBuildIfNoObstacle(worker).distinct().count());
 
         Position2dUtil.housePositionsThatWorkerCanBuildIfNoObstacle(worker)
@@ -54,7 +82,7 @@ class Position2dUtilsTest {
 
     @Test
     void testHousesCanBuild2() {
-        Position2d worker = of(1,1);
+        Position2d worker = of(1, 1);
 
         Position2dUtil.housePositionsThatWorkerCanBuildIfNoObstacle(worker)
                 .forEach(corner -> {
@@ -64,7 +92,7 @@ class Position2dUtilsTest {
 
     @Test
     void testNeighbours() {
-        Position2d p = of(1,1);
+        Position2d p = of(1, 1);
         Position2dUtil.upRightLeftDown(p).forEach(p2 ->
                 assertEquals(1, p2.lenShiftSum(p)));
 
@@ -73,21 +101,22 @@ class Position2dUtilsTest {
 
     @Test
     void testIntersection() {
-        assertHaveSpace(of(5,5), 5, of(0,5), 3);
-        assertHaveSpace(of(0,5), 3, of(5,5), 5);
+        assertHaveSpace(of(5, 5), 5, of(0, 5), 3);
+        assertHaveSpace(of(0, 5), 3, of(5, 5), 5);
 
 
-        assertDontHaveSpace(of(1,1), 1, of(2,2), 1);
-        assertDontHaveSpace(of(2,2), 1, of(1,1), 1);
-        assertDontHaveSpace(of(0,0), 5, of(5,3), 3);
-        assertHaveSpace(of(5,3), 5, of(0,0), 3);
-        assertHaveSpace(of(5,4), 5, of(0,0), 3);
+        assertDontHaveSpace(of(1, 1), 1, of(2, 2), 1);
+        assertDontHaveSpace(of(2, 2), 1, of(1, 1), 1);
+        assertDontHaveSpace(of(0, 0), 5, of(5, 3), 3);
+        assertHaveSpace(of(5, 3), 5, of(0, 0), 3);
+        assertHaveSpace(of(5, 4), 5, of(0, 0), 3);
 
     }
 
     void assertHaveSpace(Position2d c1, int size1, Position2d c2, int size2) {
         assertTrue(Position2dUtil.buildingsHaveSpaceInBetween(c1, size1, c2, size2));
     }
+
     void assertDontHaveSpace(Position2d c1, int size1, Position2d c2, int size2) {
         assertFalse(Position2dUtil.buildingsHaveSpaceInBetween(c1, size1, c2, size2));
     }
@@ -95,12 +124,12 @@ class Position2dUtilsTest {
     @Test
     void testEdges() {
 
-        Set<Position2d> edge = Position2dUtil.squareEdgeWithCorners(of(1,1), 5);
+        Set<Position2d> edge = Position2dUtil.squareEdgeWithCorners(of(1, 1), 5);
         assertEquals(4 * 4, edge.size());
 
-        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithoutCorners(of(1,1), 5);
+        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithoutCorners(of(1, 1), 5);
         assertEquals(20, outerEdge.size());
-        Set<Position2d> outerEdgeWith = Position2dUtil.buildingOuterEdgeWithCorners(of(1,1), 5);
+        Set<Position2d> outerEdgeWith = Position2dUtil.buildingOuterEdgeWithCorners(of(1, 1), 5);
         assertEquals(24, outerEdgeWith.size());
 
         Set<Position2d> combined = new HashSet<>();
@@ -109,14 +138,15 @@ class Position2dUtilsTest {
 
         assertEquals(36, combined.size());
     }
+
     @Test
     void testEdge2() {
         //house on map edge
 
-        Set<Position2d> edge = Position2dUtil.squareEdgeWithCorners(of(0,0), 3);
+        Set<Position2d> edge = Position2dUtil.squareEdgeWithCorners(of(0, 0), 3);
         assertEquals(8, edge.size());
 
-        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithoutCorners(of(0,0), 3);
+        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithoutCorners(of(0, 0), 3);
         assertEquals(6, outerEdge.size());
 
         Set<Position2d> combined = new HashSet<>();
@@ -125,12 +155,13 @@ class Position2dUtilsTest {
 
         assertEquals(14, combined.size());
     }
+
     @Test
     void testEdgeWall() {
-        Set<Position2d> edge = Position2dUtil.squareEdgeWithCorners(of(1,1), 1);
+        Set<Position2d> edge = Position2dUtil.squareEdgeWithCorners(of(1, 1), 1);
         assertEquals(1, edge.size());
 
-        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithoutCorners(of(1,1), 1);
+        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithoutCorners(of(1, 1), 1);
         assertEquals(4, outerEdge.size());
 
         Set<Position2d> combined = new HashSet<>();
@@ -143,12 +174,12 @@ class Position2dUtilsTest {
     @Test
     void testClosePositionsIterator() {
         long totalCells = Position2dUtil.MAP_SIZE * Position2dUtil.MAP_SIZE;
-        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(0,0)).distinct().count());
-        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(10,0)).distinct().count());
-        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(10,20)).distinct().count());
-        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(79,79)).distinct().count());
-        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(79,1)).distinct().count());
-        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(50,50)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(0, 0)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(10, 0)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(10, 20)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(79, 79)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(79, 1)).distinct().count());
+        assertEquals(totalCells, Position2dUtil.closeToPositionWideSearchStream(of(50, 50)).distinct().count());
     }
 
     @Test

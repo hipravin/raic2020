@@ -16,7 +16,7 @@ public class GameStateParserDjkstra {//wide search actually
 
     public static Map<Position2d, NearestEntity> shortWideSearch(ParsedGameState pgs, Set<Position2d> additionalNotEmptyCells,
                                                   Set<Position2d> startPositions,
-                                                  int maxPathLen) {
+                                                  int maxPathLen, boolean ignoreFog) {
         Map<Position2d, NearestEntity> result = new HashMap<>();
 
         Set<Position2d> visited = new HashSet<>();
@@ -37,7 +37,8 @@ public class GameStateParserDjkstra {//wide search actually
                 List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
                         Arrays.asList(
                                 p -> !visited.contains(p),
-                                p -> !result.containsKey(p) || result.get(p).pathLenEmptyCellsToThisCell > pathLen
+                                p -> !result.containsKey(p) || result.get(p).pathLenEmptyCellsToThisCell > pathLen,
+                                p -> ignoreFog || pgs.at(p).test(c -> !c.fog || c.isFogEdge)
                         ));
 
                 neighbourstoAdd.forEach(p -> {

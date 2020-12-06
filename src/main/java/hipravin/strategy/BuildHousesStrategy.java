@@ -85,7 +85,8 @@ public class BuildHousesStrategy implements SubStrategy {
 
         if (withNonDesiredAndSpacingFiltering) {
             houseOptions.entrySet().removeIf(e -> strategyParams.houseNonDesiredPositions().contains(e.getKey()));
-            houseOptions.entrySet().removeIf(e -> !doesntTouchOtherBuildings(e.getKey(), size, pgs));
+            houseOptions.entrySet().removeIf(e -> e.getKey().x + e.getKey().y < strategyParams.leftCornerSpacingDoesntMatterXPlusy
+                    || !doesntTouchOtherBuildings(e.getKey(), size, pgs));
         }
 
         //housePosition -> [uniqueWorkerPosition -> NearestEntity]

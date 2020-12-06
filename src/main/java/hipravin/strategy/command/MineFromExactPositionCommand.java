@@ -32,9 +32,14 @@ public class MineFromExactPositionCommand extends Command {
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
         if(pgs.at(spawnPosition).isMyWorker()) {//TODO: additionally check that worker count was increased?
             int workerId = pgs.at(spawnPosition).getEntityId();
-            MoveSingleCommand moveSingleCommand = new MoveSingleCommand(pgs, workerId, targetPosition, MAX_VAL);
-            MineExactMineral mineExact = new MineExactMineral(workerId, mineralToMinePosition);
-            CommandUtil.chainCommands(this, moveSingleCommand, mineExact); //again, automine should be automated in order not to lock workers with commands
+            if(targetPosition != null) {
+                MoveSingleCommand moveSingleCommand = new MoveSingleCommand(pgs, workerId, targetPosition, MAX_VAL);
+                MineExactMineral mineExact = new MineExactMineral(workerId, mineralToMinePosition, 1);
+                CommandUtil.chainCommands(this, moveSingleCommand, mineExact); //again, automine should be automated in order not to lock workers with commands
+            } else {
+                MineExactMineral mineExact = new MineExactMineral(workerId, mineralToMinePosition, MAX_VAL);
+                CommandUtil.chainCommands(this, mineExact); //again, automine should be automated in order not to lock workers with commands
+            }
 
             return true;
         } else {

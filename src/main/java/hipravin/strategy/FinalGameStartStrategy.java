@@ -119,7 +119,7 @@ public class FinalGameStartStrategy implements SubStrategy {
                 continue;
             }
 
-            Map<Position2d, NearestEntity> nearest = GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(workerPosition), 2);
+            Map<Position2d, NearestEntity> nearest = GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(workerPosition), 2, true);
 
             for (Position2d outerEdgePosition : houseEdgeWithoutBuilders) {
 
@@ -138,7 +138,7 @@ public class FinalGameStartStrategy implements SubStrategy {
 
 
         Command moveTo = new MoveSingleCommand(pgs, firstWorkerEntityId, firstMiner.minerPosition, MAX_VAL);
-        Command mineExact = new MineExactMineral(firstWorkerEntityId, firstMiner.mineralPosition);
+        Command mineExact = new MineExactMineral(firstWorkerEntityId, firstMiner.mineralPosition, 1);
         Command moveTo2 = new MoveSingleCommand(pgs, firstWorkerEntityId, whereToMoveAfterMine, MAX_VAL);
         //automine will be automated
 
@@ -436,7 +436,7 @@ public class FinalGameStartStrategy implements SubStrategy {
 
         int toNearestMineral = pgs.at(workerPosition).getNearestMineralField().getPathLenEmptyCellsToThisCell();
         Map<Position2d, NearestEntity> toMinerals =
-                GameStateParserDjkstra.shortWideSearch(pgs, Collections.emptySet(), Set.of(workerPosition), toNearestMineral);
+                GameStateParserDjkstra.shortWideSearch(pgs, Collections.emptySet(), Set.of(workerPosition), toNearestMineral, true);
 
         Position2d mineralPosition = toMinerals.values().stream()
                 .filter(ne -> ne.getPathLenEmptyCellsToThisCell() == toNearestMineral)

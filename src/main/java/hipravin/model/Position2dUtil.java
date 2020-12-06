@@ -3,6 +3,7 @@ package hipravin.model;
 import hipravin.strategy.StrategyParams;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +23,49 @@ public abstract class Position2dUtil {
     public static int RANGED_BASE_SIZE = 5;
     public static int TURRET_SIZE = 2;
     public static int WALL_SIZE = 1;
+
+    public static void iterAllPositionsBuildingSightRange(Position2d corner, int buildingSize, int buildingSightRange,
+                                                          Consumer<Position2d> positionConsumer) {
+
+        Set<Position2d> edge = squareEdgeWithCorners(corner, buildingSize);
+
+        for (Position2d edgePosition : edge) {
+            if(isPositionWithinMapBorder(edgePosition)) {
+                iterAllPositionsInRangeInclusive(corner, buildingSightRange, positionConsumer);
+            }
+        }
+    }
+
+    public static void iterAllPositionsInRangeInclusive(Position2d dotPosition, int range, Consumer<Position2d> positionConsumer) {
+        positionConsumer.accept(dotPosition);
+        iterAllPositionsInRangeExclusive(dotPosition, range, positionConsumer);
+    }
+
+    public static void iterAllPositionsInRangeExclusive(Position2d dotPosition, int range, Consumer<Position2d> positionConsumer) {
+        for (int i = 1; i <= range; i++) {
+            //inv: abs(xshift) + abs(yshift) = i
+            for (int xshift = 0; xshift <= i; xshift++) {
+                int yshift = i - xshift;
+                Position2d p1 = dotPosition.shift(xshift, yshift);
+                Position2d p2 = dotPosition.shift(xshift, -yshift);
+                Position2d p3 = dotPosition.shift(-xshift, yshift);
+                Position2d p4 = dotPosition.shift(-xshift, -yshift);
+
+                if (isPositionWithinMapBorder(p1)) {
+                    positionConsumer.accept(p1);
+                }
+                if (isPositionWithinMapBorder(p2)) {
+                    positionConsumer.accept(p2);
+                }
+                if (isPositionWithinMapBorder(p3)) {
+                    positionConsumer.accept(p3);
+                }
+                if (isPositionWithinMapBorder(p4)) {
+                    positionConsumer.accept(p4);
+                }
+            }
+        }
+    }
 
     public static boolean isMapMyCornerPosition(Position2d pos) {
         return pos.x < StrategyParams.MAP_CORNER_SIZE && pos.y < StrategyParams.MAP_CORNER_SIZE;
@@ -90,7 +134,7 @@ public abstract class Position2dUtil {
         return pfiltered;
     }
 
-    static void withingMapBorderAndPassesAllFilters(Position2d p, Collection<Predicate<? super Position2d>> filters, List<Position2d> toAdd) {
+    public static void withingMapBorderAndPassesAllFilters(Position2d p, Collection<Predicate<? super Position2d>> filters, List<Position2d> toAdd) {
         if (!Position2dUtil.isPositionWithinMapBorder(p)) {
             return;
         }
@@ -101,6 +145,10 @@ public abstract class Position2dUtil {
         }
 
         toAdd.add(p);
+    }
+
+    public static boolean withingMapBorderAndPassesFilter(Position2d p, Predicate<? super Position2d> filter) {
+        return isPositionWithinMapBorder(p) && filter.test(p);
     }
 
     public static Stream<Position2d> upRightLeftDown(Position2d p) {

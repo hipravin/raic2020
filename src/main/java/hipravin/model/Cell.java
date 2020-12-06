@@ -49,8 +49,9 @@ public class Cell implements Cloneable {
 
     private FreeSpace[] freeSpaces = new FreeSpace[MAX_FP_SIZE - MIN_FP_SIZE + 1];//size - 2 -> index ()
 
-    //TODO:
-//    private boolean isEdgeMineral;
+    boolean isMineralEdge = false;
+    boolean isFogEdge = false;
+
 //    private int mineralsNearby5;
 
     public boolean test(Predicate<? super Cell> condition) {
@@ -329,4 +330,13 @@ public class Cell implements Cloneable {
     public Map<Position2d, NearestEntity> getWorkersNearby() {
         return workersNearby;
     }
+
+    public boolean isMineralEdge() {
+        return isMineralEdge;
+    }
+
+    public boolean isFogEdge() {
+        return isFogEdge;
+    }
 }
+

@@ -20,11 +20,13 @@ import static hipravin.strategy.StrategyParams.MAX_VAL;
 public class MineExactMineral extends Command {
     final int minerId;
     final Position2d mineralToMine;
+    final int pathRange;
 
-    public MineExactMineral(int minerId, Position2d mineralToMine) {
+    public MineExactMineral(int minerId, Position2d mineralToMine, int pathRange) {
         super(MAX_VAL, Set.of(minerId));
         this.minerId = minerId;
         this.mineralToMine = mineralToMine;
+        this.pathRange = pathRange;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class MineExactMineral extends Command {
         int mineralId = pgs.at(mineralToMine).getEntityId();
 
         EntityAction autoAttack = new EntityAction();
-        AttackAction attackAction = new AttackAction(mineralId, new AutoAttack(1, new EntityType[]{EntityType.RESOURCE}));
+        AttackAction attackAction = new AttackAction(mineralId, new AutoAttack(pathRange, new EntityType[]{EntityType.RESOURCE}));
         autoAttack.setAttackAction(attackAction);
         assignedActions.put(minerId, new ValuedEntityAction(0.5, minerId, autoAttack));
     }
@@ -54,6 +56,7 @@ public class MineExactMineral extends Command {
         return "MineExactMineral{" +
                 "minerId=" + minerId +
                 ", mineralToMine=" + mineralToMine +
+                ", pathRange=" + pathRange +
                 '}';
     }
 }

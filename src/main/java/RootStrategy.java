@@ -5,13 +5,18 @@ import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
 import hipravin.strategy.*;
 import hipravin.strategy.command.Command;
+import hipravin.strategy.command.MoveSingleCommand;
 import hipravin.strategy.deprecated.BuildingBuildCommand;
 import model.*;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static hipravin.strategy.StrategyParams.MAX_VAL;
 
 public class RootStrategy extends MyStrategy {
 
@@ -158,6 +163,9 @@ public class RootStrategy extends MyStrategy {
         thisTickStrategies.forEach(
                 ss -> ss.decide(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));
 
+//        gameHistoryState.addOngoingCommand(new MoveSingleCommand(currentParsedGameState, currentParsedGameState.getMyWorkers().keySet().iterator().next(),
+//                Position2d.of(40,40), MAX_VAL), true);//TODO STUBBB
+
         updateAssignedActions(assignedActions);
 
         Map<Integer, EntityAction> entityActions = assignedActions.entrySet()
@@ -191,7 +199,11 @@ public class RootStrategy extends MyStrategy {
             return decision;
         } catch (RuntimeException e) {
             DebugOut.println(e.getMessage());
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            DebugOut.println(sw.toString());
             return new Action();
+            //Index -1 out of bounds for length 5 ??????????
         } finally {
             if(DebugOut.enabled) {
                 Duration tickSpent = Duration.between(start, Instant.now());

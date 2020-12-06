@@ -25,6 +25,10 @@ public class StrategyParams {
 
     public int maxHousesBeforeMandatorySpacing = 5;
 
+    public int maxSpawnToMineralsRememberCount = 5;
+
+    public int leftCornerSpacingDoesntMatterXPlusy = 7;
+
     public int getHousesAheadPopulation(int currentPopulation) {
         return 7;
     }
