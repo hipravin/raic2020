@@ -19,9 +19,8 @@ public class BuildWorkerCommand extends Command {
     final Position2d spawnLocation;
     final int myCcEntityId;
 
-
-    public BuildWorkerCommand(Position2d spawnLocation, ParsedGameState pgs) {
-        super(MAX_VAL, Set.of(pgs.getMyCc().getId()));
+    public BuildWorkerCommand(Position2d spawnLocation, ParsedGameState pgs, int tickLimit) {
+        super(pgs.curTick() + tickLimit, Set.of(pgs.getMyCc().getId()));
         this.spawnLocation = spawnLocation;
         this.myCcEntityId = pgs.getMyCc().getId();
     }

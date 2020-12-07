@@ -3,7 +3,9 @@ package hipravin.strategy;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
+import model.EntityType;
 
+import java.util.Map;
 import java.util.Set;
 
 public class StrategyParams {
@@ -42,6 +44,24 @@ public class StrategyParams {
     public int numberOfWorkersToBuildRangerBase(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
         return 8;
     }
+
+    public Map<EntityType, Integer> magnetRepairRanges = Map.of(
+            EntityType.HOUSE, 2,
+            EntityType.RANGED_BASE, 20,
+            EntityType.BUILDER_BASE, 20,
+            EntityType.MELEE_BASE, 20,
+            EntityType.TURRET, 15,
+            EntityType.WALL, 1
+    );
+
+    public Map<EntityType, Integer> magnetRepairDesiredWorkers = Map.of(
+            EntityType.HOUSE, 5, //2
+            EntityType.BUILDER_BASE, 20,
+            EntityType.RANGED_BASE, 20,
+            EntityType.MELEE_BASE, 20,
+            EntityType.TURRET, 8,
+            EntityType.WALL, 1
+    );
 
 
     public boolean ifRandom(double prob) {

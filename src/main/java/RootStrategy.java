@@ -32,6 +32,8 @@ public class RootStrategy extends MyStrategy {
         FinalGameStartStrategy buildFirstHouseFinalStrategy = new FinalGameStartStrategy();
         SpawnWorkersStrategy spawnWorkersStrategy = new SpawnWorkersStrategy();
         BuildHousesStrategy buildHousesStrategy = new BuildHousesStrategy();
+        MagnetRepairStrategy magnetRepairStrategy = new MagnetRepairStrategy();
+
 
         UnsetBuildCommandsStrategy unsetStrategy = new UnsetBuildCommandsStrategy();
         AutomineFallbackStrategy autoMine = new AutomineFallbackStrategy();
@@ -39,6 +41,7 @@ public class RootStrategy extends MyStrategy {
         subStrategies.add(buildFirstHouseFinalStrategy);
         subStrategies.add(spawnWorkersStrategy);
         subStrategies.add(buildHousesStrategy);
+        subStrategies.add(magnetRepairStrategy);
         subStrategies.add(autoMine);
         subStrategies.add(unsetStrategy);
     }
