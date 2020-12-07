@@ -51,6 +51,7 @@ class ParsedGameStateTest {
 
         PlayerView pw = get0.getPlayerView();
         ParsedGameState pgs = GameStateParser.parse(pw);
+        GameStateParserDjkstra.computeMyNonUniqueNearestWorkers(pgs);
 
         assertEquals(1, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 0));
         assertEquals(4, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 1));
@@ -69,6 +70,7 @@ class ParsedGameStateTest {
 
         PlayerView pw = get0.getPlayerView();
         ParsedGameState pgs = GameStateParser.parse(pw);
+        GameStateParserDjkstra.computeMyNonUniqueNearestWorkers(pgs);
 
         assertEquals(13, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 0));
         assertEquals(28, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 1));

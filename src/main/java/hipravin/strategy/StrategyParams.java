@@ -1,6 +1,5 @@
 package hipravin.strategy;
 
-import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
 import model.EntityType;
@@ -31,19 +30,17 @@ public class StrategyParams {
     public int maxSpawnToMineralsRememberCount = 5;
 
     public int leftCornerSpacingDoesntMatterXPlusy = 7;
-    public int houseFarFromMineralsTryFindCount = 5;
-    public int houseFarFromMineralsTryFindMineralCount = 7;
 
     public double bestMineralSpawnProb = 0.7;
     public double worstMineralSpawnProb = 0.2;
     public int switchToAutoMineRange = 4;
 
-    public int populationOfWorkersToBuild(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
-        return 50;
-    }
-    public int numberOfWorkersToBuildRangerBase(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
-        return 8;
-    }
+//    public int populationOfWorkersToBuildBeforeRangers = 60;
+    public int populationOfWorkersToBuildBeforeRangers = 50;
+
+    public int barrackAheadBuildResourceTick = 4;
+
+    public int magnetMaxToSinglePoint = 2;
 
     public Map<EntityType, Integer> magnetRepairRanges = Map.of(
             EntityType.HOUSE, 2,

@@ -33,6 +33,7 @@ public class RootStrategy extends MyStrategy {
         SpawnWorkersStrategy spawnWorkersStrategy = new SpawnWorkersStrategy();
         BuildHousesStrategy buildHousesStrategy = new BuildHousesStrategy();
         MagnetRepairStrategy magnetRepairStrategy = new MagnetRepairStrategy();
+        BuildBarrackStrategy buildBarrackStrategy = new BuildBarrackStrategy();
 
 
         UnsetBuildCommandsStrategy unsetStrategy = new UnsetBuildCommandsStrategy();
@@ -42,6 +43,7 @@ public class RootStrategy extends MyStrategy {
         subStrategies.add(spawnWorkersStrategy);
         subStrategies.add(buildHousesStrategy);
         subStrategies.add(magnetRepairStrategy);
+        subStrategies.add(buildBarrackStrategy);
         subStrategies.add(autoMine);
         subStrategies.add(unsetStrategy);
     }
@@ -172,9 +174,6 @@ public class RootStrategy extends MyStrategy {
 
         thisTickStrategies.forEach(
                 ss -> ss.decide(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));
-
-//        gameHistoryState.addOngoingCommand(new MoveSingleCommand(currentParsedGameState, currentParsedGameState.getMyWorkers().keySet().iterator().next(),
-//                Position2d.of(40,40), MAX_VAL), true);//TODO STUBBB
 
         updateAssignedActions(assignedActions);
 

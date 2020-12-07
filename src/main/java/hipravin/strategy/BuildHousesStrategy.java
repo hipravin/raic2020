@@ -3,6 +3,7 @@ package hipravin.strategy;
 import hipravin.DebugOut;
 import hipravin.model.*;
 import hipravin.strategy.command.*;
+import model.Entity;
 import model.EntityType;
 
 import java.util.*;
@@ -14,6 +15,14 @@ import static hipravin.strategy.StrategyParams.MAX_VAL;
 public class BuildHousesStrategy implements SubStrategy {
 
     boolean shouldBuildHouse(ParsedGameState pgs, StrategyParams strategyParams) {
+        Entity rangBase = pgs.getMyRangerBase();
+
+        if(pgs.getPopulation().getPotentialLimit() >= strategyParams.populationOfWorkersToBuildBeforeRangers
+           && rangBase == null) {
+            return false; //hold houses, collect resources for ranger baase
+        }
+
+
         //TODO: check houses already in progress, other stuff
         boolean populationAheadRequired = pgs.getPopulation().getPotentialLimit() <
                 pgs.getPopulation().getPopulationUse() + strategyParams.getHousesAheadPopulation(pgs.getPopulation().getPopulationUse());
@@ -160,33 +169,6 @@ public class BuildHousesStrategy implements SubStrategy {
 
         return false;
     }
-
-//    Position2d selectBest(List<Position2d> acceptableHousePositions, ParsedGameState pgs, StrategyParams strategyParams) {
-//        if(acceptableHousePositions.size() == 1) {
-//            return acceptableHousePositions.get(0);
-//        } else {
-//            return acceptableHousePositions
-//                    .subList(0, Math.min(acceptableHousePositions.size(), strategyParams.houseFarFromMineralsTryFindCount))
-//                    .stream()
-//                    .filter(hp -> countMineralsNearHouse2(hp, pgs) < strategyParams.houseFarFromMineralsTryFindMineralCount)
-//                    .findFirst().orElse(acceptableHousePositions.get(0));
-//        }
-//    }
-
-    int countMineralsNearHouse2(Position2d housePosition, ParsedGameState pgs) {
-        Set<Position2d> edge = Position2dUtil.squareEdgeWithCorners(housePosition.shift(-2,-2), Position2dUtil.HOUSE_SIZE + 2);
-
-        int count = 0;
-        for (Position2d e : edge) {
-            if(pgs.at(e).isMineral()) {
-                count ++;
-
-            }
-        }
-
-        return count;
-    }
-
 
     void createBuildAndRepairCommands(Position2d housePosition, List<NearestEntity> workers, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                       StrategyParams strategyParams) {

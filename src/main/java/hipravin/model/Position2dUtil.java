@@ -12,6 +12,7 @@ import java.util.stream.StreamSupport;
 public abstract class Position2dUtil {
     public static Position2d MY_CORNER = Position2d.of(0, 0);
     public static Position2d MY_CC = Position2d.of(5, 5);
+    public static Position2d DESIRED_BARRACK = Position2d.of(30,30);
     public static int MAP_SIZE = 80;
 
     public static int FIELD_MIN_X = 0;

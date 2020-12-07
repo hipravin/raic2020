@@ -17,6 +17,10 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
     boolean shouldSpawnMoreWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
+        if(pgs.getMyWorkers().size() >= strategyParams.populationOfWorkersToBuildBeforeRangers) {
+            return false; //hold
+        }
+
         return true; //TODO: research conditions
     }
 

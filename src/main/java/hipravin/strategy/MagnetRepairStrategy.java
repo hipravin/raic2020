@@ -55,12 +55,19 @@ public class MagnetRepairStrategy implements SubStrategy {
         Comparator<NearestEntity> byPathLenNearestNe = Comparator.comparingInt(NearestEntity::getPathLenEmptyCellsToThisCell);
         workersNeSorted.sort(byPathLenNearestNe);
 
+        Map<Position2d, Integer> toThisPoint = new HashMap<>();
+
         for (int i = 0; i < Math.min(workersNeSorted.size(), countWorkersRequired); i++) {
 
-            NearestEntity workerNe = workersNeSorted.get(i);
-            Command stepForward = new MoveOneStepTowardsCommand(pgs, workerNe.getThisCell().getEntityId(), workerNe.getSourceCell().getPosition());
 
-            gameHistoryState.addOngoingCommand(stepForward, false);
+            NearestEntity workerNe = workersNeSorted.get(i);
+            Position2d toPosition = workerNe.getSourceCell().getPosition();
+
+            toThisPoint.merge(toPosition, 1, Integer::sum);
+            if(toThisPoint.get(toPosition) <= strategyParams.magnetMaxToSinglePoint) {
+                Command stepForward = new MoveOneStepTowardsCommand(pgs, workerNe.getThisCell().getEntityId(), toPosition);
+                gameHistoryState.addOngoingCommand(stepForward, false);
+            }
         }
     }
 
