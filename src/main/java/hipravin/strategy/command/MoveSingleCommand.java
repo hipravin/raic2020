@@ -1,5 +1,6 @@
 package hipravin.strategy.command;
 
+import hipravin.model.Cell;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
 import hipravin.strategy.GameHistoryAndSharedState;
@@ -23,7 +24,15 @@ public class MoveSingleCommand extends Command {
 
     @Override
     public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
-        return currentParsedGameState.getEntityIdToCell().containsKey(entityId);
+
+        Cell c = currentParsedGameState.getEntityIdToCell().get(entityId);
+        if(c == null) {
+            return false;
+        }
+        if(currentParsedGameState.at(targetPosition).test(tc -> !tc.isEmpty() && tc.getEntity().getId() != entityId)) {
+            return false;
+        }
+        return true;
     }
 
     @Override

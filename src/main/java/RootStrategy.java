@@ -101,8 +101,15 @@ public class RootStrategy extends MyStrategy {
 
         for (ListIterator<Command> iterator = gameHistoryState.getOngoingCommands().listIterator(); iterator.hasNext(); ) {
             Command command = iterator.next();
+            Optional<Command> replacer = command.replacer(gameHistoryState, currentParsedGameState, strategyParams);
+            if(replacer.isPresent()) {
+                if (DebugOut.enabled) {
+                    DebugOut.println("_Replaced:" + command.toString());
+                }
+                iterator.remove();
+                iterator.add(replacer.get());
 
-            if (!command.isValid(gameHistoryState, currentParsedGameState, strategyParams)) {
+            } else if (!command.isValid(gameHistoryState, currentParsedGameState, strategyParams)) {
                 if (DebugOut.enabled) {
                     DebugOut.println("_Invalid:" + command.toString());
                 }

@@ -171,7 +171,7 @@ public class FinalGameStartStrategy implements SubStrategy {
     Command buildMineCommand(BeforeFirstHouseBuildOrder.BuildMine buildMine, ParsedGameState pgs) {
 
         Command buildWorker = new BuildWorkerCommand(buildMine.workerBuildPosition, pgs);
-        Command mineFromExact = new MineFromExactPositionCommand(buildMine.workerBuildPosition, buildMine.workerMinePosition, buildMine.mineralToMinePosition);
+        Command mineFromExact = new MineFromExactPositionCommand(buildMine.workerBuildPosition, buildMine.workerMinePosition, buildMine.mineralToMinePosition, null);
 
         CommandUtil.chainCommands(buildWorker, mineFromExact);
         return buildWorker;

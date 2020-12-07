@@ -51,6 +51,14 @@ public class MineExactMineral extends Command {
         assignedActions.put(minerId, new ValuedEntityAction(0.5, minerId, autoAttack));
     }
 
+    public int getMinerId() {
+        return minerId;
+    }
+
+    public Position2d getMineralToMine() {
+        return mineralToMine;
+    }
+
     @Override
     public String toString() {
         return "MineExactMineral{" +

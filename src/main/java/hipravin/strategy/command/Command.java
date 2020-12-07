@@ -8,6 +8,10 @@ import hipravin.strategy.ValuedEntityAction;
 import java.util.*;
 
 public abstract class Command {
+    private Command replacer = null;
+    private CommandPredicate commandPredicate = null;
+
+
     private final Set<Integer> relatedEntityIds = new HashSet<>();
     private final int expiryTick;//if currentTick >= expiryTick then command is removed at start of processing
 
@@ -18,19 +22,33 @@ public abstract class Command {
         this.relatedEntityIds.addAll(relatedEntityIds);
     }
 
+    public Optional<Command> replacer(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
+                                      StrategyParams strategyParams) {
+        if (replacer != null && commandPredicate != null
+                && commandPredicate.test(this, currentParsedGameState, gameHistoryState, strategyParams)) {
+
+            if (replacer.isValid(gameHistoryState, currentParsedGameState, strategyParams)
+                    && !replacer.isStale(gameHistoryState, currentParsedGameState, strategyParams)) {
+                return Optional.of(replacer);
+            }
+        }
+        return Optional.empty();
+
+    }
 
     public abstract boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                                     StrategyParams strategyParams);
 
     public abstract boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
-                     StrategyParams strategyParams);
+                                        StrategyParams strategyParams);
 
     public abstract void updateAssignedActions(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
-                               StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions);
+                                               StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions);
 
 
     /**
      * To be checked after
+     *
      * @return
      */
     public boolean isStale(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
@@ -50,4 +68,10 @@ public abstract class Command {
     public List<Command> getNextCommands() {
         return nextCommands;
     }
+
+    public void setConditionalReplacer(Command replacer, CommandPredicate commandPredicate) {
+        this.replacer = replacer;
+        this.commandPredicate = commandPredicate;
+    }
+
 }

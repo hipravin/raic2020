@@ -82,11 +82,12 @@ public class BuildHousesStrategy implements SubStrategy {
                 .filter(c -> pgs.calculateFreeSpace(c, size).map(FreeSpace::isCompletelyFree).orElse(false))
                 .collect(Collectors.toMap(Cell::getPosition, c -> pgs.calculateFreeSpace(c, size).get()));
 
-
         if (withNonDesiredAndSpacingFiltering) {
             houseOptions.entrySet().removeIf(e -> strategyParams.houseNonDesiredPositions().contains(e.getKey()));
-            houseOptions.entrySet().removeIf(e -> e.getKey().x + e.getKey().y < strategyParams.leftCornerSpacingDoesntMatterXPlusy
-                    || !doesntTouchOtherBuildings(e.getKey(), size, pgs));
+            houseOptions.entrySet().removeIf(e -> e.getKey().x + e.getKey().y > strategyParams.leftCornerSpacingDoesntMatterXPlusy
+                    && !doesntTouchOtherBuildings(e.getKey(), size, pgs));
+            houseOptions.entrySet().removeIf(e -> e.getKey().x + e.getKey().y > strategyParams.leftCornerSpacingDoesntMatterXPlusy
+                    && !dousntTouchMinerals(e.getKey(), size, pgs));
         }
 
         //housePosition -> [uniqueWorkerPosition -> NearestEntity]
@@ -148,16 +149,44 @@ public class BuildHousesStrategy implements SubStrategy {
         Comparator<Position2d> sumPathLen = Comparator.comparingInt(sumPathLenMap::get);
 
         List<Position2d> acceptableHousePositions = new ArrayList<>(hpUniqueBestWorkers.keySet());
-        Collections.sort(acceptableHousePositions, sumPathLen);
+        acceptableHousePositions.sort(sumPathLen);
 
         if (!acceptableHousePositions.isEmpty()) {
             Position2d hp = acceptableHousePositions.get(0);
+//            Position2d hp = selectBest(acceptableHousePositions, pgs, strategyParams);
             createBuildAndRepairCommands(hp, hpUniqueBestWorkers.get(hp), gameHistoryState, pgs, strategyParams);
             return true;
         }
 
         return false;
     }
+
+//    Position2d selectBest(List<Position2d> acceptableHousePositions, ParsedGameState pgs, StrategyParams strategyParams) {
+//        if(acceptableHousePositions.size() == 1) {
+//            return acceptableHousePositions.get(0);
+//        } else {
+//            return acceptableHousePositions
+//                    .subList(0, Math.min(acceptableHousePositions.size(), strategyParams.houseFarFromMineralsTryFindCount))
+//                    .stream()
+//                    .filter(hp -> countMineralsNearHouse2(hp, pgs) < strategyParams.houseFarFromMineralsTryFindMineralCount)
+//                    .findFirst().orElse(acceptableHousePositions.get(0));
+//        }
+//    }
+
+    int countMineralsNearHouse2(Position2d housePosition, ParsedGameState pgs) {
+        Set<Position2d> edge = Position2dUtil.squareEdgeWithCorners(housePosition.shift(-2,-2), Position2dUtil.HOUSE_SIZE + 2);
+
+        int count = 0;
+        for (Position2d e : edge) {
+            if(pgs.at(e).isMineral()) {
+                count ++;
+
+            }
+        }
+
+        return count;
+    }
+
 
     void createBuildAndRepairCommands(Position2d housePosition, List<NearestEntity> workers, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                       StrategyParams strategyParams) {
@@ -197,5 +226,10 @@ public class BuildHousesStrategy implements SubStrategy {
                 .stream().allMatch(b ->
                         buildingsHaveSpaceInBetween(corner, size,
                                 b.getCornerCell().getPosition(), b.getCornerCell().getBuildingSize()));
+    }
+    static boolean dousntTouchMinerals(Position2d corner, int size, ParsedGameState pgs) {
+
+        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithCorners(corner, size);
+        return outerEdge.stream().noneMatch(c -> pgs.at(c).isMineral());
     }
 }

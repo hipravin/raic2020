@@ -1,5 +1,6 @@
 package hipravin.strategy;
 
+import hipravin.DebugOut;
 import hipravin.model.*;
 import hipravin.strategy.command.*;
 import model.Entity;
@@ -18,6 +19,11 @@ public class SpawnWorkersStrategy implements SubStrategy {
                                    StrategyParams strategyParams) {
         return true; //TODO: research conditions
     }
+
+    boolean detectEconomyIsStuck() {
+        return false;
+    }
+
 
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -63,21 +69,63 @@ public class SpawnWorkersStrategy implements SubStrategy {
         nearestMinerals.entrySet().removeIf(e ->
                 lastMineralPositions.contains(e.getKey()) || !pgs.at(e.getKey()).isMineralEdge());//not spawn to workers to same mf
 
-        Comparator<NearestEntity> byPathLenNearestNe = Comparator.comparingInt(NearestEntity::getPathLenEmptyCellsToThisCell);
-
-        Optional<NearestEntity> bestMineral = nearestMinerals.values().stream().min(byPathLenNearestNe);
+        //more econditions?
+        Optional<NearestEntity> bestMineral = bestMineral(nearestMinerals, strategyParams);
 
         if(bestMineral.isPresent()) {
             addToLastSpawn(bestMineral.get().getThisCell().getPosition(), strategyParams);
 
             Command buildWorker = new BuildWorkerCommand(bestMineral.get().getSourceCell().getPosition(), pgs);
-            Command mineExact = new MineFromExactPositionCommand(bestMineral.get().getSourceCell().getPosition(), null, bestMineral.get().getThisCell().getPosition());
+            Command mineExact = new MineFromExactPositionCommand(bestMineral.get().getSourceCell().getPosition(),
+                    null, bestMineral.get().getThisCell().getPosition(), closeToMineTargetPredicate);
             CommandUtil.chainCommands(buildWorker, mineExact);
 
             gameHistoryState.addOngoingCommand(buildWorker, false);
         } else {
-            //spawn randomly
-            //spawnIfNoPathToMinerals(gameHistoryState, pgs, strategyParams);
+            //spawn randomly and send to random fog
+            spawnIfNoPathToMinerals(gameHistoryState, pgs, strategyParams);
+        }
+    }
+
+    CommandPredicate closeToMineTargetPredicate = new CommandPredicate() {
+        @Override
+        public boolean test(Command command, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+            if(!(command instanceof MineExactMineral)) {
+                return false;
+            }
+            MineExactMineral mem = (MineExactMineral) command;
+            Optional<Position2d> minerCurrentPos = Optional.ofNullable(pgs.getMyWorkers().get(mem.getMinerId())).map(Cell::getPosition);
+            if(minerCurrentPos.isPresent()
+                    && minerCurrentPos.get().lenShiftSum(mem.getMineralToMine()) <= strategyParams.switchToAutoMineRange) {
+                return true;
+            }
+
+            return false;
+        }
+    };
+
+    Optional<NearestEntity> bestMineral(Map<Position2d, NearestEntity> nearestMinerals, StrategyParams strategyParams) {
+        if(nearestMinerals.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Comparator<NearestEntity> byPathLenNearestNe = Comparator.comparingInt(NearestEntity::getPathLenEmptyCellsToThisCell);
+
+        List<NearestEntity> nearestListSorted = new ArrayList<>(nearestMinerals.values());
+        nearestListSorted.sort(byPathLenNearestNe);
+
+        if(nearestListSorted.size() == 1) {
+            return Optional.of(nearestListSorted.get(0));
+        } else {
+            if(strategyParams.ifRandom(strategyParams.bestMineralSpawnProb)) {
+                return Optional.of(nearestListSorted.get(0));
+            }
+            if(strategyParams.ifRandom(strategyParams.worstMineralSpawnProb)) {
+                return Optional.of(nearestListSorted.get(nearestListSorted.size() -1));
+            }
+
+            int randIdx = GameHistoryAndSharedState.random.nextInt(nearestListSorted.size());
+            return Optional.of(nearestListSorted.get(randIdx));
         }
     }
 
@@ -93,11 +141,12 @@ public class SpawnWorkersStrategy implements SubStrategy {
                 .sorted(topRight)
                 .collect(Collectors.toList());
         if(sorted.isEmpty()) {
+            DebugOut.println("Can't find spawn location for worker");
             return Optional.empty();
         } else if(sorted.size() == 1) {
             return Optional.of(sorted.get(0));
         } else {
-            int idx = GameHistoryAndSharedState.random.nextInt() % 2;//first or second element
+            int idx = Math.abs(GameHistoryAndSharedState.random.nextInt() % 2);//first or second element
             return Optional.of(sorted.get(idx));
         }
     }
