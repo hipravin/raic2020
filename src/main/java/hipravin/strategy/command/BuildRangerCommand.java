@@ -30,7 +30,7 @@ public class BuildRangerCommand extends Command {
 
     @Override
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
-        return pgs.at(spawnLocation).isMyRanger();
+        return pgs.at(spawnLocation).isMyRanger() && pgs.getMyUnitSpawned(EntityType.RANGED_UNIT).isPresent();
     }
 
     @Override

@@ -13,7 +13,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GameHistoryAndSharedState {
+
     public static Random random = new Random(0);
+    public static SplittableRandom splittableRandom = new SplittableRandom(0);
 
     //    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
     List<Command> ongoingCommands = new ArrayList<>();

@@ -32,8 +32,7 @@ public class RangerAutoattackFallbackStrategy implements SubStrategy {
         notBusyRangers.forEach(w -> {
             EntityAction autoAttack = new EntityAction();
             AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.MAP_SIZE,
-                    new EntityType[]{EntityType.RANGED_UNIT, EntityType.MELEE_UNIT, EntityType.BUILDER_UNIT, EntityType.TURRET, EntityType.HOUSE, EntityType.RANGED_BASE,
-                            EntityType.MELEE_BASE, EntityType.BUILDER_BASE, EntityType.WALL}));
+                    strategyParams.rangerDefaultAttackTargets));
             autoAttack.setAttackAction(attackAction);
 
             autoAttack.setMoveAction(new MoveAction(new Vec2Int(79,79), true, true));

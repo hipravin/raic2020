@@ -100,6 +100,7 @@ public class RootStrategy extends MyStrategy {
 
     void parseDataForSingleTick(PlayerView playerView) {
         currentParsedGameState = GameStateParser.parse(playerView);
+        GameStateParser.calculateNewEntityIds(currentParsedGameState, gameHistoryState.getPreviousParsedGameState());
         removeCompletedOrStaleCommands();
 
     }

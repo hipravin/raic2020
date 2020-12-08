@@ -22,6 +22,11 @@ public class ParsedGameState {
 
     Map<Integer, Cell> entityIdToCell; //for buildings to corner cell
 
+    List<Position2d> fogEdgePositions = new ArrayList<>();
+    Set<Position2d> fogEdgePositionsSet = new HashSet<>();
+
+    Set<Integer> newEntityIds = new HashSet<>();
+
     int workersAtMiningPositions;
 
     int mineralsAtMapCorner = 0;
@@ -204,6 +209,20 @@ public class ParsedGameState {
 
     public Map<Integer, Cell> getMyRangers() {
         return myRangers;
+    }
+
+
+    public List<Position2d> getFogEdgePositions() {
+        return fogEdgePositions;
+    }
+
+    public Set<Position2d> getFogEdgePositionsSet() {
+        return fogEdgePositionsSet;
+    }
+
+    public Optional<Integer> getMyUnitSpawned(EntityType entityType) {
+        return newEntityIds.stream().filter(id -> entityIdToCell.get(id).test(c -> c.isMyEntity && c.getEntity().getEntityType() == entityType))
+                .findFirst();
     }
 }
 

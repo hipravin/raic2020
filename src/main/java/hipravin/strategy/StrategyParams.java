@@ -47,7 +47,11 @@ public class StrategyParams {
 
     public int magnetMaxToSinglePoint = 2;
 
-    public int moveSingleInvalidateRangeIfNotEmpty = 10;//otherwise if we send multiple workers to position and first worker is arrriver then others are cancelled
+    public int numberOfRandomScoutChoices = 20;
+
+    public EntityType[] rangerDefaultAttackTargets = new EntityType[]{EntityType.RANGED_UNIT, EntityType.MELEE_UNIT, EntityType.BUILDER_UNIT, EntityType.TURRET, EntityType.HOUSE, EntityType.RANGED_BASE,
+            EntityType.MELEE_BASE, EntityType.BUILDER_BASE, EntityType.WALL};
+
 
     public Map<EntityType, Integer> magnetRepairRanges = Map.of(
             EntityType.HOUSE, 2,
@@ -71,9 +75,17 @@ public class StrategyParams {
     public Set<Integer> sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20,  30,31,32,33,34);
 
     public int minHouseDistanceToCenter = 12;
+    public double rangerScoutRateProb = 0.1;
 
     public boolean ifRandom(double prob) {
         return GameHistoryAndSharedState.random.nextDouble() < prob;
+    }
+
+    public Position2d randomScoutPointNearEnemy() {
+
+        int x = Position2dUtil.MAP_SIZE - 5 - GameHistoryAndSharedState.random.nextInt(30);
+        int y = Position2dUtil.MAP_SIZE - 5 - GameHistoryAndSharedState.random.nextInt(30);
+        return Position2d.of(x,y);
     }
 
 

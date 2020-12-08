@@ -1,21 +1,19 @@
 package hipravin.strategy;
 
-import hipravin.DebugOut;
-import hipravin.model.*;
-import hipravin.strategy.command.*;
+import hipravin.model.ParsedGameState;
+import hipravin.model.Position2d;
+import hipravin.strategy.command.BuildRangerCommand;
+import hipravin.strategy.command.Command;
+import hipravin.strategy.command.CommandUtil;
+import hipravin.strategy.command.RangerScoutCommand;
 import model.Entity;
 import model.EntityType;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static hipravin.strategy.StrategyParams.MAX_VAL;
 
 public class SpawnRangersStrategy implements SubStrategy {
     boolean shouldSpawnMoreRangers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
-
-
         if (pgs.getPopulation().getMyRangerCount() >= strategyParams.maxNumberOfRangers) {
             return false; //hold
         }
@@ -67,6 +65,11 @@ public class SpawnRangersStrategy implements SubStrategy {
                                   StrategyParams strategyParams) {
 
         Command buildRangerCommand = new BuildRangerCommand(spawnPos, pgs, 1);
+
+        if(strategyParams.ifRandom(strategyParams.rangerScoutRateProb)) {
+            RangerScoutCommand scout = RangerScoutCommand.toFogNearEnemyHalfWay(null, spawnPos, strategyParams.randomScoutPointNearEnemy());
+            CommandUtil.chainCommands(buildRangerCommand, scout);
+        }
         gameHistoryState.addOngoingCommand(buildRangerCommand, false);
     }
 }

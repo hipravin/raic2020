@@ -62,6 +62,7 @@ public abstract class GameStateParser {
         });
 
         Arrays.stream(playerView.getEntities()).forEach(e -> parsedGameState.entityIdToCell.put(e.getId(), parsedGameState.at(e.getPosition())));
+        parsedGameState.entityIdToCell = Collections.unmodifiableMap(parsedGameState.entityIdToCell);
 
         if (!playerView.isFogOfWar()) {
             forEachCell(parsedGameState.cells, Cell::setVisible);
@@ -96,6 +97,16 @@ public abstract class GameStateParser {
         return parsedGameState;
     }
 
+    public static void calculateNewEntityIds(ParsedGameState currentPgs, ParsedGameState previousPgs) {
+        if(previousPgs != null) {
+            Set<Integer> current = new HashSet<>(currentPgs.getEntityIdToCell().keySet());
+
+            current.removeAll(previousPgs.getEntityIdToCell().keySet());
+
+            currentPgs.newEntityIds = current;
+        }
+    }
+
     static void calculateForEdge(ParsedGameState pgs) {
         Predicate<Position2d> notFog = (pp) -> !pgs.at(pp).fog;
 
@@ -110,6 +121,13 @@ public abstract class GameStateParser {
                 c.isFogEdge = true;
             }
         });
+
+        pgs.allCellsAsStream().filter(c -> c.isFogEdge)
+                .map(Cell::getPosition)
+                .forEach(pgs.fogEdgePositions::add);
+
+        pgs.fogEdgePositionsSet.addAll(pgs.fogEdgePositions);
+
     }
 
     static void calculateMineralEdge(ParsedGameState pgs) {
