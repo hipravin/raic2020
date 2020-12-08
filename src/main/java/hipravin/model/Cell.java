@@ -68,6 +68,9 @@ public class Cell implements Cloneable {
     public boolean isMyWorker() {
         return isMyUnit() && entityType == EntityType.BUILDER_UNIT;
     }
+    public boolean isMyRanger() {
+        return isMyUnit() && entityType == EntityType.RANGED_UNIT;
+    }
 
     public static Cell empty(Position2d position) {
         Cell cell = new Cell();

@@ -383,8 +383,8 @@ public class FinalGameStartStrategy implements SubStrategy {
             Position2d firstWorkerMineralToMinePosition,
             GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
             StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        Set<Position2d> ccOuterEdge = pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
-                .getBuildingOuterEdgeWithoutCorners();
+        Set<Position2d> ccOuterEdge = new HashSet<>(pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
+                .getBuildingOuterEdgeWithoutCorners());
 
         int workersRequred = 4;
 

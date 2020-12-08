@@ -18,6 +18,7 @@ public class ParsedGameState {
 
     Map<Integer, Building> buildingsByEntityId;
     Map<Integer, Cell> myWorkers;
+    Map<Integer, Cell> myRangers;
 
     Map<Integer, Cell> entityIdToCell; //for buildings to corner cell
 
@@ -199,6 +200,10 @@ public class ParsedGameState {
 
     public int getMyWorkersAtMapCorner() {
         return myWorkersAtMapCorner;
+    }
+
+    public Map<Integer, Cell> getMyRangers() {
+        return myRangers;
     }
 }
 

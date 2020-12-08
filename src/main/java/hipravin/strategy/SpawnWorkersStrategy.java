@@ -19,6 +19,11 @@ public class SpawnWorkersStrategy implements SubStrategy {
                                    StrategyParams strategyParams) {
 
 
+        if(pgs.getMyWorkers().size() >= strategyParams.populationOfWorkersToBuildBeforeRangers
+                &&pgs.getMyRangerBase() == null) {
+            return false;
+        }
+
         if (pgs.getMyWorkers().size() >= strategyParams.populationOfWorkersToBuildAfterRangers) {
             return false; //hold
         }
@@ -56,8 +61,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
     public void findBestSpawnPos(
             GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
             StrategyParams strategyParams) {
-        Set<Position2d> ccOuterEdge = pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
-                .getBuildingOuterEdgeWithoutCorners();
+        Set<Position2d> ccOuterEdge = new HashSet<>(pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
+                .getBuildingOuterEdgeWithoutCorners());
 
         ccOuterEdge.removeIf(p -> !pgs.at(p).isEmpty());
 
@@ -118,13 +123,20 @@ public class SpawnWorkersStrategy implements SubStrategy {
             };
 
             Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
-            Command sendToCenter = new SendNewWorkerToPositionCommand(spawnPos, Position2dUtil.DESIRED_BARRACK, barrackStartedToBuild);
+            Command sendToCenter = new SendNewWorkerToPositionCommand(spawnPos, randomSendToCenterPosition(), barrackStartedToBuild);
 
             CommandUtil.chainCommands(buildWorker, sendToCenter);
             gameHistoryState.addOngoingCommand(buildWorker, false);
             return true;
         }
         return false;
+    }
+
+    public Position2d randomSendToCenterPosition() {
+        Position2d basePosition = Position2dUtil.DESIRED_BARRACK;
+        List<Position2d> outerEdge = new ArrayList<>(Position2dUtil.buildingOuterEdgeWithoutCorners(basePosition, Position2dUtil.RANGED_BASE_SIZE));
+
+        return outerEdge.get(GameHistoryAndSharedState.random.nextInt(outerEdge.size()));
     }
 
     CommandPredicate closeToMineTargetPredicate = new CommandPredicate() {
@@ -171,8 +183,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
     Optional<Position2d> spawnIfNoPathToMinerals(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                                  StrategyParams strategyParams) {
-        Set<Position2d> ccOuterEdge = pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
-                .getBuildingOuterEdgeWithoutCorners();
+        Set<Position2d> ccOuterEdge = new HashSet<>(pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
+                .getBuildingOuterEdgeWithoutCorners());
 
         ccOuterEdge.removeIf(p -> !pgs.at(p).isEmpty());
         Comparator<Position2d> topRight = Comparator.comparing(p -> p.x + p.y, Comparator.reverseOrder());

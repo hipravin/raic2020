@@ -27,11 +27,11 @@ public class MagnetRepairStrategy implements SubStrategy {
 
             if(atP.isMyWorker()) {
                 alreadyRepairing ++;
-                if(!busyEntitiIds.contains(atP.getEntityId())) {
+//                if(!busyEntitiIds.contains(atP.getEntityId())) {
                     //start repair
                     AutoRepairCommand command = new AutoRepairCommand(building.getCornerCell().getPosition(), atP.getEntityId(), pgs, strategyParams);
-                    gameHistoryState.addOngoingCommand(command, false);
-                }
+                    gameHistoryState.addOngoingCommand(command, true);
+//                }
             } else if(atP.isEmpty()) {
                 requiredRepairPositions.add(edge);
             }
@@ -58,8 +58,6 @@ public class MagnetRepairStrategy implements SubStrategy {
         Map<Position2d, Integer> toThisPoint = new HashMap<>();
 
         for (int i = 0; i < Math.min(workersNeSorted.size(), countWorkersRequired); i++) {
-
-
             NearestEntity workerNe = workersNeSorted.get(i);
             Position2d toPosition = workerNe.getSourceCell().getPosition();
 

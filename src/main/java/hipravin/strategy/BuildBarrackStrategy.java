@@ -33,7 +33,8 @@ public class BuildBarrackStrategy implements SubStrategy {
 
         int distance = 15;
 
-        GameStateParser.computeUniqueWorkersNearby(pgs, StrategyParams.BARRACK_WORKERS_NEARBY_MAX_PATH);
+        GameStateParser.computeUniqueWorkersNearbyCenterMore(pgs, StrategyParams.BARRACK_WORKERS_NEARBY_MAX_PATH,
+                StrategyParams.BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER);
 
         boolean success =
                 tryToBuildBarrackShortDistance(3, distance, 5, gameHistoryState, pgs, strategyParams, true)

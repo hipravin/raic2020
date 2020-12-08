@@ -4,6 +4,7 @@ import model.Entity;
 import model.EntityType;
 import model.PlayerView;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,10 +27,10 @@ public class Building {
         building.buildingInnerEdge = Position2dUtil.squareEdgeWithCorners(cornerBuildingCell.position,
                 cornerBuildingCell.buildingSize);
 
-        building.buildingOuterEdgeWithoutCorners = Position2dUtil.buildingOuterEdgeWithoutCorners(
-                cornerBuildingCell.position, cornerBuildingCell.buildingSize);
-        building.buildingOuterEdgeWithCorners = Position2dUtil.buildingOuterEdgeWithCorners(
-                cornerBuildingCell.position, cornerBuildingCell.buildingSize);
+        building.buildingOuterEdgeWithoutCorners = Collections.unmodifiableSet(Position2dUtil.buildingOuterEdgeWithoutCorners(
+                cornerBuildingCell.position, cornerBuildingCell.buildingSize));
+        building.buildingOuterEdgeWithCorners = Collections.unmodifiableSet(Position2dUtil.buildingOuterEdgeWithCorners(
+                cornerBuildingCell.position, cornerBuildingCell.buildingSize));
 
         return building;
     }

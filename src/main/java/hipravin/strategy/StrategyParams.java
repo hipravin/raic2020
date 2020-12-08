@@ -14,7 +14,8 @@ public class StrategyParams {
     public static final int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 20;
 
     public static final int HOUSE_WORKERS_NEARBY_MAX_PATH = 5;
-    public static final int BARRACK_WORKERS_NEARBY_MAX_PATH = 15;
+    public static final int BARRACK_WORKERS_NEARBY_MAX_PATH = 7;
+    public static final int BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER = 15;
 
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
@@ -40,9 +41,13 @@ public class StrategyParams {
     public int populationOfWorkersToBuildBeforeRangers = 50;
     public int populationOfWorkersToBuildAfterRangers = 60;
 
+    public int maxNumberOfRangers = 100;
+
     public int barrackAheadBuildResourceTick = 4;
 
     public int magnetMaxToSinglePoint = 2;
+
+    public int moveSingleInvalidateRangeIfNotEmpty = 10;//otherwise if we send multiple workers to position and first worker is arrriver then others are cancelled
 
     public Map<EntityType, Integer> magnetRepairRanges = Map.of(
             EntityType.HOUSE, 2,
@@ -63,7 +68,9 @@ public class StrategyParams {
     );
 
     public boolean sendToCenter = true;
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20,  30,31,32,33,34);
+
+    public int minHouseDistanceToCenter = 12;
 
     public boolean ifRandom(double prob) {
         return GameHistoryAndSharedState.random.nextDouble() < prob;

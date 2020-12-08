@@ -13,6 +13,7 @@ public class Population {
     int activeLimit = -1;
     int potentialLimit = -1;//includes inactive buildings
     int myWorkerCount = -1;
+    int myRangerCount = -1;
 
 
     public static Population of(PlayerView playerView) {
@@ -41,6 +42,11 @@ public class Population {
                 .filter(e -> e.getEntityType() == EntityType.BUILDER_UNIT)
                 .count();
 
+        population.myRangerCount = (int) Arrays.stream(playerView.getEntities())
+                .filter(e -> e.getPlayerId() != null)
+                .filter(e -> e.getPlayerId() == playerView.getMyId())
+                .filter(e -> e.getEntityType() == EntityType.RANGED_UNIT)
+                .count();
 
         return population;
     }
@@ -59,5 +65,9 @@ public class Population {
 
     public int getMyWorkerCount() {
         return myWorkerCount;
+    }
+
+    public int getMyRangerCount() {
+        return myRangerCount;
     }
 }

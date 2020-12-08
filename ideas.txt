@@ -90,6 +90,8 @@
 42 scout случ точка на расст эн
 43 Don't block base entrance with house or mining workers!!!
 
+44. Detect stuck workers!!!
+
 
 блок - площадь достижимых из сс клеток
 проверять юнитов, которые переместились с прошлого хода

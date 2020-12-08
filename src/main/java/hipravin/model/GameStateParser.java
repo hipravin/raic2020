@@ -29,6 +29,7 @@ public abstract class GameStateParser {
         parsedGameState.cells = emptyCellsOfSize(mapSize);
         parsedGameState.buildingsByEntityId = new HashMap<>();
         parsedGameState.myWorkers = new HashMap<>();
+        parsedGameState.myRangers = new HashMap<>();
         parsedGameState.entityIdToCell = new HashMap<>();
 
         for (Entity entity : playerView.getEntities()) {
@@ -53,6 +54,10 @@ public abstract class GameStateParser {
 
             if (c.isMyEntity && c.getEntityType() == EntityType.BUILDER_UNIT) {
                 parsedGameState.myWorkers.put(c.entityId, c);
+            }
+
+            if (c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT) {
+                parsedGameState.myRangers.put(c.entityId, c);
             }
         });
 
@@ -130,6 +135,21 @@ public abstract class GameStateParser {
         for (Cell myWorker : pgs.getMyWorkers().values()) {
             Map<Position2d, NearestEntity> nearestEntityMap =
                     GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), maxPath, true);
+
+            nearestEntityMap.forEach((p, ne) -> {
+                pgs.at(p).workersNearby.put(myWorker.position, ne);
+            });
+        }
+    }
+
+    public static void computeUniqueWorkersNearbyCenterMore(ParsedGameState pgs, int maxPath, int centerMaxPath) {
+        for (Cell myWorker : pgs.getMyWorkers().values()) {
+            Map<Position2d, NearestEntity> nearestEntityMap;
+            if(myWorker.getPosition().lenShiftSum(DESIRED_BARRACK) < 30) {
+                nearestEntityMap = GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), centerMaxPath, true);
+            } else {
+                nearestEntityMap = GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), maxPath, true);
+            }
 
             nearestEntityMap.forEach((p, ne) -> {
                 pgs.at(p).workersNearby.put(myWorker.position, ne);

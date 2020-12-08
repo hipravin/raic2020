@@ -1,5 +1,6 @@
 package hipravin.strategy;
 
+import hipravin.DebugOut;
 import hipravin.model.Building;
 import hipravin.model.ParsedGameState;
 import model.EntityAction;
@@ -27,6 +28,8 @@ public class UnsetBuildCommandsStrategy implements SubStrategy {
         notBusyProducingEntityIds.removeAll(busyEntities);
 
         for (Integer id : notBusyProducingEntityIds) {
+            DebugOut.println("Unset build for: " + id);
+
             EntityAction emptyEntityAction = new EntityAction();
 
             assignedActions.put(id, new ValuedEntityAction(0.5, id, emptyEntityAction));

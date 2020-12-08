@@ -100,6 +100,10 @@ public class BuildHousesStrategy implements SubStrategy {
                 .filter(c -> pgs.calculateFreeSpace(c, size).map(FreeSpace::isCompletelyFree).orElse(false))
                 .collect(Collectors.toMap(Cell::getPosition, c -> pgs.calculateFreeSpace(c, size).get()));
 
+        houseOptions.entrySet().removeIf(ho ->
+                ho.getKey().lenShiftSum(Position2dUtil.DESIRED_BARRACK.shift(3,3)) < strategyParams.minHouseDistanceToCenter);//avoid house at center build by barrack builders
+
+
         if (withNonDesiredAndSpacingFiltering) {
             houseOptions.entrySet().removeIf(e -> strategyParams.houseNonDesiredPositions().contains(e.getKey()));
             houseOptions.entrySet().removeIf(e -> e.getKey().x + e.getKey().y > strategyParams.leftCornerSpacingDoesntMatterXPlusy
