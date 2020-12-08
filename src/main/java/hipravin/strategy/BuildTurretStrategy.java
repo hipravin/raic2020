@@ -9,78 +9,82 @@ import model.EntityType;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static hipravin.model.Position2d.of;
 import static hipravin.model.Position2dUtil.buildingsHaveSpaceInBetween;
 import static hipravin.strategy.StrategyParams.MAX_VAL;
 
-public class BuildBarrackStrategy implements SubStrategy {
-    public EntityType selectBarrackType() {
-        return EntityType.RANGED_BASE;
+public class BuildTurretStrategy implements SubStrategy {
+
+    public void addSomeTurretRequests(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+        Entity rangBase = pgs.getMyRangerBase();
+
+        if(rangBase != null && !rangBase.isActive()
+                && pgs.findMyBuildings(EntityType.TURRET).size() < strategyParams.defensiveTurretBeforeRangersCount) {
+//            List<Position2d> fogEdges = pgs.getFogEdgePositions();
+            List<Position2d> fogEdges = List.of(of(20,20), of(25,20), of(20, 25)); //TODO: tets stub
+            if (!fogEdges.isEmpty()) {
+
+                List<Integer> randomFogEdgeIndices = GameHistoryAndSharedState.splittableRandom
+                        .ints(strategyParams.numberOfRandomScoutChoices, 0, fogEdges.size())
+                        .limit(strategyParams.numberOfRandomScoutChoices)
+                        .boxed().collect(Collectors.toList());
+
+                Position2d turretAttackPosition = randomFogEdgeIndices.stream().map(fogEdges::get)
+                        .min(Comparator.comparingInt(p -> (int) p.lenShiftSum(Position2dUtil.ENEMY_CORNER))).orElse(null);
+
+                gameHistoryState.getTurretRequests().add(turretAttackPosition);
+            }
+        }
     }
 
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        EntityType barrackType = selectBarrackType();
+//        addSomeTurretRequests(gameHistoryState, pgs, strategyParams);
 
-        Entity barrack = pgs.getMyBarrack(barrackType);
-
-        return barrack == null
-                && pgs.getEstimatedResourceAfterTicks(strategyParams.barrackAheadBuildResourceTick) >= pgs.getBarrackCost(barrackType)
-                && gameHistoryState.ongoingBarrackBuildCommandCount() < 1;
+        return !gameHistoryState.getTurretRequests().isEmpty();
     }
 
     @Override
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
+
         int distance = 15;
-
-        GameStateParser.computeUniqueWorkersNearbyCenterMore(pgs, StrategyParams.BARRACK_WORKERS_NEARBY_MAX_PATH,
-                StrategyParams.BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER);
-
-        boolean success =
-                tryToBuildBarrackShortDistance(3, distance, 5, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(3, distance, 5, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildBarrackShortDistance(5, distance, 30, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(5, distance, 30, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildBarrackShortDistance(10, distance, 40, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(10, distance, 40, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildBarrackShortDistance(5, distance, 40, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(5, distance, 40, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildBarrackShortDistance(3, distance, 50, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(3, distance, 50, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildBarrackShortDistance(1, distance, 200, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(1, distance, 200, gameHistoryState, pgs, strategyParams, false);
-
+        for (Position2d turretAttackingRequest : gameHistoryState.getTurretRequests()) {
+            GameStateParser.computeUniqueWorkersNearbyInLimitedArea(pgs, StrategyParams.TURRET_WORKERS_NEARBY_MAX_PATH, turretAttackingRequest);
+            boolean success =
+                    tryToBuildTurretShortDistance(turretAttackingRequest, 8, distance, gameHistoryState, pgs, strategyParams, true)
+                     || tryToBuildTurretShortDistance(turretAttackingRequest, 8, distance, gameHistoryState, pgs, strategyParams, false)
+                     || tryToBuildTurretShortDistance(turretAttackingRequest, 4, distance, gameHistoryState, pgs, strategyParams, true)
+                     || tryToBuildTurretShortDistance(turretAttackingRequest, 4, distance, gameHistoryState, pgs, strategyParams, false)
+                     || tryToBuildTurretShortDistance(turretAttackingRequest, 1, distance, gameHistoryState, pgs, strategyParams, true)
+                     || tryToBuildTurretShortDistance(turretAttackingRequest, 1, distance, gameHistoryState, pgs, strategyParams, false);
+        }
     }
 
-    public boolean tryToBuildBarrackShortDistance(int minWorkersNear, int maxDistanceToWorker, int maxDistanceToDesiredBarrack,
+    public boolean tryToBuildTurretShortDistance(Position2d attackPosition, int minWorkersNear, int maxDistanceToWorker,
                                                   GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                                   StrategyParams strategyParams, boolean withNonDesiredAndSpacingFiltering) {
-        DebugOut.println("Try to build barrack with workers: " + minWorkersNear + " with spacing: " + withNonDesiredAndSpacingFiltering);
+        DebugOut.println("Try to build turret with workers: " + minWorkersNear + " with spacing: " + withNonDesiredAndSpacingFiltering);
 
-        int size = Position2dUtil.RANGED_BASE_SIZE;
+        int size = Position2dUtil.TURRET_SIZE;
 
-        Map<Position2d, FreeSpace> barrackOptions = pgs.myWorkersSquareCellsAsStream().stream()
+        Map<Position2d, FreeSpace> turretOptions = pgs.myWorkersSquareCellsAsStream().stream()
+                .filter(c -> Position2dUtil.turretCanAttackPosition(c.getPosition(), attackPosition))
                 .filter(c -> pgs.calculateFreeSpace(c, size).map(FreeSpace::isCompletelyFree).orElse(false))
                 .collect(Collectors.toMap(Cell::getPosition, c -> pgs.calculateFreeSpace(c, size).get()));
 
-        barrackOptions.entrySet().removeIf(bo -> Position2dUtil.DESIRED_BARRACK.lenShiftSum(bo.getKey()) > maxDistanceToDesiredBarrack);
-
         if (withNonDesiredAndSpacingFiltering) {
-            barrackOptions.entrySet().removeIf(e -> !doesntTouchOtherBuildings(e.getKey(), size, pgs));
-            barrackOptions.entrySet().removeIf(e -> !dousntTouchMinerals(e.getKey(), size, pgs));
+            turretOptions.entrySet().removeIf(e -> !doesntTouchOtherBuildings(e.getKey(), size, pgs));
+            turretOptions.entrySet().removeIf(e -> !dousntTouchMinerals(e.getKey(), size, pgs));
         }
 
-        //barrackOptions -> [uniqueWorkerPosition -> NearestEntity]
-        Map<Position2d, List<NearestEntity>> bpUniqueBestWorkers = new HashMap<>();
-//        Set<Integer> busyWorkers = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
-        Set<Integer> busyWorkers = Set.of(); //build barracks is top ptiority? maybe build turrets is only more valued
+        //turretOptions -> [uniqueWorkerPosition -> NearestEntity]
+        Map<Position2d, List<NearestEntity>> tpUniqueBestWorkers = new HashMap<>();
+        Set<Integer> busyWorkers = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
+//        Set<Integer> busyWorkers = Set.of(); //build turret is top ptiority? maybe build better world is more
 
 
-        barrackOptions.forEach((bp, fs) -> {
+        turretOptions.forEach((bp, fs) -> {
 
             List<NearestEntity> workersNearEdge =
                     Position2dUtil.buildingOuterEdgeWithoutCorners(bp, size)
@@ -122,22 +126,22 @@ public class BuildBarrackStrategy implements SubStrategy {
                 //now we have exact workers
 
                 if (foundCount >= minWorkersNear) {
-                    bpUniqueBestWorkers.put(bp, new ArrayList<>(workerRepairPositions.values()));
+                    tpUniqueBestWorkers.put(bp, new ArrayList<>(workerRepairPositions.values()));
                 }
             }
         });
 
 
         //distance to map center
-        Comparator<Position2d> toCenter = Comparator.comparingInt(p -> (int) Position2dUtil.DESIRED_BARRACK.lenShiftSum(p));
+        Comparator<Position2d> toEnemy = Comparator.comparingInt(p -> (int) Position2dUtil.ENEMY_CORNER.lenShiftSum(p));
 
 
-        List<Position2d> acceptableBarrackPositions = new ArrayList<>(bpUniqueBestWorkers.keySet());
-        acceptableBarrackPositions.sort(toCenter);
+        List<Position2d> acceptableTurretPositions = new ArrayList<>(tpUniqueBestWorkers.keySet());
+        acceptableTurretPositions.sort(toEnemy);
 
-        if (!acceptableBarrackPositions.isEmpty() && acceptableBarrackPositions.get(0).lenShiftSum(Position2dUtil.DESIRED_BARRACK) < maxDistanceToDesiredBarrack) {
-            Position2d bp = acceptableBarrackPositions.get(0);
-            createBuildAndRepairCommands(bp, bpUniqueBestWorkers.get(bp), gameHistoryState, pgs, strategyParams);
+        if (!acceptableTurretPositions.isEmpty()) {
+            Position2d bp = acceptableTurretPositions.get(0);
+            createBuildAndRepairCommands(bp, tpUniqueBestWorkers.get(bp), gameHistoryState, pgs, strategyParams);
             return true;
         }
 
@@ -151,8 +155,8 @@ public class BuildBarrackStrategy implements SubStrategy {
         NearestEntity builder = workers.get(0);
         Command moveThenBuild = new MoveSingleCommand(pgs, builder.getSourceCell().getEntityId(),
                 builder.getThisCell().getPosition(), MAX_VAL);
-        Command bc = new BuildThenRepairCommand(barrackOption, selectBarrackType(), builder.getSourceCell().getEntityId(), pgs, strategyParams,
-                strategyParams.buildBarrackMaxWaitTicks);
+        Command bc = new BuildThenRepairCommand(barrackOption, EntityType.TURRET, builder.getSourceCell().getEntityId(), pgs, strategyParams,
+                strategyParams.buildTurretMaxWaitTicks);
         CommandUtil.chainCommands(moveThenBuild, bc);
 
         gameHistoryState.addOngoingCommand(moveThenBuild, true);

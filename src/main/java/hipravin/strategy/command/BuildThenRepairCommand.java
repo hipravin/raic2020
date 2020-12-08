@@ -17,14 +17,18 @@ public class BuildThenRepairCommand extends Command {
     final EntityType buildingType;
     final int builderWorkerId;
 
-    public BuildThenRepairCommand(Position2d cornerPosition, EntityType entityType, int builderWorkerId, ParsedGameState pgs, StrategyParams strategyParams) {
-        super(pgs.curTick() + strategyParams.buildCommandMaxWaitTicks, Set.of(builderWorkerId));
+    public BuildThenRepairCommand(Position2d cornerPosition, EntityType entityType, int builderWorkerId, ParsedGameState pgs, StrategyParams strategyParams,
+                                  int builtCommanMaxWaitTicks) {
+        super(pgs.curTick() + builtCommanMaxWaitTicks, Set.of(builderWorkerId));
         this.cornerPosition = cornerPosition;
         this.buildingType = entityType;
         this.builderWorkerId = builderWorkerId;
 
         CommandUtil.addNextCommands(this,
                 List.of(new AutoRepairCommand(cornerPosition, builderWorkerId, pgs, strategyParams)));
+    }
+    public BuildThenRepairCommand(Position2d cornerPosition, EntityType entityType, int builderWorkerId, ParsedGameState pgs, StrategyParams strategyParams) {
+        this(cornerPosition, entityType, builderWorkerId, pgs, strategyParams, strategyParams.buildCommandMaxWaitTicks);
     }
 
 

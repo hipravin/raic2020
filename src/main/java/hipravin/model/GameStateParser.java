@@ -146,6 +146,24 @@ public abstract class GameStateParser {
         });
     }
 
+
+    public static void computeUniqueWorkersNearbyInLimitedArea(ParsedGameState pgs, int maxPath, Position2d notTooFarFrom) {
+        int maxDistance = maxPath + 7;//more magic numbers. turret attack range +2 actually
+
+        for (Cell myWorker : pgs.getMyWorkers().values()) {
+            if(myWorker.position.lenShiftSum(notTooFarFrom) < maxDistance) {
+                Map<Position2d, NearestEntity> nearestEntityMap =
+                        GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), maxPath, true);
+
+                nearestEntityMap.forEach((p, ne) -> {
+                    pgs.at(p).workersNearby.put(myWorker.position, ne);
+                });
+            }
+        }
+    }
+
+
+
     /**
      * perf tuning  - perform only when needed
      */

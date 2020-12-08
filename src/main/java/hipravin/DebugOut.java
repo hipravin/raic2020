@@ -11,6 +11,7 @@ import java.nio.file.Path;
 
 public abstract class DebugOut {
     public static final boolean enabled = "true".equals(System.getProperty("LOCAL"));
+    public static final boolean writebin = "true".equals(System.getProperty("WRITEBIN"));
     public static Path gameLog = Path.of("../game_log");
     static {
         //clean debug folder
@@ -32,7 +33,7 @@ public abstract class DebugOut {
     }
 
     public static void writeDebugBin(int tick, ServerMessage serverMessage) {
-        if(enabled) {
+        if(enabled && writebin) {
             Path tickNFile = gameLog.resolve("tick" + tick + ".bin");
 
             deleteIfExists(tickNFile);

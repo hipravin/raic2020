@@ -38,8 +38,12 @@ public class RootStrategy extends MyStrategy {
 
 
         UnsetBuildCommandsStrategy unsetStrategy = new UnsetBuildCommandsStrategy();
+        BuildTurretStrategy buildTurretStrategy = new BuildTurretStrategy();
+
         AutomineFallbackStrategy autoMine = new AutomineFallbackStrategy();
         RangerAutoattackFallbackStrategy rangerAutoAttack = new RangerAutoattackFallbackStrategy();
+
+
 
         subStrategies.add(buildFirstHouseFinalStrategy);
         subStrategies.add(spawnWorkersStrategy);
@@ -47,6 +51,7 @@ public class RootStrategy extends MyStrategy {
         subStrategies.add(buildHousesStrategy);
         subStrategies.add(magnetRepairStrategy);
         subStrategies.add(buildBarrackStrategy);
+        subStrategies.add(buildTurretStrategy);
         subStrategies.add(autoMine);
         subStrategies.add(rangerAutoAttack);
         subStrategies.add(unsetStrategy);
@@ -214,6 +219,7 @@ public class RootStrategy extends MyStrategy {
         try {
             initStaticParams(playerView);
             parseDataForSingleTick(playerView);
+            gameHistoryState.turretRequests = new ArrayList<>();
 
             afterParse = Instant.now();
 

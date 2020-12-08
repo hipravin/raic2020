@@ -15,6 +15,7 @@ public class StrategyParams {
 
     public static final int HOUSE_WORKERS_NEARBY_MAX_PATH = 5;
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH = 7;
+    public static final int TURRET_WORKERS_NEARBY_MAX_PATH = 10;
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER = 15;
 
     public static final int MAX_COMBINATIONS_BF = 2000;
@@ -22,7 +23,11 @@ public class StrategyParams {
 
     public static final int MAP_CORNER_SIZE = 10;
 
+    public int defensiveTurretBeforeRangersCount = 10;
+
     public int buildCommandMaxWaitTicks = 5;
+    public int buildBarrackMaxWaitTicks = 10;
+    public int buildTurretMaxWaitTicks = 13;
     public int autoRepairMaxWaitTicks = 5;
 
     public double mapCornerMiningRatio = 3/10.0; //spawn rokers only if workers / minerals < {value}

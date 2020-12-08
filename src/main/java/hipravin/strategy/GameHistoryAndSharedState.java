@@ -2,6 +2,7 @@ package hipravin.strategy;
 
 import hipravin.DebugOut;
 import hipravin.model.ParsedGameState;
+import hipravin.model.Position2d;
 import hipravin.strategy.command.BuildThenRepairCommand;
 import hipravin.strategy.command.Command;
 import model.Action;
@@ -22,6 +23,9 @@ public class GameHistoryAndSharedState {
 
     ParsedGameState previousParsedGameState = null;
     Map<Integer, Player[]> playerInfo = new HashMap<>();
+
+    public List<Position2d> turretRequests; //turret should attack this Position once finished
+
 
 
     Action previousTickAction;
@@ -129,5 +133,13 @@ public class GameHistoryAndSharedState {
 
     public List<Command> getOngoingCommands() {
         return ongoingCommands;
+    }
+
+    public List<Position2d> getTurretRequests() {
+        return turretRequests;
+    }
+
+    public void setTurretRequests(List<Position2d> turretRequests) {
+        this.turretRequests = turretRequests;
     }
 }

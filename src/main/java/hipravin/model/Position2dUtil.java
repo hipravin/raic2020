@@ -11,8 +11,11 @@ import java.util.stream.StreamSupport;
 
 public abstract class Position2dUtil {
     public static Position2d MY_CORNER = Position2d.of(0, 0);
+    public static Position2d ENEMY_CORNER = Position2d.of(70, 70);
     public static Position2d MY_CC = Position2d.of(5, 5);
     public static Position2d DESIRED_BARRACK = Position2d.of(37,37);
+    public static int TURRET_RANGE = 5;
+
     public static int MAP_SIZE = 80;
 
     public static int FIELD_MIN_X = 0;
@@ -263,6 +266,13 @@ public abstract class Position2dUtil {
     public static boolean isPositionWithinMapBorder(Position2d p) {
         return p.x >= FIELD_MIN_X && p.x < MAP_SIZE
                 && p.y >= FIELD_MIN_Y && p.y < MAP_SIZE;
+    }
+
+    public static boolean turretCanAttackPosition(Position2d turretPosition, Position2d position) {
+        return turretPosition.lenShiftSum(position) <= TURRET_RANGE
+                 || turretPosition.shift(0,1).lenShiftSum(position) <= TURRET_RANGE
+                 || turretPosition.shift(1,0).lenShiftSum(position) <= TURRET_RANGE
+                 || turretPosition.shift(1,1).lenShiftSum(position) <= TURRET_RANGE;
     }
 
     private Position2dUtil() {

@@ -80,6 +80,9 @@ public class ParsedGameState {
     public int getHouseCost() {
         return playerView.getEntityProperties().get(EntityType.HOUSE).getInitialCost();
     }
+    public int getTurretCost() {
+        return playerView.getEntityProperties().get(EntityType.TURRET).getInitialCost();
+    }
     public int getBarrackCost(EntityType barrackType) {
         return playerView.getEntityProperties().get(barrackType).getInitialCost();
     }
