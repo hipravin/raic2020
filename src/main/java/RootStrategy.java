@@ -163,6 +163,15 @@ public class RootStrategy extends MyStrategy {
     void updateAssignedActions(Map<Integer, ValuedEntityAction> assignedActions) {
         getGameHistoryState().getOngoingCommands()
                 .forEach(c -> c.updateAssignedActions(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));
+        if(DebugOut.enabled) {
+            DebugOut.println("===================");
+            DebugOut.println("ALL current Ongiong commands: ");
+            for (Command ongoingCommand : getGameHistoryState().getOngoingCommands()) {
+                DebugOut.println("Ongonig:" + ongoingCommand);
+            }
+            DebugOut.println("ALL current Ongiong commands: ");
+            DebugOut.println("====================");
+        }
     }
 
     Action combineDecisions() {

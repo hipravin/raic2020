@@ -105,6 +105,18 @@ public class GameHistoryAndSharedState {
                 }).count();
     }
 
+    public int ongoingBarrackBuildCommandCount() {
+        return (int)ongoingCommands.stream()
+                .filter(c -> {
+                    if(c instanceof BuildThenRepairCommand) {
+                        return ((BuildThenRepairCommand) c).getBuildingType() == EntityType.RANGED_BASE
+                                || ((BuildThenRepairCommand) c).getBuildingType() == EntityType.MELEE_BASE ;
+                    }
+
+                    return false;
+                }).count();
+    }
+
     public Stream<Integer> allOngoingCommandRelatedEntitiIds() {
         return ongoingCommands.stream().flatMap(c -> c.getRelatedEntityIds().stream());
     }

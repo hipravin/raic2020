@@ -126,10 +126,10 @@ public abstract class GameStateParser {
     /**
      * perf tuning  - perform only when needed
      */
-    public static void computeUniqueWorkersNearby(ParsedGameState pgs) {
+    public static void computeUniqueWorkersNearby(ParsedGameState pgs, int maxPath) {
         for (Cell myWorker : pgs.getMyWorkers().values()) {
             Map<Position2d, NearestEntity> nearestEntityMap =
-                    GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), StrategyParams.WORKERS_NEARBY_MAX_PATH, true);
+                    GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), maxPath, true);
 
             nearestEntityMap.forEach((p, ne) -> {
                 pgs.at(p).workersNearby.put(myWorker.position, ne);

@@ -13,7 +13,8 @@ public class StrategyParams {
     public static final int NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 20;
     public static final int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 20;
 
-    public static final int WORKERS_NEARBY_MAX_PATH = 5;
+    public static final int HOUSE_WORKERS_NEARBY_MAX_PATH = 5;
+    public static final int BARRACK_WORKERS_NEARBY_MAX_PATH = 15;
 
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
@@ -31,12 +32,13 @@ public class StrategyParams {
 
     public int leftCornerSpacingDoesntMatterXPlusy = 7;
 
-    public double bestMineralSpawnProb = 0.7;
+    public double bestMineralSpawnProb = 1.0;
     public double worstMineralSpawnProb = 0.2;
     public int switchToAutoMineRange = 4;
 
 //    public int populationOfWorkersToBuildBeforeRangers = 60;
     public int populationOfWorkersToBuildBeforeRangers = 50;
+    public int populationOfWorkersToBuildAfterRangers = 60;
 
     public int barrackAheadBuildResourceTick = 4;
 
@@ -60,14 +62,19 @@ public class StrategyParams {
             EntityType.WALL, 1
     );
 
+    public boolean sendToCenter = true;
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20);
 
     public boolean ifRandom(double prob) {
         return GameHistoryAndSharedState.random.nextDouble() < prob;
     }
 
 
-    public int getHousesAheadPopulation(int currentPopulation) {
+    public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
         return 7;
+    }
+    public int getHousesAheadPopulationWhenBuildingRangers(int currentPopulation) {
+        return 11;
     }
 
     public Set<Position2d> firstHouseNonDesiredPositions() {

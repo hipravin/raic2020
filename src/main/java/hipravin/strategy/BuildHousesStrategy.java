@@ -14,24 +14,35 @@ import static hipravin.strategy.StrategyParams.MAX_VAL;
 
 public class BuildHousesStrategy implements SubStrategy {
 
-    boolean shouldBuildHouse(ParsedGameState pgs, StrategyParams strategyParams) {
+    boolean shouldBuildHouse(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
         Entity rangBase = pgs.getMyRangerBase();
 
-        if(pgs.getPopulation().getPotentialLimit() >= strategyParams.populationOfWorkersToBuildBeforeRangers
-           && rangBase == null) {
+        if (pgs.getPopulation().getPotentialLimit() >= strategyParams.populationOfWorkersToBuildBeforeRangers
+                && rangBase == null) {
             return false; //hold houses, collect resources for ranger baase
         }
 
+        boolean willHaveResources = willHaveResourcesIn2Ticks(pgs, gameHistoryAndSharedState);//have money - > build house, the fastest strateg
 
         //TODO: check houses already in progress, other stuff
-        boolean populationAheadRequired = pgs.getPopulation().getPotentialLimit() <
-                pgs.getPopulation().getPopulationUse() + strategyParams.getHousesAheadPopulation(pgs.getPopulation().getPopulationUse());
+        boolean populationAheadRequired = populationAheadRequired(pgs, gameHistoryAndSharedState, strategyParams);
 
-        return populationAheadRequired;
+        return populationAheadRequired && willHaveResources;
     }
 
-    boolean willHaveResourcesIn2Ticks(ParsedGameState pgs) {
-        return pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost();
+    boolean populationAheadRequired(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+        if(pgs.getMyBarrack(EntityType.RANGED_BASE) == null) {
+            return pgs.getPopulation().getPotentialLimit() <
+                    pgs.getPopulation().getPopulationUse() + strategyParams.getHousesAheadPopulationBeforeRangers(pgs.getPopulation().getPopulationUse());
+        } else {
+            return pgs.getPopulation().getPotentialLimit() <
+                    pgs.getPopulation().getPopulationUse() + strategyParams.getHousesAheadPopulationWhenBuildingRangers(pgs.getPopulation().getPopulationUse());
+        }
+    }
+
+    boolean willHaveResourcesIn2Ticks(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
+        return pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                ;
     }
 
     @Override
@@ -51,11 +62,7 @@ public class BuildHousesStrategy implements SubStrategy {
     @Override
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                        StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        if (!shouldBuildHouse(pgs, strategyParams)) {
-            return;
-        }
-
-        if (!willHaveResourcesIn2Ticks(pgs)) {
+        if (!shouldBuildHouse(pgs, gameHistoryState, strategyParams)) {
             return;
         }
 
@@ -70,15 +77,17 @@ public class BuildHousesStrategy implements SubStrategy {
         //permitted to build without spacing
         boolean pbws = pgs.getActiveHouseCount() <= strategyParams.maxHousesBeforeMandatorySpacing;
 
-        GameStateParser.computeUniqueWorkersNearby(pgs);
+        GameStateParser.computeUniqueWorkersNearby(pgs, StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
 
         boolean success =
                 tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true)
                         || pbws && tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, false)
                         || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true)
                         || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildHouseShortDistance(1, distance, gameHistoryState, pgs, strategyParams, true)
-                        || pbws && tryToBuildHouseShortDistance(1, distance, gameHistoryState, pgs, strategyParams, false);
+                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true)
+                        || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, true)
+                        || pbws && tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, false);
     }
 
     public boolean tryToBuildHouseShortDistance(int workers, int maxDistanceToWorker, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -123,28 +132,28 @@ public class BuildHousesStrategy implements SubStrategy {
                 int foundCount = 0;
                 for (int distance = 0; distance <= maxDistanceToWorker; distance++) {
                     for (NearestEntity workerNe : workersNearEdge) {
-                        if(workerNe.getPathLenEmptyCellsToThisCell() == distance
+                        if (workerNe.getPathLenEmptyCellsToThisCell() == distance
                                 && !workerUsed.contains(workerNe.getSourceCell().getPosition())
-                                && !edgePositionsUsed.contains(workerNe.getThisCell().getPosition()) ) {
+                                && !edgePositionsUsed.contains(workerNe.getThisCell().getPosition())) {
                             workerUsed.add(workerNe.getSourceCell().getPosition());
                             edgePositionsUsed.add(workerNe.getThisCell().getPosition());
 
                             workerRepairPositions.put(workerNe.getThisCell().getPosition(), workerNe);
 
-                            foundCount ++;
+                            foundCount++;
 
-                            if(foundCount >= workers) {
+                            if (foundCount >= workers) {
                                 break;
                             }
                         }
                     }
-                    if(foundCount >= workers) {
+                    if (foundCount >= workers) {
                         break;
                     }
                 }
                 //now we have exact workers
 
-                if(foundCount >= workers) {
+                if (foundCount >= workers) {
                     hpUniqueBestWorkers.put(hp, new ArrayList<>(workerRepairPositions.values()));
                 }
             }
@@ -209,6 +218,7 @@ public class BuildHousesStrategy implements SubStrategy {
                         buildingsHaveSpaceInBetween(corner, size,
                                 b.getCornerCell().getPosition(), b.getCornerCell().getBuildingSize()));
     }
+
     static boolean dousntTouchMinerals(Position2d corner, int size, ParsedGameState pgs) {
 
         Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithCorners(corner, size);

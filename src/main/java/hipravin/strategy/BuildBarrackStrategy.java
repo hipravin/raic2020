@@ -24,36 +24,40 @@ public class BuildBarrackStrategy implements SubStrategy {
         Entity barrack = pgs.getMyBarrack(barrackType);
 
         return barrack == null
-                 && pgs.getEstimatedResourceAfterTicks(strategyParams.barrackAheadBuildResourceTick) >= pgs.getBarrackCost(barrackType);
+                && pgs.getEstimatedResourceAfterTicks(strategyParams.barrackAheadBuildResourceTick) >= pgs.getBarrackCost(barrackType)
+                && gameHistoryState.ongoingBarrackBuildCommandCount() < 1;
     }
 
     @Override
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
-        int distance = 10;
+        int distance = 15;
 
-        GameStateParser.computeUniqueWorkersNearby(pgs);
+        GameStateParser.computeUniqueWorkersNearby(pgs, StrategyParams.BARRACK_WORKERS_NEARBY_MAX_PATH);
 
         boolean success =
-                tryToBuildBarrackShortDistance(10, distance, 20 ,gameHistoryState, pgs, strategyParams, true)
-                 || tryToBuildBarrackShortDistance(10, distance, 30 ,gameHistoryState, pgs, strategyParams, true)
-                 || tryToBuildBarrackShortDistance(10, distance, 40 ,gameHistoryState, pgs, strategyParams, true)
-                 || tryToBuildBarrackShortDistance(5, distance, 20 ,gameHistoryState, pgs, strategyParams, true)
-                 || tryToBuildBarrackShortDistance(5, distance, 30 ,gameHistoryState, pgs, strategyParams, true)
-                 || tryToBuildBarrackShortDistance(5, distance, 30 ,gameHistoryState, pgs, strategyParams, false)
-                 || tryToBuildBarrackShortDistance(5, distance, 40 ,gameHistoryState, pgs, strategyParams, true)
-                 || tryToBuildBarrackShortDistance(5, distance, 40 ,gameHistoryState, pgs, strategyParams, false)
-                 || tryToBuildBarrackShortDistance(3, distance, 50 ,gameHistoryState, pgs, strategyParams, true)
-                 || tryToBuildBarrackShortDistance(3, distance, 50 ,gameHistoryState, pgs, strategyParams, false)
-                 || tryToBuildBarrackShortDistance(1, distance, 200 ,gameHistoryState, pgs, strategyParams, true)
-                 || tryToBuildBarrackShortDistance(1, distance, 200 ,gameHistoryState, pgs, strategyParams, false)
-        ;
+                tryToBuildBarrackShortDistance(3, distance, 5, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(3, distance, 5, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildBarrackShortDistance(5, distance, 30, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(5, distance, 30, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildBarrackShortDistance(10, distance, 40, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(10, distance, 40, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildBarrackShortDistance(5, distance, 40, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(5, distance, 40, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildBarrackShortDistance(3, distance, 50, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(3, distance, 50, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildBarrackShortDistance(1, distance, 200, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(1, distance, 200, gameHistoryState, pgs, strategyParams, false);
 
     }
 
     public boolean tryToBuildBarrackShortDistance(int minWorkersNear, int maxDistanceToWorker, int maxDistanceToDesiredBarrack,
                                                   GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                                                StrategyParams strategyParams, boolean withNonDesiredAndSpacingFiltering) {
+                                                  StrategyParams strategyParams, boolean withNonDesiredAndSpacingFiltering) {
         DebugOut.println("Try to build barrack with workers: " + minWorkersNear + " with spacing: " + withNonDesiredAndSpacingFiltering);
 
         int size = Position2dUtil.RANGED_BASE_SIZE;
@@ -71,7 +75,9 @@ public class BuildBarrackStrategy implements SubStrategy {
 
         //barrackOptions -> [uniqueWorkerPosition -> NearestEntity]
         Map<Position2d, List<NearestEntity>> bpUniqueBestWorkers = new HashMap<>();
-        Set<Integer> busyWorkers = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
+//        Set<Integer> busyWorkers = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
+        Set<Integer> busyWorkers = Set.of(); //build barracks is top ptiority? maybe build turrets is only more valued
+
 
         barrackOptions.forEach((bp, fs) -> {
 
@@ -93,28 +99,28 @@ public class BuildBarrackStrategy implements SubStrategy {
                 int foundCount = 0;
                 for (int distance = 0; distance <= maxDistanceToWorker; distance++) {
                     for (NearestEntity workerNe : workersNearEdge) {
-                        if(workerNe.getPathLenEmptyCellsToThisCell() == distance
+                        if (workerNe.getPathLenEmptyCellsToThisCell() == distance
                                 && !workerUsed.contains(workerNe.getSourceCell().getPosition())
-                                && !edgePositionsUsed.contains(workerNe.getThisCell().getPosition()) ) {
+                                && !edgePositionsUsed.contains(workerNe.getThisCell().getPosition())) {
                             workerUsed.add(workerNe.getSourceCell().getPosition());
                             edgePositionsUsed.add(workerNe.getThisCell().getPosition());
 
                             workerRepairPositions.put(workerNe.getThisCell().getPosition(), workerNe);
 
-                            foundCount ++;
+                            foundCount++;
 
-                            if(foundCount >= minWorkersNear) {
+                            if (foundCount >= minWorkersNear) {
                                 break;
                             }
                         }
                     }
-                    if(foundCount >= minWorkersNear) {
+                    if (foundCount >= minWorkersNear) {
                         break;
                     }
                 }
                 //now we have exact workers
 
-                if(foundCount >= minWorkersNear) {
+                if (foundCount >= minWorkersNear) {
                     bpUniqueBestWorkers.put(bp, new ArrayList<>(workerRepairPositions.values()));
                 }
             }
@@ -122,8 +128,7 @@ public class BuildBarrackStrategy implements SubStrategy {
 
 
         //distance to map center
-        Comparator<Position2d> toCenter = Comparator.comparingInt(p -> (int)Position2dUtil.DESIRED_BARRACK.lenShiftSum(p));
-
+        Comparator<Position2d> toCenter = Comparator.comparingInt(p -> (int) Position2dUtil.DESIRED_BARRACK.lenShiftSum(p));
 
 
         List<Position2d> acceptableBarrackPositions = new ArrayList<>(bpUniqueBestWorkers.keySet());
@@ -148,7 +153,7 @@ public class BuildBarrackStrategy implements SubStrategy {
         Command bc = new BuildThenRepairCommand(barrackOption, selectBarrackType(), builder.getSourceCell().getEntityId(), pgs, strategyParams);
         CommandUtil.chainCommands(moveThenBuild, bc);
 
-        gameHistoryState.addOngoingCommand(moveThenBuild, false);
+        gameHistoryState.addOngoingCommand(moveThenBuild, true);
         for (int i = 1; i < workers.size(); i++) {
             NearestEntity repairer = workers.get(i);
             int repairerEntityId = repairer.getSourceCell().getEntityId();
@@ -158,7 +163,7 @@ public class BuildBarrackStrategy implements SubStrategy {
             Command arp = new AutoRepairCommand(barrackOption, repairerEntityId, pgs, strategyParams);
             CommandUtil.chainCommands(moveThenAutoRepair, arp);
 
-            gameHistoryState.addOngoingCommand(moveThenAutoRepair, false);
+            gameHistoryState.addOngoingCommand(moveThenAutoRepair, true);
         }
     }
 

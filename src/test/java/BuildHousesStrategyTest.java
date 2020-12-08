@@ -1,5 +1,6 @@
 import hipravin.model.GameStateParser;
 import hipravin.strategy.BuildHousesStrategy;
+import hipravin.strategy.StrategyParams;
 import hipravin.strategy.TestServerUtil;
 import model.Action;
 import model.ServerMessage;
@@ -19,6 +20,7 @@ public class BuildHousesStrategyTest {
         BuildHousesStrategy bhs = new BuildHousesStrategy();
 
         assertEquals(4, rstrategy.getGameHistoryState().getOngoingCommands().size());
+//        assertEquals(1, rstrategy.getGameHistoryState().getOngoingCommands().size());
     }
 
     @Test
@@ -29,13 +31,13 @@ public class BuildHousesStrategyTest {
 
         BuildHousesStrategy bhs = new BuildHousesStrategy();
 
-        GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState);
+        GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState, StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
 
-        boolean built = bhs.tryToBuildHouseShortDistance(3, 3,
-                rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), false);
-        assertTrue(built);
+//        boolean built = bhs.tryToBuildHouseShortDistance(3, 3,
+//                rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), false);
+//        assertTrue(built);
 
-        built = bhs.tryToBuildHouseShortDistance(1, 3,
+        boolean built = bhs.tryToBuildHouseShortDistance(1, 3,
                 rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), false);
         assertTrue(built);
 
@@ -48,7 +50,7 @@ public class BuildHousesStrategyTest {
         Action action = rstrategy.getAction(get0.getPlayerView(), null);
 
         BuildHousesStrategy bhs = new BuildHousesStrategy();
-        GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState);
+        GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState,  StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
         boolean built = bhs.tryToBuildHouseShortDistance(2, 3,
                 rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), false);
         assertTrue(built);
@@ -61,7 +63,7 @@ public class BuildHousesStrategyTest {
         Action action = rstrategy.getAction(get0.getPlayerView(), null);
 
         BuildHousesStrategy bhs = new BuildHousesStrategy();
-        GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState);
+        GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState,  StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
         boolean built = bhs.tryToBuildHouseShortDistance(1, 3,
                 rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), true);
         assertTrue(built);

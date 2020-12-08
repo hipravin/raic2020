@@ -12,6 +12,8 @@ public class Population {
     int populationUse = -1;
     int activeLimit = -1;
     int potentialLimit = -1;//includes inactive buildings
+    int myWorkerCount = -1;
+
 
     public static Population of(PlayerView playerView) {
         Map<EntityType, EntityProperties> properties = playerView.getEntityProperties();
@@ -33,6 +35,13 @@ public class Population {
                 .filter(e -> e.getPlayerId() == playerView.getMyId())
                 .map(e -> properties.get(e.getEntityType()).getPopulationProvide()).reduce(Integer::sum).orElse(0);
 
+        population.myWorkerCount = (int) Arrays.stream(playerView.getEntities())
+                .filter(e -> e.getPlayerId() != null)
+                .filter(e -> e.getPlayerId() == playerView.getMyId())
+                .filter(e -> e.getEntityType() == EntityType.BUILDER_UNIT)
+                .count();
+
+
         return population;
     }
 
@@ -46,5 +55,9 @@ public class Population {
 
     public int getPotentialLimit() {
         return potentialLimit;
+    }
+
+    public int getMyWorkerCount() {
+        return myWorkerCount;
     }
 }

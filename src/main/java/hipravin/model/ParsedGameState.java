@@ -3,14 +3,12 @@ package hipravin.model;
 import hipravin.strategy.StrategyParams;
 import model.*;
 
-import javax.swing.text.Position;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static hipravin.model.GameStateParser.forEachPosition;
 import static hipravin.model.Position2dUtil.isSquareWithinMapBorder;
-import static hipravin.model.Position2dUtil.squareInclusiveCornerStream;
 
 public class ParsedGameState {
     PlayerView playerView;

@@ -86,6 +86,7 @@ public class Cell implements Cloneable {
         cell.entityId = entity.getId();
         cell.maxHealth = playerView.getEntityProperties().get(EntityType.RESOURCE).getMaxHealth();
         cell.isEmpty = false;
+        cell.entity = entity;
 
         return cell;
     }

@@ -17,7 +17,9 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
     boolean shouldSpawnMoreWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
-        if(pgs.getMyWorkers().size() >= strategyParams.populationOfWorkersToBuildBeforeRangers) {
+
+
+        if (pgs.getMyWorkers().size() >= strategyParams.populationOfWorkersToBuildAfterRangers) {
             return false; //hold
         }
 
@@ -63,6 +65,10 @@ public class SpawnWorkersStrategy implements SubStrategy {
             return;
         }
 
+        if (ifSentToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams)) {
+            return;
+        }
+
         if ((double) pgs.getMyWorkersAtMapCorner() / (pgs.getMineralsAtMapCorner() + 1.0) > strategyParams.mapCornerMiningRatio) {
             if (ccOuterEdge.stream().anyMatch(p -> !Position2dUtil.isMapMyCornerPosition(p))) {
                 ccOuterEdge.removeIf(Position2dUtil::isMapMyCornerPosition);
@@ -93,6 +99,32 @@ public class SpawnWorkersStrategy implements SubStrategy {
                 gameHistoryState.addOngoingCommand(buildWorker, false);
             }
         }
+    }
+
+    boolean ifSentToCenter(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                           StrategyParams strategyParams) {
+
+        List<Position2d> outerEdgeList = new ArrayList<>();
+        Position2d spawnPos = ccOuterEdge.stream().max(Comparator.comparingInt(p -> p.x + p.y)).orElse(null);
+
+        int workerNum = pgs.getMyWorkers().size();
+
+        if (strategyParams.sendToCenter && strategyParams.sendToCenterWorkerNumbers.contains(workerNum)) {
+            CommandPredicate barrackStartedToBuild = new CommandPredicate() {
+                @Override
+                public boolean test(Command command, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+                    return pgs.getMyBarrack(EntityType.RANGED_BASE) != null;
+                }
+            };
+
+            Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
+            Command sendToCenter = new SendNewWorkerToPositionCommand(spawnPos, Position2dUtil.DESIRED_BARRACK, barrackStartedToBuild);
+
+            CommandUtil.chainCommands(buildWorker, sendToCenter);
+            gameHistoryState.addOngoingCommand(buildWorker, false);
+            return true;
+        }
+        return false;
     }
 
     CommandPredicate closeToMineTargetPredicate = new CommandPredicate() {

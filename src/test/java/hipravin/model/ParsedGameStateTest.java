@@ -1,5 +1,6 @@
 package hipravin.model;
 
+import hipravin.strategy.StrategyParams;
 import hipravin.strategy.TestServerUtil;
 import model.Entity;
 import model.EntityType;
@@ -39,7 +40,7 @@ class ParsedGameStateTest {
         PlayerView pw = get0.getPlayerView();
         ParsedGameState pgs = GameStateParser.parse(pw);
 
-        GameStateParser.computeUniqueWorkersNearby(pgs);
+        GameStateParser.computeUniqueWorkersNearby(pgs, StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
 
         Cell c = pgs.at(of(3,10));
         assertEquals(3, c.getWorkersNearby().size());
