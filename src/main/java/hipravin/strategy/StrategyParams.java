@@ -4,6 +4,7 @@ import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
 import model.EntityType;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,6 +21,8 @@ public class StrategyParams {
 
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
+
+    public static Position2d DESIRED_BARRACK = Position2d.of(35,35);
 
     public static final int MAP_CORNER_SIZE = 10;
 
@@ -57,7 +60,6 @@ public class StrategyParams {
     public EntityType[] rangerDefaultAttackTargets = new EntityType[]{EntityType.RANGED_UNIT, EntityType.MELEE_UNIT, EntityType.BUILDER_UNIT, EntityType.TURRET, EntityType.HOUSE, EntityType.RANGED_BASE,
             EntityType.MELEE_BASE, EntityType.BUILDER_BASE, EntityType.WALL};
 
-
     public Map<EntityType, Integer> magnetRepairRanges = Map.of(
             EntityType.HOUSE, 2,
             EntityType.RANGED_BASE, 20,
@@ -80,9 +82,8 @@ public class StrategyParams {
     public Set<Integer> sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20,  30,31,32,33,34);
 
     public int minHouseDistanceToCenter = 12;
-    public double rangerScoutRateProb = 0.1;
 
-    public boolean ifRandom(double prob) {
+    public static boolean ifRandom(double prob) {
         return GameHistoryAndSharedState.random.nextDouble() < prob;
     }
 
@@ -93,6 +94,9 @@ public class StrategyParams {
         return Position2d.of(x,y);
     }
 
+    public double rangerScoutRateProb = 0.1;
+    public List<Position2d> attackPoints = List.of(Position2d.of(70,70), Position2d.of(45,70), Position2d.of(70,45));
+    public List<Double> attackPointRates = List.of(0.5,0.5);
 
     public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
         return 7;
@@ -141,6 +145,16 @@ public class StrategyParams {
             cc.shift(7,6),
             cc.shift(6,7)
         );
+    }
+
+    public static <T> T selectRandomAccordingDistribution(List<? extends T> options, List<Double> prob) {
+        for (int i = 0; i < options.size() - 1; i++) {
+            if (ifRandom(prob.get(i))) {
+                return options.get(i);
+            }
+        }
+
+        return options.get(options.size() - 1);
     }
 
 }

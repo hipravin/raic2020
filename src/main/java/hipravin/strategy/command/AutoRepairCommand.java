@@ -50,6 +50,10 @@ public class AutoRepairCommand extends Command {
             EntityAction action = new EntityAction();
             action.setRepairAction(new RepairAction(pgs.at(buildingCorner).getEntityId()));
 
+            AttackAction attackAction = new AttackAction(null, new AutoAttack(1,
+                    new EntityType[]{EntityType.BUILDER_UNIT}));
+            action.setAttackAction(attackAction);
+
             assignedActions.put(workerEntityId, new ValuedEntityAction(0.5, workerEntityId, action));
         } else {
             EntityAction autoAttack = new EntityAction();

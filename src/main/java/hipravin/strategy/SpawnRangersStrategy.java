@@ -2,14 +2,13 @@ package hipravin.strategy;
 
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
-import hipravin.strategy.command.BuildRangerCommand;
-import hipravin.strategy.command.Command;
-import hipravin.strategy.command.CommandUtil;
-import hipravin.strategy.command.RangerScoutCommand;
+import hipravin.strategy.command.*;
 import model.Entity;
 import model.EntityType;
 
 import java.util.*;
+
+import static hipravin.model.Position2d.of;
 
 public class SpawnRangersStrategy implements SubStrategy {
     boolean shouldSpawnMoreRangers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -66,10 +65,19 @@ public class SpawnRangersStrategy implements SubStrategy {
 
         Command buildRangerCommand = new BuildRangerCommand(spawnPos, pgs, 1);
 
-        if(strategyParams.ifRandom(strategyParams.rangerScoutRateProb)) {
+        if(StrategyParams.ifRandom(strategyParams.rangerScoutRateProb)) {
             RangerScoutCommand scout = RangerScoutCommand.toFogNearEnemyHalfWay(null, spawnPos, strategyParams.randomScoutPointNearEnemy());
             CommandUtil.chainCommands(buildRangerCommand, scout);
+        } else {
+            Position2d retreatPosition = Optional.ofNullable(pgs.getMyRangerBase())
+                    .map(b -> of(b.getPosition()).shift(6,6)).orElse(of(40,40));
+
+            Position2d attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
+
+            RangerAttackHoldRetreatCommand rahrc = new RangerAttackHoldRetreatCommand(null, attackPosition, retreatPosition);
+            CommandUtil.chainCommands(buildRangerCommand, rahrc);
         }
+
         gameHistoryState.addOngoingCommand(buildRangerCommand, false);
     }
 }

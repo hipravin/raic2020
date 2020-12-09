@@ -6,8 +6,7 @@ import hipravin.model.Position2d;
 import hipravin.strategy.GameHistoryAndSharedState;
 import hipravin.strategy.StrategyParams;
 import hipravin.strategy.ValuedEntityAction;
-import model.EntityAction;
-import model.MoveAction;
+import model.*;
 
 import java.util.Map;
 import java.util.Set;
@@ -26,10 +25,10 @@ public class MoveSingleCommand extends Command {
     public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
 
         Cell c = currentParsedGameState.getEntityIdToCell().get(entityId);
-        if(c == null) {
+        if (c == null) {
             return false;
         }
-        if(currentParsedGameState.at(targetPosition).test(tc -> !tc.isEmpty() && tc.getEntity().getId() != entityId)) {
+        if (currentParsedGameState.at(targetPosition).test(tc -> !tc.isEmpty() && tc.getEntity().getId() != entityId)) {
             return false;
         }
         return true;
@@ -46,6 +45,10 @@ public class MoveSingleCommand extends Command {
 
         EntityAction action = new EntityAction();
         MoveAction moveAction = new MoveAction(targetPosition.toVec2dInt(), true, true);
+
+        AttackAction attackAction = new AttackAction(null, new AutoAttack(1,
+                new EntityType[]{EntityType.BUILDER_UNIT, EntityType.WALL}));
+        action.setAttackAction(attackAction);
 
         action.setMoveAction(moveAction);
         assignedActions.put(entityId, new ValuedEntityAction(0.5, entityId, action));

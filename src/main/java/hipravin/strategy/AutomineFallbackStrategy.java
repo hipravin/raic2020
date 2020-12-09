@@ -36,7 +36,8 @@ public class AutomineFallbackStrategy implements SubStrategy {
 
         notBusyWorkers.forEach(w -> {
             EntityAction autoAttack = new EntityAction();
-            AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.MAP_SIZE, new EntityType[]{EntityType.RESOURCE}));
+            AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.MAP_SIZE,
+                    new EntityType[]{EntityType.RESOURCE}));
             autoAttack.setAttackAction(attackAction);
             assignedActions.put(w.getId(), new ValuedEntityAction(0.5, w.getId(), autoAttack));
         });

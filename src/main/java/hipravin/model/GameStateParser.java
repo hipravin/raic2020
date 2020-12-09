@@ -181,7 +181,7 @@ public abstract class GameStateParser {
     public static void computeUniqueWorkersNearbyCenterMore(ParsedGameState pgs, int maxPath, int centerMaxPath) {
         for (Cell myWorker : pgs.getMyWorkers().values()) {
             Map<Position2d, NearestEntity> nearestEntityMap;
-            if(myWorker.getPosition().lenShiftSum(DESIRED_BARRACK) < 30) {
+            if(myWorker.getPosition().lenShiftSum(StrategyParams.DESIRED_BARRACK) < 30) {
                 nearestEntityMap = GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), centerMaxPath, true);
             } else {
                 nearestEntityMap = GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), maxPath, true);

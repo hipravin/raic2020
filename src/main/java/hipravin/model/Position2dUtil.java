@@ -13,7 +13,6 @@ public abstract class Position2dUtil {
     public static Position2d MY_CORNER = Position2d.of(0, 0);
     public static Position2d ENEMY_CORNER = Position2d.of(70, 70);
     public static Position2d MY_CC = Position2d.of(5, 5);
-    public static Position2d DESIRED_BARRACK = Position2d.of(37,37);
     public static int TURRET_RANGE = 5;
 
     public static int MAP_SIZE = 80;

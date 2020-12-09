@@ -67,7 +67,7 @@ public class BuildBarrackStrategy implements SubStrategy {
                 .filter(c -> pgs.calculateFreeSpace(c, size).map(FreeSpace::isCompletelyFree).orElse(false))
                 .collect(Collectors.toMap(Cell::getPosition, c -> pgs.calculateFreeSpace(c, size).get()));
 
-        barrackOptions.entrySet().removeIf(bo -> Position2dUtil.DESIRED_BARRACK.lenShiftSum(bo.getKey()) > maxDistanceToDesiredBarrack);
+        barrackOptions.entrySet().removeIf(bo -> StrategyParams.DESIRED_BARRACK.lenShiftSum(bo.getKey()) > maxDistanceToDesiredBarrack);
 
         if (withNonDesiredAndSpacingFiltering) {
             barrackOptions.entrySet().removeIf(e -> !doesntTouchOtherBuildings(e.getKey(), size, pgs));
@@ -129,13 +129,13 @@ public class BuildBarrackStrategy implements SubStrategy {
 
 
         //distance to map center
-        Comparator<Position2d> toCenter = Comparator.comparingInt(p -> (int) Position2dUtil.DESIRED_BARRACK.lenShiftSum(p));
+        Comparator<Position2d> toCenter = Comparator.comparingInt(p -> (int) StrategyParams.DESIRED_BARRACK.lenShiftSum(p));
 
 
         List<Position2d> acceptableBarrackPositions = new ArrayList<>(bpUniqueBestWorkers.keySet());
         acceptableBarrackPositions.sort(toCenter);
 
-        if (!acceptableBarrackPositions.isEmpty() && acceptableBarrackPositions.get(0).lenShiftSum(Position2dUtil.DESIRED_BARRACK) < maxDistanceToDesiredBarrack) {
+        if (!acceptableBarrackPositions.isEmpty() && acceptableBarrackPositions.get(0).lenShiftSum(StrategyParams.DESIRED_BARRACK) < maxDistanceToDesiredBarrack) {
             Position2d bp = acceptableBarrackPositions.get(0);
             createBuildAndRepairCommands(bp, bpUniqueBestWorkers.get(bp), gameHistoryState, pgs, strategyParams);
             return true;

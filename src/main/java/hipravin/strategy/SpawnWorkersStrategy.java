@@ -133,7 +133,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
     }
 
     public Position2d randomSendToCenterPosition() {
-        Position2d basePosition = Position2dUtil.DESIRED_BARRACK;
+        Position2d basePosition = StrategyParams.DESIRED_BARRACK;
         List<Position2d> outerEdge = new ArrayList<>(Position2dUtil.buildingOuterEdgeWithoutCorners(basePosition, Position2dUtil.RANGED_BASE_SIZE));
 
         return outerEdge.get(GameHistoryAndSharedState.random.nextInt(outerEdge.size()));
