@@ -41,12 +41,12 @@ public class AutoRepairCommand extends Command {
 
     @Override
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
-        return pgs.at(buildingCorner).test(c -> c.isMyBuilding() && c.getEntity().isActive());
+        return pgs.at(buildingCorner).test(c -> c.isMyBuilding() && c.getEntity().getHealth() == c.getMaxHealth());
     }
 
     @Override
     public void updateAssignedActions(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        if (pgs.at(buildingCorner).test(c -> c.isMyBuilding() && !c.getEntity().isActive())) {
+        if (pgs.at(buildingCorner).test(c -> c.isMyBuilding() && c.getEntity().getHealth() != c.getMaxHealth())) {
             EntityAction action = new EntityAction();
             action.setRepairAction(new RepairAction(pgs.at(buildingCorner).getEntityId()));
 

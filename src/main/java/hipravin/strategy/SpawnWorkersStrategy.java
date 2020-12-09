@@ -134,6 +134,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
 
                 List<Position2d> fogEdges = pgs.getFogEdgePositions();
+                fogEdges.removeIf(fe -> !pgs.at(fe).isEmpty());
 
                 if (fogEdges.isEmpty()) {
                     return false;
@@ -147,7 +148,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
                     CommandUtil.chainCommands(buildWorker, sendToFog);
                     gameHistoryState.addOngoingCommand(buildWorker, false);
-                    DebugOut.println("Worker sent to fog:" +randomFogPosition);
+                    DebugOut.println("Worker sent to fog:" + randomFogPosition);
                     return true;
                 }
             }
@@ -166,7 +167,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
             CommandPredicate barrackStartedToBuild = new CommandPredicate() {
                 @Override
                 public boolean test(Command command, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
-                    return pgs.getMyBarrack(EntityType.RANGED_BASE) != null && pgs.getMyBarrack(EntityType.RANGED_BASE).isActive();
+                    return pgs.getMyBarrack(EntityType.RANGED_BASE) != null && pgs.getMyBarrack(EntityType.RANGED_BASE).isActive()
+                            ;
                 }
             };
 

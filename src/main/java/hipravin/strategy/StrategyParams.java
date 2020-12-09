@@ -31,12 +31,14 @@ public class StrategyParams {
     public int moveTowardsDistanceTreshold = 5;
     public boolean useAttackHoldOverCountTreshold = true;
     public int attackHoldEnemyRange = 10;
-    public int attackHoldMyRange = 5;
-    public double attackOverCountTreshhold = 1.5;
+    public int attackHoldMyRange = 10;
+    public double attackOverCountTreshhold = 1.2;
+    public int rangersCloserHold = 2;
 
-    public int wayOutMinHouses = 4;
-    public int wayOutFindPathLen = 20;
-    public int wayOutDiffDetectTreshhold = 18;
+    public int wayOutMinHouses = 1;
+    public int wayOutFindPathLen = 22;
+    public int wayOutDiffDetectTreshhold = 7;
+    public double wayOutDiffDetectTreshholdMul = 0.2;
     public int wayOutBlockFindMaxPopulation = 60;
 
     public int defensiveTurretBeforeRangersCount = 10;
@@ -70,8 +72,8 @@ public class StrategyParams {
 
     public int numberOfRandomScoutChoices = 20;
 
-    public int respSize = 10;
-    public int maxWorkerRespCountBeforeSendToFog = 10;
+    public int respSize = 20;
+    public int maxWorkerRespCountBeforeSendToFog = 12;
 
     public EntityType[] rangerDefaultAttackTargets = new EntityType[]{EntityType.RANGED_UNIT, EntityType.MELEE_UNIT, EntityType.BUILDER_UNIT, EntityType.TURRET, EntityType.HOUSE, EntityType.RANGED_BASE,
             EntityType.MELEE_BASE, EntityType.BUILDER_BASE, EntityType.WALL};
@@ -112,7 +114,7 @@ public class StrategyParams {
 
     public double rangerScoutRateProb = 0.0;
     public List<Position2d> attackPoints = List.of(of(70, 70), of(30, 70), of(70, 30));
-    public List<Double> attackPointRates = List.of(0.9, 0.5);
+    public List<Double> attackPointRates = List.of(0.8, 0.5);
 
     public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
         return 7;

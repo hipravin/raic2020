@@ -38,7 +38,7 @@ class ParsedGameStateTest {
         ParsedGameState pgs = GameStateParser.parse(pw);
 
         assertEquals(396, countCells(pgs, c -> !c.fog));
-        assertEquals(35, countCells(pgs, c -> c.isFogEdge));
+        assertEquals(34, countCells(pgs, c -> c.isFogEdge));
         assertEquals(46, countCells(pgs, c -> c.isMineralEdge));
     }
 

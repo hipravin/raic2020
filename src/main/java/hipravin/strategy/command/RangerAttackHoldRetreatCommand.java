@@ -68,6 +68,18 @@ public class RangerAttackHoldRetreatCommand extends Command {
         return counter.get();
     }
 
+    public int countRangersCloserToattackPoint(Position2d rangerPosition, int range,
+                                               GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+        AtomicInteger counter = new AtomicInteger(0);
+        Position2dUtil.iterAllPositionsInRangeExclusive(rangerPosition, range, p -> {
+            if(pgs.at(p).isMyRanger() && rangerPosition.lenShiftSum(attackPosition) > p.lenShiftSum(attackPosition) ) {
+                counter.incrementAndGet();
+            }
+        });
+
+        return counter.get();
+    }
+
 
     @Override
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
@@ -90,8 +102,18 @@ public class RangerAttackHoldRetreatCommand extends Command {
         int enemyCount = countEnemyRangersNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
         int myCount = countMyRangersNearby(rp, strategyParams.attackHoldMyRange, gameHistoryState, pgs, strategyParams);
 
+        int attackRangeCount = countEnemyRangersNearby(rp, Position2dUtil.RANGER_RANGE, gameHistoryState, pgs, strategyParams);
+        int neighbourMyCount = countMyRangersNearby(rp, 1, gameHistoryState, pgs, strategyParams);
+
+        int rangersCloser = countRangersCloserToattackPoint(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
+
         if(strategyParams.useAttackHoldOverCountTreshold
-                && enemyCount * strategyParams.attackOverCountTreshhold > myCount) {
+             && attackRangeCount == 0 && neighbourMyCount == 0 && enemyCount > 1) {
+            DebugOut.println("Ranger retreat: " + rp);
+            updateRetreat(gameHistoryState, pgs, strategyParams, assignedActions);
+        } else if(strategyParams.useAttackHoldOverCountTreshold
+                && enemyCount * strategyParams.attackOverCountTreshhold > myCount
+                && rangersCloser <= strategyParams.rangersCloserHold  ) {
             DebugOut.println("Ranger hold: " + rp + ", my: " + myCount + ", enemy: " + enemyCount);
             updateHold(gameHistoryState, pgs, strategyParams, assignedActions);
         } else {
@@ -102,7 +124,7 @@ public class RangerAttackHoldRetreatCommand extends Command {
     public void updateAttack(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         EntityAction autoAttack = new EntityAction();
-        AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.MAP_SIZE,
+        AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.RANGER_RANGE,
                 strategyParams.rangerDefaultAttackTargets));
         autoAttack.setAttackAction(attackAction);
 
@@ -114,9 +136,21 @@ public class RangerAttackHoldRetreatCommand extends Command {
     public void updateHold(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         EntityAction autoAttack = new EntityAction();
-        AttackAction attackAction = new AttackAction(null, new AutoAttack(0,
+        AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.RANGER_RANGE,
                 strategyParams.rangerDefaultAttackTargets));
         autoAttack.setAttackAction(attackAction);
+
+        assignedActions.put(rangerEntityId, new ValuedEntityAction(0.5, rangerEntityId, autoAttack));
+    }
+
+    public void updateRetreat(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
+                             StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        EntityAction autoAttack = new EntityAction();
+//        AttackAction attackAction = new AttackAction(null, new AutoAttack(0,
+//                strategyParams.rangerDefaultAttackTargets));
+//        autoAttack.setAttackAction(attackAction);
+
+        autoAttack.setMoveAction(new MoveAction(retreatPosition.toVec2dInt(), true, true));
 
         assignedActions.put(rangerEntityId, new ValuedEntityAction(0.5, rangerEntityId, autoAttack));
     }

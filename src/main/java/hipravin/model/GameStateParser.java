@@ -123,16 +123,16 @@ public abstract class GameStateParser {
     }
 
     static void calculateForEdge(ParsedGameState pgs) {
-        Predicate<Position2d> notFog = (pp) -> !pgs.at(pp).fog;
+        Predicate<Position2d> fog = (pp) -> pgs.at(pp).fog;
 
         forEachCell(pgs.cells, c -> {
             Position2d p = c.getPosition();
 
-            if (c.isFog()
-                    && (withingMapBorderAndPassesFilter(p.shift(0, 1), notFog)
-                    || withingMapBorderAndPassesFilter(p.shift(1, 0), notFog)
-                    || withingMapBorderAndPassesFilter(p.shift(-1, 0), notFog)
-                    || withingMapBorderAndPassesFilter(p.shift(0, -1), notFog))) {
+            if (!c.isFog()
+                    && (withingMapBorderAndPassesFilter(p.shift(0, 1), fog)
+                    || withingMapBorderAndPassesFilter(p.shift(1, 0), fog)
+                    || withingMapBorderAndPassesFilter(p.shift(-1, 0), fog)
+                    || withingMapBorderAndPassesFilter(p.shift(0, -1), fog))) {
                 c.isFogEdge = true;
             }
         });

@@ -45,29 +45,49 @@ public class AutomineFallbackStrategy implements SubStrategy {
 
                     Position2d cur = moved.getValue();
 
-                    Position2d stepForwardTo = null;
+                    Position2d moveTo = tryToUnblockTheWay(cur, pgs);
 
-                    Position2d right = cur.shift(1, 0);
-                    Position2d up = cur.shift(0, 1);
+                    if(moveTo != null) {
+                        MoveSingleCommand moveCommand = new MoveSingleCommand(pgs, pgs.at(moved.getValue()).getEntityId(),
+                                moveTo, (int)cur.lenShiftSum(moveTo));
 
-                    if(cur.x > cur.y && Position2dUtil.isPositionWithinMapBorder(right) && pgs.at(right).isEmpty()) {
-                        stepForwardTo = right;
-
-                    } else if(Position2dUtil.isPositionWithinMapBorder(up) && pgs.at(up).isEmpty()) {
-                        stepForwardTo = up;
-                    }
-
-                    if(stepForwardTo != null) {
-                        MoveOneStepTowardsCommand moveOneStepTowardsCommand = new MoveOneStepTowardsCommand(pgs, pgs.at(moved.getValue()).getEntityId(),
-                                stepForwardTo);
-
-                        gameHistoryState.addOngoingCommand(moveOneStepTowardsCommand, false);
+                        gameHistoryState.addOngoingCommand(moveCommand, false);
                     }
                 }
             }
         }
     }
-    
+
+    public static Position2d tryToUnblockTheWay(Position2d cur, ParsedGameState pgs) {
+        Position2d result = null;
+
+        if(!Position2dUtil.isPositionWithinMapBorder(cur.shift(3,3))) {
+            return null;
+        }
+
+        if(cur.x > cur.y) {
+            if(pgs.at(cur.shift(1,0)).isEmpty() && pgs.at(cur.shift(2,0)).isEmpty() && pgs.at(cur.shift(3,0)).isEmpty()) {
+                result = cur.shift(3, 0);
+            } else if(pgs.at(cur.shift(1,0)).isEmpty() && pgs.at(cur.shift(2,0)).isEmpty()) {
+                result = cur.shift(2,0);
+            } else if(pgs.at(cur.shift(1,0)).isEmpty()) {
+                result = cur.shift(1,0);
+            }
+        } else {
+            if(pgs.at(cur.shift(0,1)).isEmpty() && pgs.at(cur.shift(0,2)).isEmpty() && pgs.at(cur.shift(0,3)).isEmpty()) {
+                result = cur.shift(0, 3);
+            } else if(pgs.at(cur.shift(0,1)).isEmpty() && pgs.at(cur.shift(0,2)).isEmpty()) {
+                result = cur.shift(0,2);
+            } else if(pgs.at(cur.shift(0,1)).isEmpty()) {
+                result = cur.shift(0,1);
+            }
+        }
+
+        return  result;
+    }
+
+
+
     public void autoAttackAllUnboundWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
