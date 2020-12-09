@@ -27,6 +27,7 @@ public class BuildThenRepairCommand extends Command {
         CommandUtil.addNextCommands(this,
                 List.of(new AutoRepairCommand(cornerPosition, builderWorkerId, pgs, strategyParams)));
     }
+
     public BuildThenRepairCommand(Position2d cornerPosition, EntityType entityType, int builderWorkerId, ParsedGameState pgs, StrategyParams strategyParams) {
         this(cornerPosition, entityType, builderWorkerId, pgs, strategyParams, strategyParams.buildCommandMaxWaitTicks);
     }
@@ -35,6 +36,10 @@ public class BuildThenRepairCommand extends Command {
     @Override
     public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
         if (!pgs.getEntityIdToCell().containsKey(builderWorkerId)) {
+            return false;
+        }
+        if ((buildingType == EntityType.MELEE_BASE || buildingType == EntityType.RANGED_BASE)
+                && pgs.getMyBarrack(buildingType) != null) {
             return false;
         }
 

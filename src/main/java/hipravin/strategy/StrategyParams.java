@@ -24,14 +24,19 @@ public class StrategyParams {
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public static Position2d DESIRED_BARRACK = of(35,35);
+    public static Position2d DESIRED_BARRACK = of(32, 32);
 
     public static final int MAP_CORNER_SIZE = 10;
 
     public int moveTowardsDistanceTreshold = 5;
+    public boolean useAttackHoldOverCountTreshold = true;
+    public int attackHoldEnemyRange = 10;
+    public int attackHoldMyRange = 5;
+    public double attackOverCountTreshhold = 1.5;
 
-    public int wayOutFindPathLen = 21;
-    public int wayOutDiffDetectTreshhold = 15;
+    public int wayOutMinHouses = 4;
+    public int wayOutFindPathLen = 20;
+    public int wayOutDiffDetectTreshhold = 18;
     public int wayOutBlockFindMaxPopulation = 60;
 
     public int defensiveTurretBeforeRangersCount = 10;
@@ -41,7 +46,7 @@ public class StrategyParams {
     public int buildTurretMaxWaitTicks = 13;
     public int autoRepairMaxWaitTicks = 5;
 
-    public double mapCornerMiningRatio = 3/10.0; //spawn rokers only if workers / minerals < {value}
+    public double mapCornerMiningRatio = 3 / 10.0; //spawn rokers only if workers / minerals < {value}
 
     public int maxHousesBeforeMandatorySpacing = 5;
 
@@ -53,7 +58,7 @@ public class StrategyParams {
     public double worstMineralSpawnProb = 0.2;
     public int switchToAutoMineRange = 4;
 
-//    public int populationOfWorkersToBuildBeforeRangers = 60;
+    //    public int populationOfWorkersToBuildBeforeRangers = 60;
     public int populationOfWorkersToBuildBeforeRangers = 50;
     public int populationOfWorkersToBuildAfterRangers = 60;
 
@@ -64,6 +69,9 @@ public class StrategyParams {
     public int magnetMaxToSinglePoint = 2;
 
     public int numberOfRandomScoutChoices = 20;
+
+    public int respSize = 10;
+    public int maxWorkerRespCountBeforeSendToFog = 10;
 
     public EntityType[] rangerDefaultAttackTargets = new EntityType[]{EntityType.RANGED_UNIT, EntityType.MELEE_UNIT, EntityType.BUILDER_UNIT, EntityType.TURRET, EntityType.HOUSE, EntityType.RANGED_BASE,
             EntityType.MELEE_BASE, EntityType.BUILDER_BASE, EntityType.WALL};
@@ -87,7 +95,7 @@ public class StrategyParams {
     );
 
     public boolean sendToCenter = true;
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(17,18,19,20,21,22, 30,31,32,33,34, 35,36,37,38,39);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(17, 18, 19, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39);
 
     public int minHouseDistanceToCenter = 12;
 
@@ -99,16 +107,17 @@ public class StrategyParams {
 
         int x = Position2dUtil.MAP_SIZE - 5 - GameHistoryAndSharedState.random.nextInt(30);
         int y = Position2dUtil.MAP_SIZE - 5 - GameHistoryAndSharedState.random.nextInt(30);
-        return of(x,y);
+        return of(x, y);
     }
 
-    public double rangerScoutRateProb = 0.1;
-    public List<Position2d> attackPoints = List.of(of(70,70), of(45,70), of(70,45));
-    public List<Double> attackPointRates = List.of(0.8,0.5);
+    public double rangerScoutRateProb = 0.0;
+    public List<Position2d> attackPoints = List.of(of(70, 70), of(30, 70), of(70, 30));
+    public List<Double> attackPointRates = List.of(0.9, 0.5);
 
     public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
         return 7;
     }
+
     public int getHousesAheadPopulationWhenBuildingRangers(int currentPopulation) {
         return 11;
     }
@@ -139,19 +148,19 @@ public class StrategyParams {
         Position2d cc = Position2dUtil.MY_CC;
 
         return Set.of(
-            cc.shift(5,0),
-            cc.shift(5,1),
-            cc.shift(5,2),
-            cc.shift(5,3),
-            cc.shift(5,4),
-            cc.shift(5,5),
-            cc.shift(0,5),
-            cc.shift(1,5),
-            cc.shift(2,5),
-            cc.shift(3,5),
-            cc.shift(4,5),
-            cc.shift(7,6),
-            cc.shift(6,7)
+                cc.shift(5, 0),
+                cc.shift(5, 1),
+                cc.shift(5, 2),
+                cc.shift(5, 3),
+                cc.shift(5, 4),
+                cc.shift(5, 5),
+                cc.shift(0, 5),
+                cc.shift(1, 5),
+                cc.shift(2, 5),
+                cc.shift(3, 5),
+                cc.shift(4, 5),
+                cc.shift(7, 6),
+                cc.shift(6, 7)
         );
     }
 
@@ -168,11 +177,13 @@ public class StrategyParams {
     public void activateOption2() {
         GameHistoryAndSharedState.random.nextInt();
 
-        DESIRED_BARRACK = of(25,25);
+        DESIRED_BARRACK = of(25, 25);
 
-        sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20,  30,31,32,33,34);
+        sendToCenterWorkerNumbers = Set.of(15, 16, 17, 18, 19, 20, 30, 31, 32, 33, 34);
 
-
+        attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
+        attackPointRates = List.of(1.0, 0.0);
+        useAttackHoldOverCountTreshold = false;
     }
 
 }

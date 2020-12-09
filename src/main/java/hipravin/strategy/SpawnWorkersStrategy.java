@@ -9,6 +9,7 @@ import model.EntityType;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static hipravin.model.Position2d.of;
 import static hipravin.strategy.StrategyParams.MAX_VAL;
 
 public class SpawnWorkersStrategy implements SubStrategy {
@@ -19,8 +20,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
                                    StrategyParams strategyParams) {
 
 
-        if(pgs.getMyWorkers().size() >= strategyParams.populationOfWorkersToBuildBeforeRangers
-                &&pgs.getMyRangerBase() == null) {
+        if (pgs.getMyWorkers().size() >= strategyParams.populationOfWorkersToBuildBeforeRangers
+                && pgs.getMyRangerBase() == null) {
             return false;
         }
 
@@ -74,6 +75,10 @@ public class SpawnWorkersStrategy implements SubStrategy {
             return;
         }
 
+        if (ifSentToFog(ccOuterEdge, gameHistoryState, pgs, strategyParams)) {
+            return;
+        }
+
         if ((double) pgs.getMyWorkersAtMapCorner() / (pgs.getMineralsAtMapCorner() + 1.0) > strategyParams.mapCornerMiningRatio) {
             if (ccOuterEdge.stream().anyMatch(p -> !Position2dUtil.isMapMyCornerPosition(p))) {
                 ccOuterEdge.removeIf(Position2dUtil::isMapMyCornerPosition);
@@ -106,10 +111,53 @@ public class SpawnWorkersStrategy implements SubStrategy {
         }
     }
 
+    int countWorkersOnResp(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                          StrategyParams strategyParams) {
+        int count= 0;
+
+        for (int x = 0; x < strategyParams.respSize; x++) {
+            for (int y = 0; y < strategyParams.respSize; y++) {
+                 if(pgs.at(of(x,y)).isMyWorker()) {
+                     count++;
+                 }
+            }
+        }
+        return count;
+    }
+
+    boolean ifSentToFog(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                        StrategyParams strategyParams) {
+
+        if (pgs.getPlayerView().isFogOfWar()) {
+            int countOfWorkersOnResp = countWorkersOnResp(gameHistoryState, pgs, strategyParams);
+            if(countOfWorkersOnResp >= strategyParams.maxWorkerRespCountBeforeSendToFog  ) {
+
+
+                List<Position2d> fogEdges = pgs.getFogEdgePositions();
+
+                if (fogEdges.isEmpty()) {
+                    return false;
+                }
+                Position2d randomFogPosition = fogEdges.get(GameHistoryAndSharedState.random.nextInt(fogEdges.size()));
+                Position2d spawnPos = ccOuterEdge.stream().min(Comparator.comparing(e -> e.lenShiftSum(randomFogPosition))).orElse(null);
+
+                if(spawnPos != null) {
+                    Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
+                    Command sendToFog = new SendNewWorkerToPositionCommand(spawnPos, randomFogPosition, null);
+
+                    CommandUtil.chainCommands(buildWorker, sendToFog);
+                    gameHistoryState.addOngoingCommand(buildWorker, false);
+                    DebugOut.println("Worker sent to fog:" +randomFogPosition);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     boolean ifSentToCenter(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                            StrategyParams strategyParams) {
 
-        List<Position2d> outerEdgeList = new ArrayList<>();
         Position2d spawnPos = ccOuterEdge.stream().max(Comparator.comparingInt(p -> p.x + p.y)).orElse(null);
 
         int workerNum = pgs.getMyWorkers().size();

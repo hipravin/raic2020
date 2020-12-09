@@ -25,6 +25,10 @@ public class BlockDetector {
     static boolean checkIfCellsAreBLockingWayOut(Set<Position2d> positions, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                                  StrategyParams strategyParams, boolean ignoreUnits, Set<Position2d> additionalEmpty) {
 
+        if(pgs.findMyBuildings(EntityType.BUILDER_BASE).size() == 0) {
+            return false;
+        }
+
         Set<Position2d> ccOuterEdge = new HashSet<>(pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
                 .getBuildingOuterEdgeWithoutCorners());
 

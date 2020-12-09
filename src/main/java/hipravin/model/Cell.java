@@ -71,6 +71,9 @@ public class Cell implements Cloneable {
     public boolean isMyRanger() {
         return isMyUnit() && entityType == EntityType.RANGED_UNIT;
     }
+    public boolean isEnemyRanger() {
+        return isUnit && !isMyUnit() && entityType == EntityType.RANGED_UNIT;
+    }
 
     public static Cell empty(Position2d position) {
         Cell cell = new Cell();

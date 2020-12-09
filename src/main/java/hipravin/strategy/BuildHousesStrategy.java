@@ -177,7 +177,8 @@ public class BuildHousesStrategy implements SubStrategy {
         if (!acceptableHousePositions.isEmpty()) {
             Position2d hp;
 
-            if (pgs.getPopulation().getPopulationUse() <= strategyParams.wayOutBlockFindMaxPopulation) {
+            if (pgs.getActiveHouseCount() >= strategyParams.wayOutMinHouses &&
+                    pgs.getPopulation().getPopulationUse() <= strategyParams.wayOutBlockFindMaxPopulation) {
                 hp = acceptableHousePositions.stream().filter(h -> !BlockDetector.checkIfHouseBlocksWayOut(h, gameHistoryState, pgs, strategyParams))
                         .findFirst().orElse(null);
             } else {

@@ -15,6 +15,7 @@ public abstract class Position2dUtil {
     public static Position2d MY_CC = Position2d.of(5, 5);
     public static int TURRET_RANGE = 5;
 
+
     public static int MAP_SIZE = 80;
 
     public static int FIELD_MIN_X = 0;

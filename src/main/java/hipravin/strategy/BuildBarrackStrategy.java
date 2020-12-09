@@ -23,6 +23,8 @@ public class BuildBarrackStrategy implements SubStrategy {
 
         Entity barrack = pgs.getMyBarrack(barrackType);
 
+        gameHistoryState.ongoingBarrackBuildCommandCount();
+
         return barrack == null
                 && pgs.getEstimatedResourceAfterTicks(strategyParams.barrackAheadBuildResourceTick) >= pgs.getBarrackCost(barrackType)
                 && gameHistoryState.ongoingBarrackBuildCommandCount() < 1;
