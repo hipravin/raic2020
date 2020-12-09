@@ -87,7 +87,7 @@ public class StrategyParams {
     );
 
     public boolean sendToCenter = true;
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20, 30,31,32,33,34, 35,36,37,38,39);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(17,18,19,20,21,22, 30,31,32,33,34, 35,36,37,38,39);
 
     public int minHouseDistanceToCenter = 12;
 
@@ -168,7 +168,7 @@ public class StrategyParams {
     public void activateOption2() {
         GameHistoryAndSharedState.random.nextInt();
 
-        DESIRED_BARRACK = of(30,30);
+        DESIRED_BARRACK = of(25,25);
 
         sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20,  30,31,32,33,34);
 

@@ -77,7 +77,11 @@ public class MagnetRepairStrategy implements SubStrategy {
 
     @Override
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        pgs.getBuildingsByEntityId().values().forEach(b -> {
+        List<Building> toRepairBuilding = new ArrayList<>(pgs.getBuildingsByEntityId().values());
+
+        toRepairBuilding.sort(Comparator.comparingInt(b->b.getCornerCell().getMaxHealth())); // barracks, turret, house
+
+        toRepairBuilding.forEach(b -> {
             if(b.isMyBuilding() && b.getCornerCell().getEntity().getHealth() < b.getCornerCell().getMaxHealth()) {
                 decideForInactiveBuilding(b, gameHistoryState, pgs, strategyParams, assignedActions);
             }
