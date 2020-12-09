@@ -22,6 +22,15 @@ class ParsedGameStateTest {
 
 
     @Test
+    void testNoSuch() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 8, 398);
+
+        PlayerView pw = get0.getPlayerView();
+        ParsedGameState pgs = GameStateParser.parse(pw);
+
+    }
+
+    @Test
     void testFogAndEdge() {
         ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 2, 66);
 
@@ -162,7 +171,7 @@ class ParsedGameStateTest {
             }
         }
 
-        assertEquals(7916, freeTotal);
+        assertEquals(8136, freeTotal);
         assertEquals(43, freeButUnitsTotal);
     }
 

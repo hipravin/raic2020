@@ -26,6 +26,7 @@ public class ParsedGameState {
     Set<Position2d> fogEdgePositionsSet = new HashSet<>();
 
     Set<Integer> newEntityIds = new HashSet<>();
+    Map<Position2d, Position2d> workersMovedSinceLastTick = new HashMap<>();
 
     int workersAtMiningPositions;
 
@@ -226,6 +227,14 @@ public class ParsedGameState {
     public Optional<Integer> getMyUnitSpawned(EntityType entityType) {
         return newEntityIds.stream().filter(id -> entityIdToCell.get(id).test(c -> c.isMyEntity && c.getEntity().getEntityType() == entityType))
                 .findFirst();
+    }
+
+    public Set<Integer> getNewEntityIds() {
+        return newEntityIds;
+    }
+
+    public Map<Position2d, Position2d> getWorkersMovedSinceLastTick() {
+        return workersMovedSinceLastTick;
     }
 }
 

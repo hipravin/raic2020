@@ -18,7 +18,7 @@ public class BuildRangerCommand extends Command {
     final int rangerBaseEntityId;
 
     public BuildRangerCommand(Position2d spawnLocation, ParsedGameState pgs, int tickLimit) {
-        super(pgs.curTick() + tickLimit, Set.of(pgs.getMyCc().getId()));
+        super(pgs.curTick() + tickLimit, Set.of(pgs.getMyRangerBase().getId()));
         this.spawnLocation = spawnLocation;
         this.rangerBaseEntityId = pgs.getMyRangerBase().getId();
     }

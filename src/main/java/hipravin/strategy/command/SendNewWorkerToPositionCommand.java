@@ -34,11 +34,11 @@ public class SendNewWorkerToPositionCommand extends Command {
         if(pgs.at(spawnPosition).isMyWorker()) {//TODO: additionally check that worker count was increased?
             int workerId = pgs.at(spawnPosition).getEntityId();
             if(targetPosition != null) {
-                MoveSingleCommand moveSingleCommand = new MoveSingleCommand(pgs, workerId, targetPosition, MAX_VAL);
+                MoveTowardsCommand moveTowardsCommand = new MoveTowardsCommand(pgs, workerId, targetPosition, MAX_VAL);
                 if(moveCancelPredicate != null) {
-                    moveSingleCommand.setConditionalReplacer(new CancelCommand(), moveCancelPredicate);
+                    moveTowardsCommand.setConditionalReplacer(new CancelCommand(), moveCancelPredicate);
                 }
-                CommandUtil.chainCommands(this, moveSingleCommand);
+                CommandUtil.chainCommands(this, moveTowardsCommand);
             }
             return true;
         } else {

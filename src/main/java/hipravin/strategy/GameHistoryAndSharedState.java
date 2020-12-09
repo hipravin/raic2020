@@ -5,6 +5,7 @@ import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
 import hipravin.strategy.command.BuildThenRepairCommand;
 import hipravin.strategy.command.Command;
+import hipravin.strategy.command.MineExactMineral;
 import model.Action;
 import model.EntityType;
 import model.Player;
@@ -125,6 +126,13 @@ public class GameHistoryAndSharedState {
 
     public Stream<Integer> allOngoingCommandRelatedEntitiIds() {
         return ongoingCommands.stream().flatMap(c -> c.getRelatedEntityIds().stream());
+    }
+
+    public Set<Integer> allOngoingRelatedEntitiIdsExceptMineExact() {
+        return ongoingCommands.stream()
+                .filter(c -> !(c instanceof MineExactMineral))
+                .flatMap(c -> c.getRelatedEntityIds().stream())
+                .collect(Collectors.toSet());
     }
 
     public Set<Integer> allOngoingCommandRelatedEntitiIdsSet() {

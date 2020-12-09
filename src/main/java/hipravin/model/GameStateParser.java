@@ -97,6 +97,21 @@ public abstract class GameStateParser {
         return parsedGameState;
     }
 
+    public static void calculateWorkersMovedSinceLastTurn(ParsedGameState currentPgs, ParsedGameState previousPgs) {
+        if(previousPgs == null)  {
+            return;
+        }
+
+        for (Map.Entry<Integer, Cell> currentEntry : currentPgs.getMyWorkers().entrySet()) {
+            Position2d currentPosition = currentEntry.getValue().getPosition();
+            Position2d previousPosition = Optional.ofNullable(previousPgs.getMyWorkers().get(currentEntry.getKey())).map(Cell::getPosition).orElse(null);
+
+            if(previousPosition != null && !currentPosition.equals(previousPosition)) {
+                currentPgs.workersMovedSinceLastTick.put(previousPosition, currentPosition);
+            }
+        }
+    }
+
     public static void calculateNewEntityIds(ParsedGameState currentPgs, ParsedGameState previousPgs) {
         if(previousPgs != null) {
             Set<Integer> current = new HashSet<>(currentPgs.getEntityIdToCell().keySet());

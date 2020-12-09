@@ -118,7 +118,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
             CommandPredicate barrackStartedToBuild = new CommandPredicate() {
                 @Override
                 public boolean test(Command command, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
-                    return pgs.getMyBarrack(EntityType.RANGED_BASE) != null;
+                    return pgs.getMyBarrack(EntityType.RANGED_BASE) != null && pgs.getMyBarrack(EntityType.RANGED_BASE).isActive();
                 }
             };
 

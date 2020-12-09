@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static hipravin.model.Position2d.of;
+
 public class StrategyParams {
     public static int MAX_VAL = Integer.MAX_VALUE >> 1;
 
@@ -22,9 +24,15 @@ public class StrategyParams {
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public static Position2d DESIRED_BARRACK = Position2d.of(35,35);
+    public static Position2d DESIRED_BARRACK = of(35,35);
 
     public static final int MAP_CORNER_SIZE = 10;
+
+    public int moveTowardsDistanceTreshold = 5;
+
+    public int wayOutFindPathLen = 21;
+    public int wayOutDiffDetectTreshhold = 15;
+    public int wayOutBlockFindMaxPopulation = 60;
 
     public int defensiveTurretBeforeRangersCount = 10;
 
@@ -79,7 +87,7 @@ public class StrategyParams {
     );
 
     public boolean sendToCenter = true;
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20,  30,31,32,33,34);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20, 30,31,32,33,34, 35,36,37,38,39);
 
     public int minHouseDistanceToCenter = 12;
 
@@ -91,12 +99,12 @@ public class StrategyParams {
 
         int x = Position2dUtil.MAP_SIZE - 5 - GameHistoryAndSharedState.random.nextInt(30);
         int y = Position2dUtil.MAP_SIZE - 5 - GameHistoryAndSharedState.random.nextInt(30);
-        return Position2d.of(x,y);
+        return of(x,y);
     }
 
     public double rangerScoutRateProb = 0.1;
-    public List<Position2d> attackPoints = List.of(Position2d.of(70,70), Position2d.of(45,70), Position2d.of(70,45));
-    public List<Double> attackPointRates = List.of(0.5,0.5);
+    public List<Position2d> attackPoints = List.of(of(70,70), of(45,70), of(70,45));
+    public List<Double> attackPointRates = List.of(0.8,0.5);
 
     public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
         return 7;
@@ -155,6 +163,16 @@ public class StrategyParams {
         }
 
         return options.get(options.size() - 1);
+    }
+
+    public void activateOption2() {
+        GameHistoryAndSharedState.random.nextInt();
+
+        DESIRED_BARRACK = of(30,30);
+
+        sendToCenterWorkerNumbers = Set.of(15, 16,17,18,19,20,  30,31,32,33,34);
+
+
     }
 
 }

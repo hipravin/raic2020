@@ -32,7 +32,7 @@ public class BuildWorkerCommand extends Command {
 
     @Override
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
-        return pgs.at(spawnLocation).isMyWorker();
+        return pgs.at(spawnLocation).isMyWorker() && pgs.getNewEntityIds().contains(pgs.at(spawnLocation).getEntityId());
     }
 
     @Override

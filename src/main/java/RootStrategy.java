@@ -5,8 +5,6 @@ import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
 import hipravin.strategy.*;
 import hipravin.strategy.command.Command;
-import hipravin.strategy.command.MoveSingleCommand;
-import hipravin.strategy.deprecated.BuildingBuildCommand;
 import model.*;
 
 import java.io.PrintWriter;
@@ -15,8 +13,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static hipravin.strategy.StrategyParams.MAX_VAL;
 
 public class RootStrategy extends MyStrategy {
 
@@ -28,6 +24,10 @@ public class RootStrategy extends MyStrategy {
 
     public RootStrategy() {
         strategyParams = new StrategyParams();
+        if(System.getProperty("OPTION2") != null) {
+            strategyParams.activateOption2();
+        }
+
 
         FinalGameStartStrategy buildFirstHouseFinalStrategy = new FinalGameStartStrategy();
         SpawnWorkersStrategy spawnWorkersStrategy = new SpawnWorkersStrategy();
@@ -106,6 +106,7 @@ public class RootStrategy extends MyStrategy {
     void parseDataForSingleTick(PlayerView playerView) {
         currentParsedGameState = GameStateParser.parse(playerView);
         GameStateParser.calculateNewEntityIds(currentParsedGameState, gameHistoryState.getPreviousParsedGameState());
+        GameStateParser.calculateWorkersMovedSinceLastTurn(currentParsedGameState, gameHistoryState.getPreviousParsedGameState());
         removeCompletedOrStaleCommands();
 
     }
@@ -174,13 +175,13 @@ public class RootStrategy extends MyStrategy {
         getGameHistoryState().getOngoingCommands()
                 .forEach(c -> c.updateAssignedActions(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));
         if(DebugOut.enabled) {
-            DebugOut.println("===================");
-            DebugOut.println("ALL current Ongiong commands: ");
-            for (Command ongoingCommand : getGameHistoryState().getOngoingCommands()) {
-                DebugOut.println("Ongonig:" + ongoingCommand);
-            }
-            DebugOut.println("ALL current Ongiong commands: ");
-            DebugOut.println("====================");
+//            DebugOut.println("===================");
+//            DebugOut.println("ALL current Ongiong commands: ");
+//            for (Command ongoingCommand : getGameHistoryState().getOngoingCommands()) {
+//                DebugOut.println("Ongonig:" + ongoingCommand);
+//            }
+//            DebugOut.println("ALL current Ongiong commands: ");
+//            DebugOut.println("====================");
         }
     }
 

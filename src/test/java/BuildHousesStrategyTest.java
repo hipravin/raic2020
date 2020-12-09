@@ -1,15 +1,55 @@
 import hipravin.model.GameStateParser;
-import hipravin.strategy.BuildHousesStrategy;
-import hipravin.strategy.StrategyParams;
-import hipravin.strategy.TestServerUtil;
+import hipravin.strategy.*;
 import model.Action;
 import model.ServerMessage;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static hipravin.model.Position2d.of;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BuildHousesStrategyTest {
+
+    @Test
+    void testBlockDetector() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 9, 133);
+        RootStrategy rstrategy = new RootStrategy();
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+        assertTrue(BlockDetector.checkIfHouseBlocksWayOut(of(12, 11),
+                rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+
+        assertFalse(BlockDetector.checkIfHouseBlocksWayOut(of(15, 15),
+                rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+
+        System.out.println();
+
+
+    }
+    @Test
+    void testWorkerBlockDetector() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 9, 208);
+        RootStrategy rstrategy = new RootStrategy();
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+        assertTrue(BlockDetector.checkIfWorkerBlocksWayOut(of(3, 18),
+                rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+
+        System.out.println();
+    }
+
+
+    @Test
+    void testGood3w() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 9, 44);
+        RootStrategy rstrategy = new RootStrategy();
+        FinalGameStartStrategy.gameStartStrategyDone = true;
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+        BuildHousesStrategy bhs = new BuildHousesStrategy();
+
+        assertEquals(4, rstrategy.getGameHistoryState().getOngoingCommands().size());
+
+    }
 
     @Test
     void testBuildEdgeConflct() {

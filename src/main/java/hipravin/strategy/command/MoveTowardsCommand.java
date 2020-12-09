@@ -11,12 +11,14 @@ import model.*;
 import java.util.Map;
 import java.util.Set;
 
-public class MoveSingleCommand extends Command {
+import static hipravin.strategy.StrategyParams.MAX_VAL;
+
+public class MoveTowardsCommand extends Command {
     final int entityId;
     final Position2d targetPosition;
 
-    public MoveSingleCommand(ParsedGameState pgs, int entityId, Position2d targetPosition, int expectedPathLen) {
-        super(pgs.curTick()  + expectedPathLen, Set.of(entityId));
+    public MoveTowardsCommand(ParsedGameState pgs, int entityId, Position2d targetPosition, int expectedPathLen) {
+        super(pgs.curTick() + expectedPathLen, Set.of(entityId));
         this.entityId = entityId;
         this.targetPosition = targetPosition;
     }
@@ -28,15 +30,12 @@ public class MoveSingleCommand extends Command {
         if (c == null) {
             return false;
         }
-        if (currentParsedGameState.at(targetPosition).test(tc -> !tc.isEmpty() && tc.getEntity().getId() != entityId)) {
-            return false;
-        }
         return true;
     }
 
     @Override
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
-        return currentParsedGameState.getEntityIdToCell().get(entityId).getPosition().equals(targetPosition);
+        return currentParsedGameState.getEntityIdToCell().get(entityId).getPosition().lenShiftSum(targetPosition) < strategyParams.moveTowardsDistanceTreshold;
     }
 
     @Override
@@ -56,7 +55,7 @@ public class MoveSingleCommand extends Command {
 
     @Override
     public String toString() {
-        return "MoveSingleCommand{" +
+        return "MoveTowardsCommand{" +
                 "entityId=" + entityId +
                 ", targetPosition=" + targetPosition +
                 '}';

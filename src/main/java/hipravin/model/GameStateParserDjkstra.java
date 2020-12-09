@@ -15,8 +15,15 @@ import java.util.stream.Stream;
 public class GameStateParserDjkstra {//wide search actually
 
     public static Map<Position2d, NearestEntity> shortWideSearch(ParsedGameState pgs, Set<Position2d> additionalNotEmptyCells,
+                                                                 Set<Position2d> startPositions,
+                                                                 int maxPathLen, boolean ignoreFog) {
+        return shortWideSearch(pgs, additionalNotEmptyCells, startPositions, maxPathLen, ignoreFog, false, Set.of());
+    }
+
+
+    public static Map<Position2d, NearestEntity> shortWideSearch(ParsedGameState pgs, Set<Position2d> additionalNotEmptyCells,
                                                   Set<Position2d> startPositions,
-                                                  int maxPathLen, boolean ignoreFog) {
+                                                  int maxPathLen, boolean ignoreFog, boolean ignoreUnits, Set<Position2d> additionalEmpty) {
         Map<Position2d, NearestEntity> result = new HashMap<>();
 
         Set<Position2d> visited = new HashSet<>();
@@ -45,7 +52,7 @@ public class GameStateParserDjkstra {//wide search actually
                     visited.add(p);
                     Cell atP  = pgs.at(p);
                     result.put(p, result.get(curPathLenPos).pathPlus1(atP));
-                    if(pgs.at(p).isEmpty && !additionalNotEmptyCells.contains(p)) {
+                    if((pgs.at(p).isEmpty || ignoreUnits && pgs.at(p).isUnit || additionalEmpty.contains(p)) && !additionalNotEmptyCells.contains(p)) {
                         nextCurrentSet.add(p);
                     }
                 });

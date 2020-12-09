@@ -33,7 +33,7 @@ public abstract class Position2dUtil {
         Set<Position2d> edge = squareEdgeWithCorners(corner, buildingSize);
 
         for (Position2d edgePosition : edge) {
-            if(isPositionWithinMapBorder(edgePosition)) {
+            if (isPositionWithinMapBorder(edgePosition)) {
                 iterAllPositionsInRangeInclusive(corner, buildingSightRange, positionConsumer);
             }
         }
@@ -259,7 +259,7 @@ public abstract class Position2dUtil {
     }
 
     public static boolean isSquareWithinMapBorder(Position2d corner, int size) {
-        return isPositionWithinMapBorder(corner) && isPositionWithinMapBorder(corner.shift(size, size));
+        return isPositionWithinMapBorder(corner) && isPositionWithinMapBorder(corner.shift(size - 1, size - 1));
     }
 
     public static boolean isPositionWithinMapBorder(Position2d p) {
@@ -269,9 +269,9 @@ public abstract class Position2dUtil {
 
     public static boolean turretCanAttackPosition(Position2d turretPosition, Position2d position) {
         return turretPosition.lenShiftSum(position) <= TURRET_RANGE
-                 || turretPosition.shift(0,1).lenShiftSum(position) <= TURRET_RANGE
-                 || turretPosition.shift(1,0).lenShiftSum(position) <= TURRET_RANGE
-                 || turretPosition.shift(1,1).lenShiftSum(position) <= TURRET_RANGE;
+                || turretPosition.shift(0, 1).lenShiftSum(position) <= TURRET_RANGE
+                || turretPosition.shift(1, 0).lenShiftSum(position) <= TURRET_RANGE
+                || turretPosition.shift(1, 1).lenShiftSum(position) <= TURRET_RANGE;
     }
 
     private Position2dUtil() {

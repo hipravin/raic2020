@@ -31,7 +31,7 @@ public class BuildHousesStrategy implements SubStrategy {
     }
 
     boolean populationAheadRequired(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
-        if(pgs.getMyBarrack(EntityType.RANGED_BASE) == null) {
+        if (pgs.getMyBarrack(EntityType.RANGED_BASE) == null) {
             return pgs.getPopulation().getPotentialLimit() <
                     pgs.getPopulation().getPopulationUse() + strategyParams.getHousesAheadPopulationBeforeRangers(pgs.getPopulation().getPopulationUse());
         } else {
@@ -101,7 +101,7 @@ public class BuildHousesStrategy implements SubStrategy {
                 .collect(Collectors.toMap(Cell::getPosition, c -> pgs.calculateFreeSpace(c, size).get()));
 
         houseOptions.entrySet().removeIf(ho ->
-                ho.getKey().lenShiftSum(StrategyParams.DESIRED_BARRACK.shift(3,3)) < strategyParams.minHouseDistanceToCenter);//avoid house at center build by barrack builders
+                ho.getKey().lenShiftSum(StrategyParams.DESIRED_BARRACK.shift(3, 3)) < strategyParams.minHouseDistanceToCenter);//avoid house at center build by barrack builders
 
 
         if (withNonDesiredAndSpacingFiltering) {
@@ -114,7 +114,7 @@ public class BuildHousesStrategy implements SubStrategy {
 
         //housePosition -> [uniqueWorkerPosition -> NearestEntity]
         Map<Position2d, List<NearestEntity>> hpUniqueBestWorkers = new HashMap<>();
-        Set<Integer> busyWorkers = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
+        Set<Integer> busyWorkers = gameHistoryState.allOngoingRelatedEntitiIdsExceptMineExact();
 
         houseOptions.forEach((hp, fs) -> {
 
@@ -173,11 +173,21 @@ public class BuildHousesStrategy implements SubStrategy {
         List<Position2d> acceptableHousePositions = new ArrayList<>(hpUniqueBestWorkers.keySet());
         acceptableHousePositions.sort(sumPathLen);
 
+
         if (!acceptableHousePositions.isEmpty()) {
-            Position2d hp = acceptableHousePositions.get(0);
+            Position2d hp;
+
+            if (pgs.getPopulation().getPopulationUse() <= strategyParams.wayOutBlockFindMaxPopulation) {
+                hp = acceptableHousePositions.stream().filter(h -> !BlockDetector.checkIfHouseBlocksWayOut(h, gameHistoryState, pgs, strategyParams))
+                        .findFirst().orElse(null);
+            } else {
+                hp = acceptableHousePositions.get(0);
+            }
+            if (hp != null) {
 //            Position2d hp = selectBest(acceptableHousePositions, pgs, strategyParams);
-            createBuildAndRepairCommands(hp, hpUniqueBestWorkers.get(hp), gameHistoryState, pgs, strategyParams);
-            return true;
+                createBuildAndRepairCommands(hp, hpUniqueBestWorkers.get(hp), gameHistoryState, pgs, strategyParams);
+                return true;
+            }
         }
 
         return false;
