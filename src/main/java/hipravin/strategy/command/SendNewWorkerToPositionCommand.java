@@ -8,6 +8,7 @@ import hipravin.strategy.ValuedEntityAction;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import static hipravin.strategy.StrategyParams.MAX_VAL;
 
@@ -16,9 +17,27 @@ public class SendNewWorkerToPositionCommand extends Command {
     final Position2d targetPosition;
     final CommandPredicate moveCancelPredicate;
     final int distanceCancelTreshhold;
+    BiConsumer<Integer, Integer> oncompleteIdTickConsumer;
+    BiConsumer<Integer, Integer> onStartIdTickConsumer;
+
 
     public SendNewWorkerToPositionCommand(Position2d spawnPosition, Position2d targetPosition,
-                                          CommandPredicate mineCancelPredicate, int distanceCancelTreshhold) {
+                                          CommandPredicate mineCancelPredicate, int distanceCancelTreshhold,
+                                          BiConsumer<Integer, Integer> oncompleteIdTickConsumer,
+                                                  BiConsumer<Integer, Integer> onStartIdTickConsumer
+
+    ) {
+        super(MAX_VAL, Set.of());
+        this.spawnPosition = spawnPosition;
+        this.targetPosition = targetPosition;
+        this.moveCancelPredicate = mineCancelPredicate;
+        this.distanceCancelTreshhold = distanceCancelTreshhold;
+        this.oncompleteIdTickConsumer = oncompleteIdTickConsumer;
+        this.onStartIdTickConsumer = onStartIdTickConsumer;
+    }
+    public SendNewWorkerToPositionCommand(Position2d spawnPosition, Position2d targetPosition,
+                                          CommandPredicate mineCancelPredicate, int distanceCancelTreshhold
+                                          ) {
         super(MAX_VAL, Set.of());
         this.spawnPosition = spawnPosition;
         this.targetPosition = targetPosition;
@@ -40,6 +59,10 @@ public class SendNewWorkerToPositionCommand extends Command {
                 if(moveCancelPredicate != null) {
                     moveTowardsCommand.setConditionalReplacer(new CancelCommand(), moveCancelPredicate);
                 }
+                moveTowardsCommand.setOncompleteIdTickConsumer(oncompleteIdTickConsumer);
+                moveTowardsCommand.setOnStartIdTickConsumer(onStartIdTickConsumer);
+
+
                 CommandUtil.chainCommands(this, moveTowardsCommand);
             }
             return true;

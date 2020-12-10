@@ -6,6 +6,8 @@ import hipravin.strategy.StrategyParams;
 import hipravin.strategy.ValuedEntityAction;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public abstract class Command {
     private Command replacer = null;
@@ -72,5 +74,4 @@ public abstract class Command {
         this.replacer = replacer;
         this.commandPredicate = commandPredicate;
     }
-
 }

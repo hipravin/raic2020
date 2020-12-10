@@ -7,6 +7,7 @@ import model.Entity;
 import model.EntityType;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static hipravin.model.Position2d.of;
@@ -19,6 +20,11 @@ public class SpawnWorkersStrategy implements SubStrategy {
     boolean shouldSpawnMoreWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
 
+        if(pgs.getMyWorkers().size() <= strategyParams.populationOfWorkersToIfExtraResources
+                && haveExtraResources(pgs, gameHistoryState, strategyParams)
+                && (pgs.getMyRangerBase() == null || !pgs.getMyRangerBase().isActive())) {
+            return true;
+        }
 
         if (pgs.getMyWorkers().size() >= strategyParams.populationOfWorkersToBuildBeforeRangers
                 && pgs.getMyRangerBase() == null) {
@@ -36,6 +42,12 @@ public class SpawnWorkersStrategy implements SubStrategy {
         return false;
     }
 
+
+    boolean haveExtraResources(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+        return pgs.getEstimatedResourceAfterTicks(1) >= gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                + pgs.getRangCost() + strategyParams.extraMoney
+                ;
+    }
 
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -177,11 +189,24 @@ public class SpawnWorkersStrategy implements SubStrategy {
                 }
             };
 
+            BiConsumer<Integer, Integer> onStart = (id, tick) -> {
+                DebugOut.println("Sent to center (onstart) " + id + ", " + tick);
+                gameHistoryState.sentToBarrackEntityIds.add(id);
+                gameHistoryState.sentToBarrackTicks.put(id, tick);
+            };
+            BiConsumer<Integer, Integer> onDone = (id, tick) -> {
+                DebugOut.println("Arrived to center (ondone) " + id + ", " + tick);
+
+                gameHistoryState.arrivedToBarrackTicks.put(id, tick);
+            };
+
+
             Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
             Command sendToCenter = new SendNewWorkerToPositionCommand(spawnPos, fixedToCenterPosition(), barrackStartedToBuild,
-                    strategyParams.moveTowardsBarracksDistanceTreshold);
+                    strategyParams.moveTowardsBarracksDistanceTreshold, onDone, onStart);
 
             CommandUtil.chainCommands(buildWorker, sendToCenter);
+
             gameHistoryState.addOngoingCommand(buildWorker, false);
             return true;
         }

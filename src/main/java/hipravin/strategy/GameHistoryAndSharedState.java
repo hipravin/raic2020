@@ -6,6 +6,7 @@ import hipravin.model.Position2d;
 import hipravin.strategy.command.BuildThenRepairCommand;
 import hipravin.strategy.command.Command;
 import hipravin.strategy.command.MineExactMineral;
+import hipravin.strategy.command.MoveSingleCommand;
 import model.Action;
 import model.Entity;
 import model.EntityType;
@@ -20,6 +21,10 @@ public class GameHistoryAndSharedState {
     public static Random random = new Random(0);
     public static SplittableRandom splittableRandom = new SplittableRandom(0);
     public List<Entity> entityAppearenceList = new ArrayList<>();
+
+    public List<Integer> sentToBarrackEntityIds = new ArrayList<>();
+    public Map<Integer, Integer> sentToBarrackTicks = new HashMap<>();
+    public Map<Integer, Integer> arrivedToBarrackTicks = new HashMap<>();
 
 
     //    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
@@ -109,6 +114,15 @@ public class GameHistoryAndSharedState {
                 .filter(c -> {
                     if(c instanceof BuildThenRepairCommand) {
                         return ((BuildThenRepairCommand) c).getBuildingType() == EntityType.HOUSE;
+                    }
+                    if(c instanceof MoveSingleCommand) {
+                        for (Command nextCommand : c.getNextCommands()) {
+                            if(nextCommand instanceof BuildThenRepairCommand) {
+                                if (((BuildThenRepairCommand) nextCommand).getBuildingType() == EntityType.HOUSE) {
+                                    return true;
+                                }
+                            }
+                        }
                     }
 
                     return false;

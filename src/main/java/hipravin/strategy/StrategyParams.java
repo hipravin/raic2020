@@ -24,8 +24,8 @@ public class StrategyParams {
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public static Position2d DESIRED_BARRACK = of(31, 31);
-    public static Position2d sendToDesiredBarrackPosition = of(37, 37);
+    public static Position2d DESIRED_BARRACK = of(35, 35);
+    public static Position2d sendToDesiredBarrackPosition = of(41, 41);
 
     public static final int MAP_CORNER_SIZE = 10;
 
@@ -52,7 +52,7 @@ public class StrategyParams {
 
     public double mapCornerMiningRatio = 3 / 10.0; //spawn rokers only if workers / minerals < {value}
 
-    public int maxHousesBeforeMandatorySpacing = 4;
+    public int maxHousesBeforeMandatorySpacing = 5;
 
     public int maxSpawnToMineralsRememberCount = 5;
 
@@ -63,10 +63,12 @@ public class StrategyParams {
     public int switchToAutoMineRange = 4;
 
     //    public int populationOfWorkersToBuildBeforeRangers = 60;
-    public int populationOfWorkersToBuildBeforeRangers = 50;
+    public int populationOfWorkersToBuildBeforeRangers = 45;
     public int populationOfWorkersToBuildAfterRangers = 60;
+    public int populationOfWorkersToIfExtraResources = 80;
 
     public int maxNumberOfRangers = 100;
+    public int extraMoney = 100;
 
     public int barrackAheadBuildResourceTick = 4;
 
@@ -107,7 +109,7 @@ public class StrategyParams {
     );
 
     public boolean sendToCenter = true;
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13,  31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 28,29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
 
     public int minHouseDistanceToCenter = 15;
 
@@ -190,9 +192,12 @@ public class StrategyParams {
     public void activateOption2() {
         GameHistoryAndSharedState.random.nextInt();
 
-        DESIRED_BARRACK = of(25, 25);
+        populationOfWorkersToBuildBeforeRangers = 50;
 
-        sendToCenterWorkerNumbers = Set.of(15, 16, 17, 18, 19, 20, 30, 31, 32, 33, 34);
+        DESIRED_BARRACK = of(25, 25);
+        sendToDesiredBarrackPosition = of(31, 31);
+
+        sendToCenterWorkerNumbers = Set.of(15, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42);
 
         attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
         attackPointRates = List.of(1.0, 0.0);

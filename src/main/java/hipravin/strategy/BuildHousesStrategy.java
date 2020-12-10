@@ -17,6 +17,10 @@ public class BuildHousesStrategy implements SubStrategy {
     boolean shouldBuildHouse(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
         Entity rangBase = pgs.getMyRangerBase();
 
+        if(haveExtraResources(pgs, gameHistoryAndSharedState, strategyParams)) {
+            return populationAheadRequired(pgs, gameHistoryAndSharedState, strategyParams);
+        }
+
         if (pgs.getPopulation().getPotentialLimit() >= strategyParams.populationOfWorkersToBuildBeforeRangers
                 && rangBase == null) {
             return false; //hold houses, collect resources for ranger baase
@@ -42,6 +46,12 @@ public class BuildHousesStrategy implements SubStrategy {
 
     boolean willHaveResourcesIn2Ticks(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
         return pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                ;
+    }
+
+    boolean haveExtraResources(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+        return pgs.getEstimatedResourceAfterTicks(1) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                 + pgs.getRangCost() + strategyParams.extraMoney
                 ;
     }
 
@@ -79,12 +89,16 @@ public class BuildHousesStrategy implements SubStrategy {
 
         GameStateParser.computeUniqueWorkersNearby(pgs, StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
 
+
+
+
         boolean success =
                 tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true, true)
-                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true, true)
-                        || tryToBuildHouseShortDistance(1, distance, gameHistoryState, pgs, strategyParams, true, true)
-                        || pbws && tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true,false)
+                        || tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true,false)
+                        || pbws && tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, false,false)
                         || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true,false)
+                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true,true)
+                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true,false)
                         || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, false, false)
                         || pbws && tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, true, false)
                         || pbws && tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, false, false);

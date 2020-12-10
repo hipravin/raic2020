@@ -10,10 +10,14 @@ import model.*;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 public class MoveTowardsCommand extends SingleEntityCommand {
     Position2d targetPosition;
     final int distanceCancelTreshhold;
+
+    BiConsumer<Integer, Integer> oncompleteIdTickConsumer;
+    BiConsumer<Integer, Integer> onStartIdTickConsumer;
 
     public MoveTowardsCommand(ParsedGameState pgs, int entityId, Position2d targetPosition, int expectedPathLen, int distanceCancelTreshhold) {
         super(pgs.curTick() + expectedPathLen, entityId);
@@ -35,6 +39,10 @@ public class MoveTowardsCommand extends SingleEntityCommand {
             return false;
         }
 
+        if(onStartIdTickConsumer != null) {
+            onStartIdTickConsumer.accept(entityId, currentParsedGameState.curTick());
+        }
+
         Cell c = currentParsedGameState.getEntityIdToCell().get(entityId);
         if (c == null) {
             return false;
@@ -45,7 +53,15 @@ public class MoveTowardsCommand extends SingleEntityCommand {
     @Override
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
         tryResolveEntityId(currentParsedGameState);
-        return currentParsedGameState.getEntityIdToCell().get(entityId).getPosition().lenShiftSum(targetPosition) < distanceCancelTreshhold;
+        boolean completed = currentParsedGameState.getEntityIdToCell().get(entityId).getPosition().lenShiftSum(targetPosition) < distanceCancelTreshhold;
+
+        if(completed) {
+            if(oncompleteIdTickConsumer != null) {
+                oncompleteIdTickConsumer.accept(entityId, currentParsedGameState.curTick());
+            }
+        }
+
+        return completed;
     }
 
     @Override
@@ -73,5 +89,21 @@ public class MoveTowardsCommand extends SingleEntityCommand {
 
     public void setTargetPosition(Position2d targetPosition) {
         this.targetPosition = targetPosition;
+    }
+
+    public BiConsumer<Integer, Integer> getOncompleteIdTickConsumer() {
+        return oncompleteIdTickConsumer;
+    }
+
+    public void setOncompleteIdTickConsumer(BiConsumer<Integer, Integer> oncompleteIdTickConsumer) {
+        this.oncompleteIdTickConsumer = oncompleteIdTickConsumer;
+    }
+
+    public BiConsumer<Integer, Integer> getOnStartIdTickConsumer() {
+        return onStartIdTickConsumer;
+    }
+
+    public void setOnStartIdTickConsumer(BiConsumer<Integer, Integer> onStartIdTickConsumer) {
+        this.onStartIdTickConsumer = onStartIdTickConsumer;
     }
 }
