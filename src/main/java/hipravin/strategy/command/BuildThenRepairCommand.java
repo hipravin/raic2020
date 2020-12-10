@@ -43,7 +43,14 @@ public class BuildThenRepairCommand extends Command {
             return false;
         }
 
-        return true;
+        if(pgs.calculateFreeSpace(pgs.at(cornerPosition),
+                pgs.getPlayerView().getEntityProperties().get(buildingType).getSize())
+                .map(fs -> fs.isFreeButContainOurUnits()).orElse(false)) {
+            return false; //if building can't be placed - don;t try, find other position, don't wait
+        }
+
+
+            return true;
     }
 
     @Override

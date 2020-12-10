@@ -75,9 +75,9 @@ public class SpawnWorkersStrategy implements SubStrategy {
             return;
         }
 
-        if (ifSentToFog(ccOuterEdge, gameHistoryState, pgs, strategyParams)) {
-            return;
-        }
+//        if (ifSentToFog(ccOuterEdge, gameHistoryState, pgs, strategyParams)) { //don't like how it works
+//            return;
+//        }
 
         if ((double) pgs.getMyWorkersAtMapCorner() / (pgs.getMineralsAtMapCorner() + 1.0) > strategyParams.mapCornerMiningRatio) {
             if (ccOuterEdge.stream().anyMatch(p -> !Position2dUtil.isMapMyCornerPosition(p))) {
@@ -94,11 +94,12 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
         if (bestMineral.isPresent()) {
             addToLastSpawn(bestMineral.get().getThisCell().getPosition(), strategyParams);
+            Position2d spawnPosition = bestMineral.get().getSourceCell().getPosition();
 
             Command buildWorker = new BuildWorkerCommand(bestMineral.get().getSourceCell().getPosition(), pgs, 1);
-            Command mineExact = new MineFromExactPositionCommand(bestMineral.get().getSourceCell().getPosition(),
-                    null, bestMineral.get().getThisCell().getPosition(), closeToMineTargetPredicate);
-            CommandUtil.chainCommands(buildWorker, mineExact);
+            Command moveTowards = new SendNewWorkerToPositionCommand(spawnPosition, bestMineral.get().getThisCell().getPosition(), null,
+                    strategyParams.moveTowardsMineralsDistanceTreshold);
+            CommandUtil.chainCommands(buildWorker, moveTowards);
 
             gameHistoryState.addOngoingCommand(buildWorker, false);
         } else {
@@ -144,7 +145,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
                 if(spawnPos != null) {
                     Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
-                    Command sendToFog = new SendNewWorkerToPositionCommand(spawnPos, randomFogPosition, null);
+                    Command sendToFog = new SendNewWorkerToPositionCommand(spawnPos, randomFogPosition, null, strategyParams.moveTowardsMineralsDistanceTreshold);
 
                     CommandUtil.chainCommands(buildWorker, sendToFog);
                     gameHistoryState.addOngoingCommand(buildWorker, false);
@@ -167,13 +168,18 @@ public class SpawnWorkersStrategy implements SubStrategy {
             CommandPredicate barrackStartedToBuild = new CommandPredicate() {
                 @Override
                 public boolean test(Command command, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
-                    return pgs.getMyBarrack(EntityType.RANGED_BASE) != null && pgs.getMyBarrack(EntityType.RANGED_BASE).isActive()
-                            ;
+                    Entity rangBase = pgs.getMyBarrack(EntityType.RANGED_BASE);
+                    if(rangBase != null && !rangBase.isActive() && command instanceof MoveTowardsCommand) {
+                        ((MoveTowardsCommand)command).setTargetPosition(of(rangBase.getPosition()).shift(2,2));
+                    }
+
+                    return rangBase != null && rangBase.isActive();
                 }
             };
 
             Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
-            Command sendToCenter = new SendNewWorkerToPositionCommand(spawnPos, randomSendToCenterPosition(), barrackStartedToBuild);
+            Command sendToCenter = new SendNewWorkerToPositionCommand(spawnPos, fixedToCenterPosition(), barrackStartedToBuild,
+                    strategyParams.moveTowardsBarracksDistanceTreshold);
 
             CommandUtil.chainCommands(buildWorker, sendToCenter);
             gameHistoryState.addOngoingCommand(buildWorker, false);
@@ -187,6 +193,10 @@ public class SpawnWorkersStrategy implements SubStrategy {
         List<Position2d> outerEdge = new ArrayList<>(Position2dUtil.buildingOuterEdgeWithoutCorners(basePosition, Position2dUtil.RANGED_BASE_SIZE));
 
         return outerEdge.get(GameHistoryAndSharedState.random.nextInt(outerEdge.size()));
+    }
+
+    public Position2d fixedToCenterPosition() {
+        return StrategyParams.sendToDesiredBarrackPosition;
     }
 
     CommandPredicate closeToMineTargetPredicate = new CommandPredicate() {

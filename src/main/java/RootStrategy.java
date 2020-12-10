@@ -175,13 +175,13 @@ public class RootStrategy extends MyStrategy {
         getGameHistoryState().getOngoingCommands()
                 .forEach(c -> c.updateAssignedActions(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));
         if(DebugOut.enabled) {
-//            DebugOut.println("===================");
-//            DebugOut.println("ALL current Ongiong commands: ");
-//            for (Command ongoingCommand : getGameHistoryState().getOngoingCommands()) {
-//                DebugOut.println("Ongonig:" + ongoingCommand);
-//            }
-//            DebugOut.println("ALL current Ongiong commands: ");
-//            DebugOut.println("====================");
+            DebugOut.println("===================");
+            DebugOut.println("ALL current Ongiong commands: ");
+            for (Command ongoingCommand : getGameHistoryState().getOngoingCommands()) {
+                DebugOut.println("Ongonig:" + ongoingCommand);
+            }
+            DebugOut.println("ALL current Ongiong commands: ");
+            DebugOut.println("====================");
         }
     }
 

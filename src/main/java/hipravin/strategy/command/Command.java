@@ -11,7 +11,6 @@ public abstract class Command {
     private Command replacer = null;
     private CommandPredicate commandPredicate = null;
 
-
     private final Set<Integer> relatedEntityIds = new HashSet<>();
     private final int expiryTick;//if currentTick >= expiryTick then command is removed at start of processing
 

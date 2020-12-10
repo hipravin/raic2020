@@ -10,6 +10,19 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BuildHousesStrategyTest {
 
     @Test
+    void testBlockWithUnitsLen() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 11, 224);
+        RootStrategy rstrategy = new RootStrategy();
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+        assertTrue(BlockDetector.checkIfWorkerBlocksWayOut(of(19, 3),
+                rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+
+        System.out.println();
+
+
+    }
+    @Test
     void testBlockWithUnits() {
         ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 10, 107);
         RootStrategy rstrategy = new RootStrategy();

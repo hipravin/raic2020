@@ -73,8 +73,12 @@ public class SpawnRangersStrategy implements SubStrategy {
                     .map(b -> of(b.getPosition()).shift(6,6)).orElse(of(40,40));
 
             Position2d attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
+            boolean workHunter = false;
+            if(!attackPosition.equals(strategyParams.attackPoints.get(0))) {
+                workHunter = StrategyParams.ifRandom(strategyParams.secondaryLineWorkHunterRate);
+            }
 
-            RangerAttackHoldRetreatCommand rahrc = new RangerAttackHoldRetreatCommand(null, attackPosition, retreatPosition);
+            RangerAttackHoldRetreatCommand rahrc = new RangerAttackHoldRetreatCommand(null, attackPosition, retreatPosition, workHunter);
             CommandUtil.chainCommands(buildRangerCommand, rahrc);
         }
 

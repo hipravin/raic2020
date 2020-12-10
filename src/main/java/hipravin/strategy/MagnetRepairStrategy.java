@@ -4,6 +4,7 @@ import hipravin.model.*;
 import hipravin.strategy.command.AutoRepairCommand;
 import hipravin.strategy.command.Command;
 import hipravin.strategy.command.MoveOneStepTowardsCommand;
+import model.EntityType;
 
 import java.util.*;
 
@@ -50,6 +51,7 @@ public class MagnetRepairStrategy implements SubStrategy {
 
         nearestEntities.entrySet().removeIf(e -> !e.getValue().getThisCell().isMyWorker());
         nearestEntities.entrySet().removeIf(e -> busyEntitiIds.contains(e.getValue().getThisCell().getEntityId()));
+        nearestEntities.entrySet().removeIf(e -> buildingOuterEdge.contains(e.getValue().getThisCell().getPosition()));
 
         List<NearestEntity> workersNeSorted = new ArrayList<>(nearestEntities.values());
         Comparator<NearestEntity> byPathLenNearestNe = Comparator.comparingInt(NearestEntity::getPathLenEmptyCellsToThisCell);
@@ -57,12 +59,16 @@ public class MagnetRepairStrategy implements SubStrategy {
 
         Map<Position2d, Integer> toThisPoint = new HashMap<>();
 
+        int maxToSinglePoint = EnumSet.of(EntityType.RANGED_BASE, EntityType.BUILDER_UNIT).contains(building.getCornerCell().getEntityType())
+                ? strategyParams.magnetMaxToSinglePointBarrack
+                : strategyParams.magnetMaxToSinglePointOthers;
+
         for (int i = 0; i < Math.min(workersNeSorted.size(), countWorkersRequired); i++) {
             NearestEntity workerNe = workersNeSorted.get(i);
             Position2d toPosition = workerNe.getSourceCell().getPosition();
 
             toThisPoint.merge(toPosition, 1, Integer::sum);
-            if(toThisPoint.get(toPosition) <= strategyParams.magnetMaxToSinglePoint) {
+            if(toThisPoint.get(toPosition) <= maxToSinglePoint) {
                 Command stepForward = new MoveOneStepTowardsCommand(pgs, workerNe.getThisCell().getEntityId(), toPosition);
                 gameHistoryState.addOngoingCommand(stepForward, false);
             }

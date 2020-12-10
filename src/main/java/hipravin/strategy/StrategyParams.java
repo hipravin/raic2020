@@ -24,11 +24,13 @@ public class StrategyParams {
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public static Position2d DESIRED_BARRACK = of(32, 32);
+    public static Position2d DESIRED_BARRACK = of(31, 31);
+    public static Position2d sendToDesiredBarrackPosition = of(37, 37);
 
     public static final int MAP_CORNER_SIZE = 10;
 
-    public int moveTowardsDistanceTreshold = 5;
+    public int moveTowardsBarracksDistanceTreshold = 10;
+    public int moveTowardsMineralsDistanceTreshold = 7;
     public boolean useAttackHoldOverCountTreshold = true;
     public int attackHoldEnemyRange = 10;
     public int attackHoldMyRange = 10;
@@ -68,7 +70,8 @@ public class StrategyParams {
 
     public int barrackAheadBuildResourceTick = 4;
 
-    public int magnetMaxToSinglePoint = 2;
+    public int magnetMaxToSinglePointBarrack = 2;
+    public int magnetMaxToSinglePointOthers = 1;
 
     public int numberOfRandomScoutChoices = 20;
 
@@ -77,6 +80,8 @@ public class StrategyParams {
 
     public EntityType[] rangerDefaultAttackTargets = new EntityType[]{EntityType.RANGED_UNIT, EntityType.MELEE_UNIT, EntityType.BUILDER_UNIT, EntityType.TURRET, EntityType.HOUSE, EntityType.RANGED_BASE,
             EntityType.MELEE_BASE, EntityType.BUILDER_BASE, EntityType.WALL};
+
+    public EntityType[] rangerWorkHuntAttackTargets = new EntityType[]{EntityType.BUILDER_UNIT};
 
     public Map<EntityType, Integer> magnetRepairRanges = Map.of(
             EntityType.HOUSE, 2,
@@ -97,9 +102,9 @@ public class StrategyParams {
     );
 
     public boolean sendToCenter = true;
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(17, 18, 19, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 19, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39);
 
-    public int minHouseDistanceToCenter = 12;
+    public int minHouseDistanceToCenter = 15;
 
     public static boolean ifRandom(double prob) {
         return GameHistoryAndSharedState.random.nextDouble() < prob;
@@ -113,8 +118,9 @@ public class StrategyParams {
     }
 
     public double rangerScoutRateProb = 0.0;
-    public List<Position2d> attackPoints = List.of(of(70, 70), of(30, 70), of(70, 30));
-    public List<Double> attackPointRates = List.of(0.8, 0.5);
+    public List<Position2d> attackPoints = List.of(of(70, 70), of(30, 75), of(75, 30));
+    public List<Double> attackPointRates = List.of(0.9, 0.5);
+    public double secondaryLineWorkHunterRate = 0.33;
 
     public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
         return 7;

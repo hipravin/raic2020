@@ -15,13 +15,15 @@ public class SendNewWorkerToPositionCommand extends Command {
     final Position2d spawnPosition;
     final Position2d targetPosition;
     final CommandPredicate moveCancelPredicate;
+    final int distanceCancelTreshhold;
 
     public SendNewWorkerToPositionCommand(Position2d spawnPosition, Position2d targetPosition,
-                                          CommandPredicate mineCancelPredicate) {
+                                          CommandPredicate mineCancelPredicate, int distanceCancelTreshhold) {
         super(MAX_VAL, Set.of());
         this.spawnPosition = spawnPosition;
         this.targetPosition = targetPosition;
         this.moveCancelPredicate = mineCancelPredicate;
+        this.distanceCancelTreshhold = distanceCancelTreshhold;
     }
 
     @Override
@@ -34,7 +36,7 @@ public class SendNewWorkerToPositionCommand extends Command {
         if(pgs.at(spawnPosition).isMyWorker()) {//TODO: additionally check that worker count was increased?
             int workerId = pgs.at(spawnPosition).getEntityId();
             if(targetPosition != null) {
-                MoveTowardsCommand moveTowardsCommand = new MoveTowardsCommand(pgs, workerId, targetPosition, MAX_VAL);
+                MoveTowardsCommand moveTowardsCommand = new MoveTowardsCommand(pgs, workerId, targetPosition, MAX_VAL, distanceCancelTreshhold);
                 if(moveCancelPredicate != null) {
                     moveTowardsCommand.setConditionalReplacer(new CancelCommand(), moveCancelPredicate);
                 }

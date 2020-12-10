@@ -5,6 +5,7 @@ import hipravin.model.Position2d;
 import hipravin.strategy.GameHistoryAndSharedState;
 import hipravin.strategy.StrategyParams;
 import hipravin.strategy.ValuedEntityAction;
+import model.EntityType;
 
 import java.util.Map;
 import java.util.Set;
@@ -15,17 +16,14 @@ public class MineFromExactPositionCommand extends Command {
     final Position2d spawnPosition;
     final Position2d targetPosition;
     final Position2d mineralToMinePosition;
-    final CommandPredicate mineCancelPredicate;
 
-    public MineFromExactPositionCommand(Position2d spawnPosition, Position2d targetPosition, Position2d mineralToMinePosition,
-                                        CommandPredicate mineCancelPredicate) {
+    public MineFromExactPositionCommand(Position2d spawnPosition, Position2d targetPosition, Position2d mineralToMinePosition) {
         super(MAX_VAL, Set.of());
         this.spawnPosition = spawnPosition;
         this.targetPosition = targetPosition;
         this.mineralToMinePosition = mineralToMinePosition;
-        this.mineCancelPredicate = mineCancelPredicate;
-
     }
+
 
     @Override
     public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
@@ -41,12 +39,7 @@ public class MineFromExactPositionCommand extends Command {
                 MineExactMineral mineExact = new MineExactMineral(workerId, mineralToMinePosition, 1);
                 CommandUtil.chainCommands(this, moveSingleCommand, mineExact); //again, automine should be automated in order not to lock workers with commands
             } else {
-                MineExactMineral mineExact = new MineExactMineral(workerId, mineralToMinePosition, MAX_VAL);
-
-                if(mineCancelPredicate != null) {//used in spawn worker strategy to cancel action near mine location and switch to automine
-                    mineExact.setConditionalReplacer(new CancelCommand(), mineCancelPredicate);
-                }
-
+                MineExactMineral mineExact = new MineExactMineral(workerId, mineralToMinePosition, (int)spawnPosition.lenShiftSum(mineralToMinePosition));
                 CommandUtil.chainCommands(this, mineExact); //again, automine should be automated in order not to lock workers with commands
             }
 

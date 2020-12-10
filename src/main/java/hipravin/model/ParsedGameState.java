@@ -169,6 +169,9 @@ public class ParsedGameState {
     public Cell at(Position2d position2d) {
         return cells[position2d.x][position2d.y];
     }
+    public Cell at(int x, int y) {
+        return cells[x][y];
+    }
 
     public Cell at(Vec2Int v) {
         return at(Position2d.of(v));

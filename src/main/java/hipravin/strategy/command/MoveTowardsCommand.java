@@ -11,16 +11,16 @@ import model.*;
 import java.util.Map;
 import java.util.Set;
 
-import static hipravin.strategy.StrategyParams.MAX_VAL;
-
 public class MoveTowardsCommand extends Command {
     final int entityId;
-    final Position2d targetPosition;
+    Position2d targetPosition;
+    final int distanceCancelTreshhold;
 
-    public MoveTowardsCommand(ParsedGameState pgs, int entityId, Position2d targetPosition, int expectedPathLen) {
+    public MoveTowardsCommand(ParsedGameState pgs, int entityId, Position2d targetPosition, int expectedPathLen, int distanceCancelTreshhold) {
         super(pgs.curTick() + expectedPathLen, Set.of(entityId));
         this.entityId = entityId;
         this.targetPosition = targetPosition;
+        this.distanceCancelTreshhold = distanceCancelTreshhold;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class MoveTowardsCommand extends Command {
 
     @Override
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
-        return currentParsedGameState.getEntityIdToCell().get(entityId).getPosition().lenShiftSum(targetPosition) < strategyParams.moveTowardsDistanceTreshold;
+        return currentParsedGameState.getEntityIdToCell().get(entityId).getPosition().lenShiftSum(targetPosition) < distanceCancelTreshhold;
     }
 
     @Override
@@ -59,5 +59,9 @@ public class MoveTowardsCommand extends Command {
                 "entityId=" + entityId +
                 ", targetPosition=" + targetPosition +
                 '}';
+    }
+
+    public void setTargetPosition(Position2d targetPosition) {
+        this.targetPosition = targetPosition;
     }
 }
