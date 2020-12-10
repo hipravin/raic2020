@@ -97,8 +97,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
             Position2d spawnPosition = bestMineral.get().getSourceCell().getPosition();
 
             Command buildWorker = new BuildWorkerCommand(bestMineral.get().getSourceCell().getPosition(), pgs, 1);
-            Command moveTowards = new SendNewWorkerToPositionCommand(spawnPosition, bestMineral.get().getThisCell().getPosition(), null,
-                    strategyParams.moveTowardsMineralsDistanceTreshold);
+            Command moveTowards = new MoveTowardsCommand(pgs, EntityType.BUILDER_UNIT, bestMineral.get().getThisCell().getPosition(),
+                    bestMineral.get().getPathLenEmptyCellsToThisCell(), strategyParams.moveTowardsMineralsDistanceTreshold);
             CommandUtil.chainCommands(buildWorker, moveTowards);
 
             gameHistoryState.addOngoingCommand(buildWorker, false);

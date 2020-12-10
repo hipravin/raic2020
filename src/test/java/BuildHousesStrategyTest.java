@@ -106,7 +106,7 @@ public class BuildHousesStrategyTest {
 
         BuildHousesStrategy bhs = new BuildHousesStrategy();
 
-        assertEquals(4, rstrategy.getGameHistoryState().getOngoingCommands().size());
+        assertEquals(3, rstrategy.getGameHistoryState().getOngoingCommands().size());
 
     }
 
@@ -137,7 +137,7 @@ public class BuildHousesStrategyTest {
 //        assertTrue(built);
 
         boolean built = bhs.tryToBuildHouseShortDistance(1, 3,
-                rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), false);
+                rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), false, false);
         assertTrue(built);
 
     }
@@ -151,7 +151,7 @@ public class BuildHousesStrategyTest {
         BuildHousesStrategy bhs = new BuildHousesStrategy();
         GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState,  StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
         boolean built = bhs.tryToBuildHouseShortDistance(2, 3,
-                rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), false);
+                rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), false, false);
         assertTrue(built);
     }
 
@@ -164,7 +164,7 @@ public class BuildHousesStrategyTest {
         BuildHousesStrategy bhs = new BuildHousesStrategy();
         GameStateParser.computeUniqueWorkersNearby(rstrategy.currentParsedGameState,  StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
         boolean built = bhs.tryToBuildHouseShortDistance(1, 3,
-                rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), true);
+                rstrategy.getGameHistoryState(), rstrategy.getCurrentParsedGameState(), rstrategy.getStrategyParams(), true, false);
         assertTrue(built);
     }
 }

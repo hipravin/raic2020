@@ -80,18 +80,18 @@ public class BuildHousesStrategy implements SubStrategy {
         GameStateParser.computeUniqueWorkersNearby(pgs, StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
 
         boolean success =
-                tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true)
-                        || pbws && tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true)
-                        || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true)
-                        || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, true)
-                        || pbws && tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, false);
+                tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true, true)
+                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true, true)
+                        || tryToBuildHouseShortDistance(1, distance, gameHistoryState, pgs, strategyParams, true, true)
+                        || pbws && tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true,false)
+                        || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true,false)
+                        || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, false, false)
+                        || pbws && tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, true, false)
+                        || pbws && tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, false, false);
     }
 
     public boolean tryToBuildHouseShortDistance(int workers, int maxDistanceToWorker, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                                                StrategyParams strategyParams, boolean withNonDesiredAndSpacingFiltering) {
+                                                StrategyParams strategyParams, boolean withNonDesiredAndSpacingFiltering, boolean withMinerals2c) {
         DebugOut.println("Try to build house with workers: " + workers + " with spacing: " + withNonDesiredAndSpacingFiltering);
 
         int size = Position2dUtil.HOUSE_SIZE;
@@ -110,6 +110,10 @@ public class BuildHousesStrategy implements SubStrategy {
                     && !doesntTouchOtherBuildings(e.getKey(), size, pgs));
             houseOptions.entrySet().removeIf(e -> e.getKey().x + e.getKey().y > strategyParams.leftCornerSpacingDoesntMatterXPlusy
                     && !dousntTouchMinerals(e.getKey(), size, pgs));
+        }
+        if(withMinerals2c) {
+            houseOptions.entrySet().removeIf(e -> e.getKey().x + e.getKey().y > strategyParams.leftCornerSpacingDoesntMatterXPlusy
+                    && !dousntTouchMinerals2c(e.getKey(), size, pgs));
         }
 
         //housePosition -> [uniqueWorkerPosition -> NearestEntity]
@@ -203,7 +207,7 @@ public class BuildHousesStrategy implements SubStrategy {
         Command bc = new BuildThenRepairCommand(housePosition, EntityType.HOUSE, builder.getSourceCell().getEntityId(), pgs, strategyParams);
         CommandUtil.chainCommands(moveThenBuild, bc);
 
-        gameHistoryState.addOngoingCommand(moveThenBuild, false);
+        gameHistoryState.addOngoingCommand(moveThenBuild, true);
         for (int i = 1; i < workers.size(); i++) {
             NearestEntity repairer = workers.get(i);
             int repairerEntityId = repairer.getSourceCell().getEntityId();
@@ -213,7 +217,7 @@ public class BuildHousesStrategy implements SubStrategy {
             Command arp = new AutoRepairCommand(housePosition, repairerEntityId, pgs, strategyParams);
             CommandUtil.chainCommands(moveThenAutoRepair, arp);
 
-            gameHistoryState.addOngoingCommand(moveThenAutoRepair, false);
+            gameHistoryState.addOngoingCommand(moveThenAutoRepair, true);
         }
     }
 
@@ -237,6 +241,12 @@ public class BuildHousesStrategy implements SubStrategy {
     static boolean dousntTouchMinerals(Position2d corner, int size, ParsedGameState pgs) {
 
         Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithCorners(corner, size);
+        return outerEdge.stream().noneMatch(c -> pgs.at(c).isMineral());
+    }
+
+    static boolean dousntTouchMinerals2c(Position2d corner, int size, ParsedGameState pgs) {
+
+        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithCorners(corner.shift(-1,-1), size+2);
         return outerEdge.stream().noneMatch(c -> pgs.at(c).isMineral());
     }
 }

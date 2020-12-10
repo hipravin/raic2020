@@ -7,6 +7,7 @@ import hipravin.strategy.command.BuildThenRepairCommand;
 import hipravin.strategy.command.Command;
 import hipravin.strategy.command.MineExactMineral;
 import model.Action;
+import model.Entity;
 import model.EntityType;
 import model.Player;
 
@@ -18,6 +19,8 @@ public class GameHistoryAndSharedState {
 
     public static Random random = new Random(0);
     public static SplittableRandom splittableRandom = new SplittableRandom(0);
+    public List<Entity> entityAppearenceList = new ArrayList<>();
+
 
     //    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
     List<Command> ongoingCommands = new ArrayList<>();

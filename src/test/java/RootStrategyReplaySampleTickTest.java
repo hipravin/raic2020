@@ -7,6 +7,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RootStrategyReplaySampleTickTest {
     @Test
+    void testNoMineralsVisible() {
+        RootStrategy strategy = new RootStrategy();
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3,12,0);
+
+        Action action = strategy.getAction(get0.getPlayerView(), null);
+
+        assertEquals(2 , action.getEntityActions().size());
+    }
+
+    @Test
     void testUnableToFingStuck() {
         RootStrategy strategy = new RootStrategy();
         ServerMessage.GetAction get0 = TestServerUtil.readGet(3,7,0);

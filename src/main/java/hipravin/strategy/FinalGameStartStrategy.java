@@ -18,7 +18,7 @@ import static hipravin.strategy.StrategyParams.MAX_VAL;
  * According to my perfect calculations we need to build first house with exact 3 workers. And 2 workers at desperate
  */
 public class FinalGameStartStrategy implements SubStrategy {
-    BeforeFirstHouseBuildOrder buildOrder;
+    public  static BeforeFirstHouseBuildOrder buildOrder = null;
 
     public static boolean gameStartStrategyDone = false;
 
@@ -229,6 +229,10 @@ public class FinalGameStartStrategy implements SubStrategy {
                             wp -> Position2dUtil.housePositionsThatAreBlockedByWorker(wp)
                                     .filter(hp -> isEmptyForHouseIgnoringUnitsAnd1Mineral(hp, firstMiner.mineralPosition, currentParsedGameState))
                                     .collect(Collectors.toSet())));
+
+            if(buildMines.isEmpty()) {
+                return Optional.empty();
+            }
 
             Stream<int[]> buildMinesIndices = BruteForceUtil.allCombinatonsOf(buildMines.size(), 4);
 

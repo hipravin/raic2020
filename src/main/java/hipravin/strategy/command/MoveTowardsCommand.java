@@ -11,20 +11,29 @@ import model.*;
 import java.util.Map;
 import java.util.Set;
 
-public class MoveTowardsCommand extends Command {
-    final int entityId;
+public class MoveTowardsCommand extends SingleEntityCommand {
     Position2d targetPosition;
     final int distanceCancelTreshhold;
 
     public MoveTowardsCommand(ParsedGameState pgs, int entityId, Position2d targetPosition, int expectedPathLen, int distanceCancelTreshhold) {
-        super(pgs.curTick() + expectedPathLen, Set.of(entityId));
-        this.entityId = entityId;
+        super(pgs.curTick() + expectedPathLen, entityId);
+        this.targetPosition = targetPosition;
+        this.distanceCancelTreshhold = distanceCancelTreshhold;
+    }
+
+    public MoveTowardsCommand(ParsedGameState pgs, EntityType entityType, Position2d targetPosition, int expectedPathLen, int distanceCancelTreshhold) {
+        super(pgs.curTick() + expectedPathLen, entityType);
         this.targetPosition = targetPosition;
         this.distanceCancelTreshhold = distanceCancelTreshhold;
     }
 
     @Override
     public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
+        tryResolveEntityId(currentParsedGameState);
+
+        if(entityId == null) {
+            return false;
+        }
 
         Cell c = currentParsedGameState.getEntityIdToCell().get(entityId);
         if (c == null) {
@@ -35,6 +44,7 @@ public class MoveTowardsCommand extends Command {
 
     @Override
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
+        tryResolveEntityId(currentParsedGameState);
         return currentParsedGameState.getEntityIdToCell().get(entityId).getPosition().lenShiftSum(targetPosition) < distanceCancelTreshhold;
     }
 

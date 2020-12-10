@@ -30,6 +30,7 @@ public class RootStrategy extends MyStrategy {
 
 
         FinalGameStartStrategy buildFirstHouseFinalStrategy = new FinalGameStartStrategy();
+        PushMinersStrategy pushMinersStrategy = new PushMinersStrategy();
         SpawnWorkersStrategy spawnWorkersStrategy = new SpawnWorkersStrategy();
         SpawnRangersStrategy spawnRangersStrategy = new SpawnRangersStrategy();
         BuildHousesStrategy buildHousesStrategy = new BuildHousesStrategy();
@@ -43,9 +44,8 @@ public class RootStrategy extends MyStrategy {
         AutomineFallbackStrategy autoMine = new AutomineFallbackStrategy();
         RangerAutoattackFallbackStrategy rangerAutoAttack = new RangerAutoattackFallbackStrategy();
 
-
-
         subStrategies.add(buildFirstHouseFinalStrategy);
+        subStrategies.add(pushMinersStrategy);
         subStrategies.add(spawnWorkersStrategy);
         subStrategies.add(spawnRangersStrategy);
         subStrategies.add(buildHousesStrategy);
@@ -105,7 +105,7 @@ public class RootStrategy extends MyStrategy {
 
     void parseDataForSingleTick(PlayerView playerView) {
         currentParsedGameState = GameStateParser.parse(playerView);
-        GameStateParser.calculateNewEntityIds(currentParsedGameState, gameHistoryState.getPreviousParsedGameState());
+        GameStateParser.calculateNewEntityIds(currentParsedGameState, gameHistoryState.getPreviousParsedGameState(), gameHistoryState);
         GameStateParser.calculateWorkersMovedSinceLastTurn(currentParsedGameState, gameHistoryState.getPreviousParsedGameState());
         removeCompletedOrStaleCommands();
 
@@ -228,6 +228,7 @@ public class RootStrategy extends MyStrategy {
             updateGameHistoryState(decision);
             return decision;
         } catch (RuntimeException e) {
+            e.printStackTrace();
             DebugOut.println(e.getMessage());
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));

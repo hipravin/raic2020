@@ -1,6 +1,7 @@
 package hipravin.model;
 
 import hipravin.DebugOut;
+import hipravin.strategy.GameHistoryAndSharedState;
 import hipravin.strategy.StrategyParams;
 import model.Entity;
 import model.EntityProperties;
@@ -98,7 +99,7 @@ public abstract class GameStateParser {
     }
 
     public static void calculateWorkersMovedSinceLastTurn(ParsedGameState currentPgs, ParsedGameState previousPgs) {
-        if(previousPgs == null)  {
+        if (previousPgs == null) {
             return;
         }
 
@@ -106,20 +107,24 @@ public abstract class GameStateParser {
             Position2d currentPosition = currentEntry.getValue().getPosition();
             Position2d previousPosition = Optional.ofNullable(previousPgs.getMyWorkers().get(currentEntry.getKey())).map(Cell::getPosition).orElse(null);
 
-            if(previousPosition != null && !currentPosition.equals(previousPosition)) {
+            if (previousPosition != null && !currentPosition.equals(previousPosition)) {
                 currentPgs.workersMovedSinceLastTick.put(previousPosition, currentPosition);
             }
         }
     }
 
-    public static void calculateNewEntityIds(ParsedGameState currentPgs, ParsedGameState previousPgs) {
-        if(previousPgs != null) {
+    public static void calculateNewEntityIds(ParsedGameState currentPgs, ParsedGameState previousPgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
+        if (previousPgs != null) {
             Set<Integer> current = new HashSet<>(currentPgs.getEntityIdToCell().keySet());
 
             current.removeAll(previousPgs.getEntityIdToCell().keySet());
 
             currentPgs.newEntityIds = current;
         }
+
+        currentPgs.newEntityIds
+                .forEach(id -> gameHistoryAndSharedState.entityAppearenceList.add(
+                        currentPgs.getEntityIdToCell().get(id).getEntity()));
     }
 
     static void calculateForEdge(ParsedGameState pgs) {
@@ -166,7 +171,7 @@ public abstract class GameStateParser {
         int maxDistance = maxPath + 7;//more magic numbers. turret attack range +2 actually
 
         for (Cell myWorker : pgs.getMyWorkers().values()) {
-            if(myWorker.position.lenShiftSum(notTooFarFrom) < maxDistance) {
+            if (myWorker.position.lenShiftSum(notTooFarFrom) < maxDistance) {
                 Map<Position2d, NearestEntity> nearestEntityMap =
                         GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), maxPath, true);
 
@@ -176,7 +181,6 @@ public abstract class GameStateParser {
             }
         }
     }
-
 
 
     /**
@@ -196,7 +200,7 @@ public abstract class GameStateParser {
     public static void computeUniqueWorkersNearbyCenterMore(ParsedGameState pgs, int maxPath, int centerMaxPath) {
         for (Cell myWorker : pgs.getMyWorkers().values()) {
             Map<Position2d, NearestEntity> nearestEntityMap;
-            if(myWorker.getPosition().lenShiftSum(StrategyParams.DESIRED_BARRACK) < 30) {
+            if (myWorker.getPosition().lenShiftSum(StrategyParams.DESIRED_BARRACK) < 30) {
                 nearestEntityMap = GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), centerMaxPath, true);
             } else {
                 nearestEntityMap = GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), Set.of(myWorker.getPosition()), maxPath, true);

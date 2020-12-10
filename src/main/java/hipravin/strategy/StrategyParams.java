@@ -30,7 +30,7 @@ public class StrategyParams {
     public static final int MAP_CORNER_SIZE = 10;
 
     public int moveTowardsBarracksDistanceTreshold = 10;
-    public int moveTowardsMineralsDistanceTreshold = 7;
+    public int moveTowardsMineralsDistanceTreshold = 6;
     public boolean useAttackHoldOverCountTreshold = true;
     public int attackHoldEnemyRange = 10;
     public int attackHoldMyRange = 10;
@@ -52,7 +52,7 @@ public class StrategyParams {
 
     public double mapCornerMiningRatio = 3 / 10.0; //spawn rokers only if workers / minerals < {value}
 
-    public int maxHousesBeforeMandatorySpacing = 5;
+    public int maxHousesBeforeMandatorySpacing = 4;
 
     public int maxSpawnToMineralsRememberCount = 5;
 
@@ -74,6 +74,11 @@ public class StrategyParams {
     public int magnetMaxToSinglePointOthers = 1;
 
     public int numberOfRandomScoutChoices = 20;
+
+
+    public boolean useWorkerPush = true;
+    public int minWorkersToApplyPush = 10;
+    public int maxWorkersToApplyPush = 40;
 
     public int respSize = 20;
     public int maxWorkerRespCountBeforeSendToFog = 12;
@@ -102,7 +107,7 @@ public class StrategyParams {
     );
 
     public boolean sendToCenter = true;
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 19, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13,  31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46);
 
     public int minHouseDistanceToCenter = 15;
 
@@ -192,6 +197,7 @@ public class StrategyParams {
         attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
         attackPointRates = List.of(1.0, 0.0);
         useAttackHoldOverCountTreshold = false;
+        useWorkerPush = false;
     }
 
 }

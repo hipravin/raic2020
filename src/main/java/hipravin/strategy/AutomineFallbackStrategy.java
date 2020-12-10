@@ -97,7 +97,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
             }
         });
 
-        handleWayBlockers(busyEntities, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+//        handleWayBlockers(busyEntities, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
     }
 
     public boolean handleNoCloseMinerals(Entity w, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,

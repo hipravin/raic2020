@@ -78,7 +78,7 @@ public class MagnetRepairStrategy implements SubStrategy {
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         //not apply before first house
-        return pgs.getActiveHouseCount() > 0;
+        return pgs.getActiveHouseCount() > 0 || FinalGameStartStrategy.buildOrder == null;
     }
 
     @Override
