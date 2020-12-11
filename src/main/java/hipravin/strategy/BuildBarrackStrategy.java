@@ -39,10 +39,10 @@ public class BuildBarrackStrategy implements SubStrategy {
                 StrategyParams.BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER);
 
         boolean success =
-                tryToBuildBarrackShortDistance(3, distance, 5, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(3, distance, 5, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, true)
+                tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(3, distance, 15, gameHistoryState, pgs, strategyParams, true)
                         || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildBarrackShortDistance(3, distance, 15, gameHistoryState, pgs, strategyParams, false)
                         || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, true)
                         || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, false)
 //                        || tryToBuildBarrackShortDistance(5, distance, 30, gameHistoryState, pgs, strategyParams, true)

@@ -17,7 +17,7 @@ public class MagnetRepairStrategy implements SubStrategy {
 
         Set<Position2d> buildingOuterEdge = building.getBuildingOuterEdgeWithoutCorners();
 
-        Set<Integer> busyEntitiIds = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
+        Set<Integer> busyEntitiIds = gameHistoryState.allOngoingRelatedEntitiIdsExceptMineExact();
 
         Set<Position2d> requiredRepairPositions = new HashSet<>();
 

@@ -103,7 +103,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
     public boolean handleNoCloseMinerals(Entity w, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                          StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         NearestEntity nearestMineral = pgs.at(w.getPosition()).getNearestMineralField();
-        if (nearestMineral != null && nearestMineral.getPathLenEmptyCellsToThisCell() < Position2dUtil.RANGER_RANGE) {
+        if (nearestMineral != null && nearestMineral.getPathLenEmptyCellsToThisCell() <= Position2dUtil.WORKER_SIGHT_RANGE) {
             return false;
         }
         if (nearestMineral != null) {
@@ -134,7 +134,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
     public void justMine(Entity w, GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                          StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         EntityAction autoAttack = new EntityAction();
-        AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.RANGER_RANGE,
+        AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.WORKER_SIGHT_RANGE,
                 new EntityType[]{EntityType.RESOURCE}));
         autoAttack.setAttackAction(attackAction);
         assignedActions.put(w.getId(), new ValuedEntityAction(0.5, w.getId(), autoAttack));

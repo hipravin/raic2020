@@ -14,7 +14,7 @@ public class StrategyParams {
     public static int MAX_VAL = Integer.MAX_VALUE >> 1;
 
     public static final int NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 20;
-    public static final int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 20;
+    public static final int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 15;
 
     public static final int HOUSE_WORKERS_NEARBY_MAX_PATH = 5;
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH = 7;
@@ -125,7 +125,7 @@ public class StrategyParams {
     );
 
     public boolean sendToCenter = true;
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 18, 19, 20, 21, 22, 23, 24, 25);
 
     public int minHouseDistanceToCenter = 15;
 
@@ -208,19 +208,19 @@ public class StrategyParams {
     public void activateOption2() {
         GameHistoryAndSharedState.random.nextInt();
 
-        populationOfWorkersToBuildBeforeRangers = 50;
+        populationOfWorkersToBuildBeforeRangers = 45;
 
         DESIRED_BARRACK = of(25, 25);
         sendToDesiredBarrackPosition = of(31, 31);
 
-        sendToCenterWorkerNumbers = Set.of(15, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42);
+        sendToCenterWorkerNumbers = Set.of(15, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,43,44);
 
         attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
         attackPointRates = List.of(1.0, 0.0);
         useAttackHoldOverCountTreshold = false;
         useWorkerPush = false;
 
-        useWorkerDefendingTurrets = true;
+//        useWorkerDefendingTurrets = true;
     }
 
 }

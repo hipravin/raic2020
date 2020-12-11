@@ -5,6 +5,7 @@ import hipravin.model.Position2dUtil;
 import model.AttackAction;
 import model.AutoAttack;
 import model.EntityAction;
+import model.EntityType;
 
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +23,9 @@ public class TurretSetAutoAttackStrategy implements SubStrategy {
         Set<Integer> busyEntities = gameHistoryState.allOngoingCommandRelatedEntitiIdsSet();
 
         Set<Integer> turrets = pgs.getBuildingsByEntityId().values()
-                .stream().filter(b->b.isMyBuilding() && b.getCornerCell().getEntity().isActive())
+                .stream()
+                .filter(b->b.isMyBuilding() && b.getCornerCell().getEntity().isActive())
+                .filter(b->b.getCornerCell().getEntity().getEntityType() == EntityType.TURRET)
                 .map(b -> b.getCornerCell().getEntity().getId())
                 .collect(Collectors.toSet());
 

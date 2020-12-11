@@ -50,6 +50,7 @@ public class Cell implements Cloneable {
     private FreeSpace[] freeSpaces = new FreeSpace[MAX_FP_SIZE - MIN_FP_SIZE + 1];//size - 2 -> index ()
 
     boolean isMineralEdge = false;
+    boolean isMapEdge = false;//follow...
     boolean isFogEdge = false;
 
 //    private int mineralsNearby5;
