@@ -41,14 +41,16 @@ public class BuildTurretStrategy implements SubStrategy {
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 //        addSomeTurretRequests(gameHistoryState, pgs, strategyParams);
 
-        return !gameHistoryState.getTurretRequests().isEmpty();
+        return true;
     }
 
     @Override
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        if(gameHistoryState.turretRequests.isEmpty()) {
+            return;
+        }
 
-
-        int distance = 15;
+        int distance = 10;
         for (Position2d turretAttackingRequest : gameHistoryState.getTurretRequests()) {
             GameStateParser.computeUniqueWorkersNearbyInLimitedArea(pgs, StrategyParams.TURRET_WORKERS_NEARBY_MAX_PATH, turretAttackingRequest);
             boolean success =

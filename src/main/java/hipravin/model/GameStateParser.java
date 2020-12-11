@@ -95,7 +95,58 @@ public abstract class GameStateParser {
         computeBuildingEdgeFreeCells(parsedGameState);
 
         calculateWorkersAtMiningPositions(parsedGameState);
+        //fighting zone
+        calculateEnemies(parsedGameState);
+
         return parsedGameState;
+    }
+
+    public static void calculateEnemies(ParsedGameState pgs) {
+        Entity rangBase = pgs.getMyRangerBase();
+        if (rangBase == null) {
+            Arrays.stream(pgs.getPlayerView().getEntities())
+                    .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                    .forEach(e -> pgs.defendingAreaEnemies.add(e));
+
+            Arrays.stream(pgs.getPlayerView().getEntities())
+                    .filter(e -> e.getPlayerId() != null && e.getPlayerId() == pgs.getPlayerView().getMyId())
+                    .filter(e -> e.getEntityType() == EntityType.RANGED_UNIT)
+                    .forEach(e -> pgs.defendingAreaMyRangers.add(e));
+        } else {
+            int defX = rangBase.getPosition().getX();
+            int defY = rangBase.getPosition().getY();
+
+            Arrays.stream(pgs.getPlayerView().getEntities())
+                    .filter(e -> e.getPlayerId() != null && e.getPlayerId() == pgs.getPlayerView().getMyId())
+                    .filter(e -> e.getEntityType() == EntityType.RANGED_UNIT)
+                    .filter(e -> e.getPosition().getX() <= defX || e.getPosition().getY() <= defY)
+                    .forEach(e -> pgs.defendingAreaMyRangers.add(e));
+
+            Arrays.stream(pgs.getPlayerView().getEntities())
+                    .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                    .filter(e -> e.getPosition().getX() <= defX || e.getPosition().getY() <= defY)
+                    .forEach(e -> pgs.defendingAreaEnemies.add(e));
+
+            Arrays.stream(pgs.getPlayerView().getEntities())
+                    .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                    .filter(e -> e.getPosition().getX() > defX && e.getPosition().getY() > defY)
+                    .forEach(e -> pgs.attackAreaEnemies.add(e));
+        }
+
+        EnumSet<EntityType> armyTypes = EnumSet.of(EntityType.MELEE_UNIT, EntityType.RANGED_UNIT, EntityType.TURRET);
+
+        Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                .filter(e -> armyTypes.contains(e.getEntityType()))
+                .forEach(e -> pgs.enemyArmy.put(of(e.getPosition()), pgs.at(e.getPosition())));
+
+        pgs.enemyArmyBase = Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> (e.getEntityType() == EntityType.RANGED_BASE || e.getEntityType() == EntityType.MELEE_BASE)
+                        && e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                .findAny().orElse(null);
+
+
+
     }
 
     public static void calculateWorkersMovedSinceLastTurn(ParsedGameState currentPgs, ParsedGameState previousPgs) {

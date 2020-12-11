@@ -24,8 +24,8 @@ public class StrategyParams {
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public static Position2d DESIRED_BARRACK = of(35, 35);
-    public static Position2d sendToDesiredBarrackPosition = of(41, 41);
+    public static Position2d DESIRED_BARRACK = of(33, 33);
+    public static Position2d sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
     public static final int MAP_CORNER_SIZE = 10;
 
@@ -54,6 +54,20 @@ public class StrategyParams {
 
     public int maxHousesBeforeMandatorySpacing = 5;
 
+    public int vragUVorotRange = 11;
+
+    public Map<EntityType, Integer> armyValues = Map.of(
+            EntityType.RANGED_UNIT, 1,
+            EntityType.MELEE_UNIT, 2,
+            EntityType.TURRET, 7
+    );
+
+    public double defendArmyOvercomeRatio = 1.5;
+
+    public boolean useWorkerDefendingTurrets = false;//worker nearest to enemy cc or rang base requets turret
+    public int turretsFrequency = 9;
+    public int turretMinMinerals = 50;
+
     public int maxSpawnToMineralsRememberCount = 5;
 
     public int leftCornerSpacingDoesntMatterXPlusy = 7;
@@ -63,12 +77,14 @@ public class StrategyParams {
     public int switchToAutoMineRange = 4;
 
     //    public int populationOfWorkersToBuildBeforeRangers = 60;
-    public int populationOfWorkersToBuildBeforeRangers = 45;
+    public int populationOfWorkersToBuildBeforeRangers = 35;
     public int populationOfWorkersToBuildAfterRangers = 60;
     public int populationOfWorkersToIfExtraResources = 80;
 
     public int maxNumberOfRangers = 100;
     public int extraMoney = 100;
+    public int outOfMoney = 100;
+    public int outOfPopulation = 5;
 
     public int barrackAheadBuildResourceTick = 4;
 
@@ -109,7 +125,7 @@ public class StrategyParams {
     );
 
     public boolean sendToCenter = true;
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 28,29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
 
     public int minHouseDistanceToCenter = 15;
 
@@ -203,6 +219,8 @@ public class StrategyParams {
         attackPointRates = List.of(1.0, 0.0);
         useAttackHoldOverCountTreshold = false;
         useWorkerPush = false;
+
+        useWorkerDefendingTurrets = true;
     }
 
 }

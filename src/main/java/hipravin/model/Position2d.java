@@ -51,8 +51,12 @@ public final class Position2d {
         return square(x - other.x) + square(y - other.y);
     }
 
-    public long lenShiftSum(Position2d other) {
+    public int lenShiftSum(Position2d other) {
         return Math.abs(x - other.x) + Math.abs(y - other.y);
+    }
+
+    public int lenShiftSum(Vec2Int other) {
+        return Math.abs(x - other.getX()) + Math.abs(y - other.getY());
     }
 
     private static long square(long val) {

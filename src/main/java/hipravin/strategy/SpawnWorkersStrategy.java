@@ -20,6 +20,13 @@ public class SpawnWorkersStrategy implements SubStrategy {
     boolean shouldSpawnMoreWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
 
+        if(pgs.getMyRangerBase() != null && !pgs.getMyRangerBase().isActive()) {
+            if(outOfMoney(pgs, gameHistoryState, strategyParams)
+                 || outOfPopulation(pgs, strategyParams)) {
+                return false;
+            }
+        }
+
         if(pgs.getMyWorkers().size() <= strategyParams.populationOfWorkersToIfExtraResources
                 && haveExtraResources(pgs, gameHistoryState, strategyParams)
                 && (pgs.getMyRangerBase() == null || !pgs.getMyRangerBase().isActive())) {
@@ -47,6 +54,16 @@ public class SpawnWorkersStrategy implements SubStrategy {
         return pgs.getEstimatedResourceAfterTicks(1) >= gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
                 + pgs.getRangCost() + strategyParams.extraMoney
                 ;
+    }
+
+    boolean outOfMoney(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+        return pgs.getEstimatedResourceAfterTicks(1) - gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                < strategyParams.outOfMoney;
+
+    }
+
+    boolean outOfPopulation(ParsedGameState pgs, StrategyParams strategyParams) {
+        return pgs.getPopulation().getActiveLimit() - pgs.getPopulation().getPopulationUse() < strategyParams.outOfPopulation;
     }
 
     @Override

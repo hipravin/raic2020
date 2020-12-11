@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static hipravin.model.GameStateParser.forEachPosition;
+import static hipravin.model.Position2d.of;
 import static hipravin.model.Position2dUtil.isSquareWithinMapBorder;
 
 public class ParsedGameState {
@@ -35,6 +36,28 @@ public class ParsedGameState {
 
     int maxWorkerX = -1;
     int maxWorkerY = -1;
+
+    List<Entity> defendingAreaEnemies = new ArrayList<>(); //le
+    List<Entity> defendingAreaMyRangers = new ArrayList<>(); //le
+    // ft and bottom of our barrack
+    List<Entity> attackAreaEnemies = new ArrayList<>(); //other
+
+    Map<Position2d, Cell> enemyArmy = new HashMap<>();
+
+    Entity enemyArmyBase = null;
+
+    public Optional<Position2d> findClosesEnemyArmy(Position2d toPosition) {
+        return enemyArmy.keySet().stream()
+                .min(Comparator.comparingInt(p -> (int)p.lenShiftSum(toPosition)));
+
+    }
+
+    public Optional<Position2d> findClosesEnemyArmyInDefArea(Position2d toPosition) {
+        return defendingAreaEnemies.stream()
+                .min(Comparator.comparingInt(e -> (int)toPosition.lenShiftSum(of(e.getPosition()))))
+                .map(e -> of(e.getPosition()));
+
+    }
 
     public int getMyEstimatedResourceThisTick() {
         return getMyPlayer().getResource() + (workersAtMiningPositions - 1);
@@ -179,7 +202,7 @@ public class ParsedGameState {
     }
 
     public Cell at(Vec2Int v) {
-        return at(Position2d.of(v));
+        return at(of(v));
     }
 
     public Map<Integer, Building> getBuildingsByEntityId() {
@@ -243,6 +266,26 @@ public class ParsedGameState {
 
     public Map<Position2d, Position2d> getWorkersMovedSinceLastTick() {
         return workersMovedSinceLastTick;
+    }
+
+    public List<Entity> getDefendingAreaEnemies() {
+        return defendingAreaEnemies;
+    }
+
+    public List<Entity> getAttackAreaEnemies() {
+        return attackAreaEnemies;
+    }
+
+    public Map<Position2d, Cell> getEnemyArmy() {
+        return enemyArmy;
+    }
+
+    public Entity getEnemyArmyBase() {
+        return enemyArmyBase;
+    }
+
+    public List<Entity> getDefendingAreaMyRangers() {
+        return defendingAreaMyRangers;
     }
 }
 

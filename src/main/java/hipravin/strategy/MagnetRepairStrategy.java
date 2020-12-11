@@ -26,20 +26,20 @@ public class MagnetRepairStrategy implements SubStrategy {
         for (Position2d edge : buildingOuterEdge) { //determine required positions
             Cell atP = pgs.at(edge);
 
-            if(atP.isMyWorker()) {
-                alreadyRepairing ++;
-                if(!busyEntitiIds.contains(atP.getEntityId())) {
+            if (atP.isMyWorker()) {
+                alreadyRepairing++;
+                if (!busyEntitiIds.contains(atP.getEntityId())) {
                     //start repair
                     AutoRepairCommand command = new AutoRepairCommand(building.getCornerCell().getPosition(), atP.getEntityId(), pgs, strategyParams);
                     gameHistoryState.addOngoingCommand(command, false);
                 }
-            } else if(atP.isEmpty()) {
+            } else if (atP.isEmpty()) {
                 requiredRepairPositions.add(edge);
             }
         }
         int countWorkersRequired = strategyParams.magnetRepairDesiredWorkers.get(building.getCornerCell().getEntityType()) - alreadyRepairing;
 
-        if(countWorkersRequired <= 0) {
+        if (countWorkersRequired <= 0) {
             return;
         }
 
@@ -68,7 +68,7 @@ public class MagnetRepairStrategy implements SubStrategy {
             Position2d toPosition = workerNe.getSourceCell().getPosition();
 
             toThisPoint.merge(toPosition, 1, Integer::sum);
-            if(toThisPoint.get(toPosition) <= maxToSinglePoint) {
+            if (toThisPoint.get(toPosition) <= maxToSinglePoint) {
                 Command stepForward = new MoveOneStepTowardsCommand(pgs, workerNe.getThisCell().getEntityId(), toPosition);
                 gameHistoryState.addOngoingCommand(stepForward, false);
             }
@@ -85,13 +85,14 @@ public class MagnetRepairStrategy implements SubStrategy {
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         List<Building> toRepairBuilding = new ArrayList<>(pgs.getBuildingsByEntityId().values());
 
-        toRepairBuilding.sort(Comparator.comparingInt(b->b.getCornerCell().getMaxHealth())); // barracks, turret, house
+        toRepairBuilding.sort(Comparator.comparing(b -> b.getCornerCell().getMaxHealth(), Comparator.reverseOrder())); // barracks, turret, house
 
-        toRepairBuilding.forEach(b -> {
-            if(b.isMyBuilding() && b.getCornerCell().getEntity().getHealth() < b.getCornerCell().getMaxHealth()) {
-                decideForInactiveBuilding(b, gameHistoryState, pgs, strategyParams, assignedActions);
-            }
-        });
+        toRepairBuilding.
+                forEach(b -> {
+                    if (b.isMyBuilding() && b.getCornerCell().getEntity().getHealth() < b.getCornerCell().getMaxHealth()) {
+                        decideForInactiveBuilding(b, gameHistoryState, pgs, strategyParams, assignedActions);
+                    }
+                });
     }
 
 //    void cleanupCompleted(Position2d corner, GameHistoryAndSharedState gameHistoryState,

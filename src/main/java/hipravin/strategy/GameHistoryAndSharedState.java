@@ -129,6 +129,26 @@ public class GameHistoryAndSharedState {
                 }).count();
     }
 
+    public int ongoingTurretBuildCommandCount() {
+        return (int)ongoingCommands.stream()
+                .filter(c -> {
+                    if(c instanceof BuildThenRepairCommand) {
+                        return ((BuildThenRepairCommand) c).getBuildingType() == EntityType.TURRET;
+                    }
+                    if(c instanceof MoveSingleCommand) {
+                        for (Command nextCommand : c.getNextCommands()) {
+                            if(nextCommand instanceof BuildThenRepairCommand) {
+                                if (((BuildThenRepairCommand) nextCommand).getBuildingType() == EntityType.TURRET) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+
+                    return false;
+                }).count();
+    }
+
     public int ongoingBarrackBuildCommandCount() {
         return (int)ongoingCommands.stream()
                 .filter(c -> {

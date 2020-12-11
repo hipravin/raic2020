@@ -106,7 +106,7 @@ public class BuildHousesStrategyTest {
 
         BuildHousesStrategy bhs = new BuildHousesStrategy();
 
-        assertEquals(3, rstrategy.getGameHistoryState().getOngoingCommands().size());
+        assertEquals(4, rstrategy.getGameHistoryState().getOngoingCommands().size());
 
     }
 

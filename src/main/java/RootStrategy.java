@@ -33,11 +33,12 @@ public class RootStrategy extends MyStrategy {
         PushMinersStrategy pushMinersStrategy = new PushMinersStrategy();
         SpawnWorkersStrategy spawnWorkersStrategy = new SpawnWorkersStrategy();
         SpawnRangersStrategy spawnRangersStrategy = new SpawnRangersStrategy();
+        WorkerDefendingTurretsStrategy workerDefendingTurretsStrategy = new WorkerDefendingTurretsStrategy();
         BuildHousesStrategy buildHousesStrategy = new BuildHousesStrategy();
         MagnetRepairStrategy magnetRepairStrategy = new MagnetRepairStrategy();
         BuildBarrackStrategy buildBarrackStrategy = new BuildBarrackStrategy();
 
-
+        TurretSetAutoAttackStrategy turretsAutoAttack = new TurretSetAutoAttackStrategy();
         UnsetBuildCommandsStrategy unsetStrategy = new UnsetBuildCommandsStrategy();
         BuildTurretStrategy buildTurretStrategy = new BuildTurretStrategy();
 
@@ -48,13 +49,15 @@ public class RootStrategy extends MyStrategy {
         subStrategies.add(pushMinersStrategy);
         subStrategies.add(spawnWorkersStrategy);
         subStrategies.add(spawnRangersStrategy);
-        subStrategies.add(buildHousesStrategy);
         subStrategies.add(magnetRepairStrategy);
+        subStrategies.add(buildHousesStrategy);
+        subStrategies.add(workerDefendingTurretsStrategy);
         subStrategies.add(buildBarrackStrategy);
         subStrategies.add(buildTurretStrategy);
         subStrategies.add(autoMine);
         subStrategies.add(rangerAutoAttack);
         subStrategies.add(unsetStrategy);
+        subStrategies.add(turretsAutoAttack);
     }
 
     void initStaticParams(PlayerView playerView) {
