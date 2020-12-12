@@ -107,8 +107,10 @@ public class StrategyParams {
 
     public EntityType[] rangerWorkHuntAttackTargets = new EntityType[]{EntityType.BUILDER_UNIT};
 
+
+
     public Map<EntityType, Integer> magnetRepairRanges = Map.of(
-            EntityType.HOUSE, 3,
+            EntityType.HOUSE, 6,
             EntityType.RANGED_BASE, 20,
             EntityType.BUILDER_BASE, 20,
             EntityType.MELEE_BASE, 20,
@@ -125,13 +127,14 @@ public class StrategyParams {
             EntityType.WALL, 1
     );
 
-    public int populationOfWorkersToBuildBeforeRangers = 30;//35 is optimal rush?
+    public int populationOfWorkersToBuildBeforeRangers = 20;//35 is optimal rush?
     public int populationOfWorkersToBuildAfterRangers = 60;
     public int populationOfWorkersToIfExtraResources = 80;
 
     public boolean sendToCenter = true;
     //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 18, 19, 20, 21, 22, 23, 24, 25);
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
+//    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 14,15,16,17,18,19,20);
 
     public int minHouseDistanceToCenter = 15;
 
@@ -219,12 +222,14 @@ public class StrategyParams {
     public void activateOption2() {
         GameHistoryAndSharedState.random.nextInt();
 
-        populationOfWorkersToBuildBeforeRangers = 35;
+//        populationOfWorkersToBuildBeforeRangers = 35;
+        populationOfWorkersToBuildBeforeRangers = 25;
 
         DESIRED_BARRACK = of(29, 29);
         sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
-        sendToCenterWorkerNumbers = Set.of(15, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
+//        sendToCenterWorkerNumbers = Set.of(15, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
+        sendToCenterWorkerNumbers = Set.of(15, 18,19,20,21,22,23,24,25);
 
 //        attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
 //        attackPointRates = List.of(1.0, 0.0);

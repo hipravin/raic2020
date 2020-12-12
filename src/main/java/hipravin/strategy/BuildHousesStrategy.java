@@ -17,7 +17,7 @@ public class BuildHousesStrategy implements SubStrategy {
     boolean shouldBuildHouse(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
         Entity rangBase = pgs.getMyRangerBase();
 
-        if(haveExtraResources(pgs, gameHistoryAndSharedState, strategyParams)) {
+        if (haveExtraResources(pgs, gameHistoryAndSharedState, strategyParams)) {
             return populationAheadRequired(pgs, gameHistoryAndSharedState, strategyParams);
         }
 
@@ -51,7 +51,7 @@ public class BuildHousesStrategy implements SubStrategy {
 
     boolean haveExtraResources(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
         return pgs.getEstimatedResourceAfterTicks(1) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
-                 + pgs.getRangCost() + strategyParams.extraMoney
+                + pgs.getRangCost() + strategyParams.extraMoney
                 ;
     }
 
@@ -82,7 +82,7 @@ public class BuildHousesStrategy implements SubStrategy {
     public void tryToBuildHouseShortDistance(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                              StrategyParams strategyParams) {
 
-        int distance = 3;
+        int distance = 4;
 
         //permitted to build without spacing
         boolean pbws = pgs.getActiveHouseCount() <= strategyParams.maxHousesBeforeMandatorySpacing;
@@ -91,14 +91,16 @@ public class BuildHousesStrategy implements SubStrategy {
 
         boolean success =
                 tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true, true)
-                        || tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true,false)
-                        || pbws && tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, false,false)
-                        || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true,false)
-                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true,true)
-                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true,false)
+                        || tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true, false)
+                        || pbws && tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, false, false)
+                        || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true, false)
+                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true, true)
+                        || tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, true, false)
                         || pbws && tryToBuildHouseShortDistance(2, distance, gameHistoryState, pgs, strategyParams, false, false)
-                        || pbws && tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, true, false)
-                        || pbws && tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, false, false);
+                        || tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, true, false)
+                        || pbws && tryToBuildHouseShortDistance(1, distance + 2, gameHistoryState, pgs, strategyParams, false, false)
+                        || tryToBuildHouseShortDistance(1, distance + 4, gameHistoryState, pgs, strategyParams, true, false)
+                        || pbws && tryToBuildHouseShortDistance(1, distance + 4, gameHistoryState, pgs, strategyParams, false, false);
     }
 
     public boolean tryToBuildHouseShortDistance(int workers, int maxDistanceToWorker, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -111,14 +113,14 @@ public class BuildHousesStrategy implements SubStrategy {
                 .filter(c -> pgs.calculateFreeSpace(c, size).map(FreeSpace::isCompletelyFree).orElse(false))
                 .collect(Collectors.toMap(Cell::getPosition, c -> pgs.calculateFreeSpace(c, size).get()));
 
-        if(pgs.getMyRangerBase() == null) {
+        if (pgs.getMyRangerBase() == null) {
             houseOptions.entrySet().removeIf(ho ->
                     ho.getKey().lenShiftSum(StrategyParams.DESIRED_BARRACK.shift(3, 3)) < strategyParams.minHouseDistanceToCenter);//avoid house at center build by barrack builders
         } else {
             Position2d rangBasePosition = Position2d.of(pgs.getMyRangerBase().getPosition());
             houseOptions.entrySet().removeIf(ho ->
                     ho.getKey().lenShiftSum(StrategyParams.DESIRED_BARRACK.shift(3, 3)) < strategyParams.minHouseDistanceToCenter
-                    && (ho.getKey().getX()  > rangBasePosition.getX() - 2 && ho.getKey().getY()  > rangBasePosition.getY() - 2)
+                            && (ho.getKey().getX() > rangBasePosition.getX() - 2 && ho.getKey().getY() > rangBasePosition.getY() - 2)
             );//avoid house that can be attacked by opp
 
         }
@@ -130,7 +132,7 @@ public class BuildHousesStrategy implements SubStrategy {
             houseOptions.entrySet().removeIf(e -> e.getKey().x + e.getKey().y > strategyParams.leftCornerSpacingDoesntMatterXPlusy
                     && !dousntTouchMinerals(e.getKey(), size, pgs));
         }
-        if(withMinerals2c) {
+        if (withMinerals2c) {
             houseOptions.entrySet().removeIf(e -> e.getKey().x + e.getKey().y > strategyParams.leftCornerSpacingDoesntMatterXPlusy
                     && !dousntTouchMinerals2c(e.getKey(), size, pgs));
         }
@@ -265,7 +267,7 @@ public class BuildHousesStrategy implements SubStrategy {
 
     static boolean dousntTouchMinerals2c(Position2d corner, int size, ParsedGameState pgs) {
 
-        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithCorners(corner.shift(-1,-1), size+2);
+        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithCorners(corner.shift(-1, -1), size + 2);
         return outerEdge.stream().noneMatch(c -> pgs.at(c).isMineral());
     }
 }
