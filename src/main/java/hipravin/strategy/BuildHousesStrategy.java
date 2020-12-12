@@ -114,9 +114,17 @@ public class BuildHousesStrategy implements SubStrategy {
                 .filter(c -> pgs.calculateFreeSpace(c, size).map(FreeSpace::isCompletelyFree).orElse(false))
                 .collect(Collectors.toMap(Cell::getPosition, c -> pgs.calculateFreeSpace(c, size).get()));
 
-        houseOptions.entrySet().removeIf(ho ->
-                ho.getKey().lenShiftSum(StrategyParams.DESIRED_BARRACK.shift(3, 3)) < strategyParams.minHouseDistanceToCenter);//avoid house at center build by barrack builders
+        if(pgs.getMyRangerBase() == null) {
+            houseOptions.entrySet().removeIf(ho ->
+                    ho.getKey().lenShiftSum(StrategyParams.DESIRED_BARRACK.shift(3, 3)) < strategyParams.minHouseDistanceToCenter);//avoid house at center build by barrack builders
+        } else {
+            Position2d rangBasePosition = Position2d.of(pgs.getMyRangerBase().getPosition());
+            houseOptions.entrySet().removeIf(ho ->
+                    ho.getKey().lenShiftSum(StrategyParams.DESIRED_BARRACK.shift(3, 3)) < strategyParams.minHouseDistanceToCenter
+                    && (ho.getKey().getX()  > rangBasePosition.getX() && ho.getKey().getY()  > rangBasePosition.getY())
+            );//avoid house that can be attacked by opp
 
+        }
 
         if (withNonDesiredAndSpacingFiltering) {
             houseOptions.entrySet().removeIf(e -> strategyParams.houseNonDesiredPositions().contains(e.getKey()));

@@ -16,18 +16,19 @@ import static hipravin.strategy.StrategyParams.MAX_VAL;
 public class SpawnWorkersStrategy implements SubStrategy {
     //to prevent multiple workers being sent to single mineral field
     LinkedHashSet<Position2d> lastMineralPositions = new LinkedHashSet<>();
+    boolean workerAlreadySentToCenter = false;
 
     boolean shouldSpawnMoreWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
 
-        if(pgs.getMyRangerBase() != null && !pgs.getMyRangerBase().isActive()) {
-            if(outOfMoney(pgs, gameHistoryState, strategyParams)
-                 || outOfPopulation(pgs, strategyParams)) {
+        if (pgs.getMyRangerBase() != null && !pgs.getMyRangerBase().isActive()) {
+            if (outOfMoney(pgs, gameHistoryState, strategyParams)
+                    || outOfPopulation(pgs, strategyParams)) {
                 return false;
             }
         }
 
-        if(pgs.getMyWorkers().size() <= strategyParams.populationOfWorkersToIfExtraResources
+        if (pgs.getMyWorkers().size() <= strategyParams.populationOfWorkersToIfExtraResources
                 && haveExtraResources(pgs, gameHistoryState, strategyParams)
                 && (pgs.getMyRangerBase() == null || !pgs.getMyRangerBase().isActive())) {
             return true;
@@ -101,7 +102,16 @@ public class SpawnWorkersStrategy implements SubStrategy {
         }
 
         if (ifSentToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams)) {
+            workerAlreadySentToCenter = true;
             return;
+        }
+
+        if(!workerAlreadySentToCenter) {
+            if(detectRespIsSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
+                sendWorkerToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams);
+
+                workerAlreadySentToCenter = true;
+            }
         }
 
 //        if (ifSentToFog(ccOuterEdge, gameHistoryState, pgs, strategyParams)) { //don't like how it works
@@ -142,25 +152,53 @@ public class SpawnWorkersStrategy implements SubStrategy {
     }
 
     int countWorkersOnResp(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                          StrategyParams strategyParams) {
-        int count= 0;
+                           StrategyParams strategyParams) {
+        int count = 0;
 
         for (int x = 0; x < strategyParams.respSize; x++) {
             for (int y = 0; y < strategyParams.respSize; y++) {
-                 if(pgs.at(of(x,y)).isMyWorker()) {
-                     count++;
-                 }
+                if (pgs.at(of(x, y)).isMyWorker()) {
+                    count++;
+                }
             }
         }
         return count;
     }
+
+    boolean detectRespIsSurroundedByMinerals(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                             StrategyParams strategyParams) {
+        Set<Position2d> ccouterEdge = new HashSet<>(pgs.getBuildingsByEntityId()
+                .get(pgs.getMyCc().getId()).getBuildingOuterEdgeWithoutCorners());
+
+        Map<Position2d, NearestEntity> nes =
+                GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), ccouterEdge, StrategyParams.RESP_SURROUNDED_DETECT_RANGE,
+                        false, true, Set.of());
+
+        Optional<NearestEntity> farthest = nes.values().stream()
+                .max(NearestEntity.comparedByPathLen);
+
+        if (farthest.isPresent() && farthest.map(
+                f -> f.getThisCell().isMineral() || f.getThisCell().isMapEdge())
+                .orElse(false)) {
+            DebugOut.println("Resp is surrounded: " + farthest.get() );
+
+            return true;
+        }
+
+        DebugOut.println("Resp is not surrounded: " + farthest.map(NearestEntity::toString).orElse("no way"));
+
+        return false;
+
+
+    }
+
 
     boolean ifSentToFog(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                         StrategyParams strategyParams) {
 
         if (pgs.getPlayerView().isFogOfWar()) {
             int countOfWorkersOnResp = countWorkersOnResp(gameHistoryState, pgs, strategyParams);
-            if(countOfWorkersOnResp >= strategyParams.maxWorkerRespCountBeforeSendToFog  ) {
+            if (countOfWorkersOnResp >= strategyParams.maxWorkerRespCountBeforeSendToFog) {
 
 
                 List<Position2d> fogEdges = pgs.getFogEdgePositions();
@@ -172,7 +210,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
                 Position2d randomFogPosition = fogEdges.get(GameHistoryAndSharedState.random.nextInt(fogEdges.size()));
                 Position2d spawnPos = ccOuterEdge.stream().min(Comparator.comparing(e -> e.lenShiftSum(randomFogPosition))).orElse(null);
 
-                if(spawnPos != null) {
+                if (spawnPos != null) {
                     Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
                     Command sendToFog = new SendNewWorkerToPositionCommand(spawnPos, randomFogPosition, null, strategyParams.moveTowardsMineralsDistanceTreshold);
 
@@ -189,45 +227,52 @@ public class SpawnWorkersStrategy implements SubStrategy {
     boolean ifSentToCenter(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                            StrategyParams strategyParams) {
 
-        Position2d spawnPos = ccOuterEdge.stream().max(Comparator.comparingInt(p -> p.x + p.y)).orElse(null);
 
         int workerNum = pgs.getMyWorkers().size();
 
         if (strategyParams.sendToCenter && strategyParams.sendToCenterWorkerNumbers.contains(workerNum)) {
-            CommandPredicate barrackStartedToBuild = new CommandPredicate() {
-                @Override
-                public boolean test(Command command, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
-                    Entity rangBase = pgs.getMyBarrack(EntityType.RANGED_BASE);
-                    if(rangBase != null && !rangBase.isActive() && command instanceof MoveTowardsCommand) {
-                        ((MoveTowardsCommand)command).setTargetPosition(of(rangBase.getPosition()).shift(2,2));
-                    }
+            sendWorkerToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams);
 
-                    return rangBase != null && rangBase.isActive();
-                }
-            };
-
-            BiConsumer<Integer, Integer> onStart = (id, tick) -> {
-                DebugOut.println("Sent to center (onstart) " + id + ", " + tick);
-                gameHistoryState.sentToBarrackEntityIds.add(id);
-                gameHistoryState.sentToBarrackTicks.put(id, tick);
-            };
-            BiConsumer<Integer, Integer> onDone = (id, tick) -> {
-                DebugOut.println("Arrived to center (ondone) " + id + ", " + tick);
-
-                gameHistoryState.arrivedToBarrackTicks.put(id, tick);
-            };
-
-
-            Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
-            Command sendToCenter = new SendNewWorkerToPositionCommand(spawnPos, fixedToCenterPosition(), barrackStartedToBuild,
-                    strategyParams.moveTowardsBarracksDistanceTreshold, onDone, onStart);
-
-            CommandUtil.chainCommands(buildWorker, sendToCenter);
-
-            gameHistoryState.addOngoingCommand(buildWorker, false);
             return true;
         }
         return false;
+    }
+
+    public void sendWorkerToCenter(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                    StrategyParams strategyParams) {
+        Position2d spawnPos = ccOuterEdge.stream().max(Comparator.comparingInt(p -> p.x + p.y)).orElse(null);
+
+        CommandPredicate barrackStartedToBuild = new CommandPredicate() {
+            @Override
+            public boolean test(Command command, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+                Entity rangBase = pgs.getMyBarrack(EntityType.RANGED_BASE);
+                if (rangBase != null && !rangBase.isActive() && command instanceof MoveTowardsCommand) {
+                    ((MoveTowardsCommand) command).setTargetPosition(of(rangBase.getPosition()).shift(2, 2));
+                }
+
+                return rangBase != null && rangBase.isActive();
+            }
+        };
+
+        BiConsumer<Integer, Integer> onStart = (id, tick) -> {
+            DebugOut.println("Sent to center (onstart) " + id + ", " + tick);
+            gameHistoryState.sentToBarrackEntityIds.add(id);
+            gameHistoryState.sentToBarrackTicks.put(id, tick);
+        };
+        BiConsumer<Integer, Integer> onDone = (id, tick) -> {
+            DebugOut.println("Arrived to center (ondone) " + id + ", " + tick);
+
+            gameHistoryState.arrivedToBarrackTicks.put(id, tick);
+        };
+
+
+        Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
+        Command sendToCenter = new SendNewWorkerToPositionCommand(spawnPos, fixedToCenterPosition(), barrackStartedToBuild,
+                strategyParams.moveTowardsBarracksDistanceTreshold, onDone, onStart);
+
+        CommandUtil.chainCommands(buildWorker, sendToCenter);
+
+        gameHistoryState.addOngoingCommand(buildWorker, false);
     }
 
     public Position2d randomSendToCenterPosition() {

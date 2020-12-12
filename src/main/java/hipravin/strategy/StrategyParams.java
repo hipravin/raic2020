@@ -20,6 +20,7 @@ public class StrategyParams {
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH = 7;
     public static final int TURRET_WORKERS_NEARBY_MAX_PATH = 10;
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER = 15;
+    public static final int RESP_SURROUNDED_DETECT_RANGE = 12;
 
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
@@ -54,7 +55,7 @@ public class StrategyParams {
 
     public int maxHousesBeforeMandatorySpacing = 5;
 
-    public int vragUVorotRange = 11;
+    public int vragUVorotRange = 13;
 
     public Map<EntityType, Integer> armyValues = Map.of(
             EntityType.RANGED_UNIT, 1,
@@ -96,7 +97,7 @@ public class StrategyParams {
 
     public boolean useWorkerPush = true;
     public int minWorkersToApplyPush = 10;
-    public int maxWorkersToApplyPush = 40;
+    public int maxWorkersToApplyPush = 60;
 
     public int respSize = 20;
     public int maxWorkerRespCountBeforeSendToFog = 12;
@@ -140,10 +141,13 @@ public class StrategyParams {
         return of(x, y);
     }
 
-    public double rangerScoutRateProb = 0.0;
-    public List<Position2d> attackPoints = List.of(of(70, 70), of(30, 75), of(75, 30));
-    public List<Double> attackPointRates = List.of(0.9, 0.5);
-    public double secondaryLineWorkHunterRate = 0.33;
+//    public List<Position2d> attackPoints = List.of(of(70, 70), of(30, 75), of(75, 30));
+//    public List<Double> attackPointRates = List.of(0.9, 0.5);
+    public List<Position2d> attackPoints = List.of(of(73, 73), of(40, 75), of(75, 40));
+    public List<Double> attackPointRates = List.of(0.4, 0.5);
+
+    public int cleanBaseRangeTreshhold = 15;
+
 
     public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
         return 7;
@@ -208,17 +212,17 @@ public class StrategyParams {
     public void activateOption2() {
         GameHistoryAndSharedState.random.nextInt();
 
-        populationOfWorkersToBuildBeforeRangers = 45;
+        populationOfWorkersToBuildBeforeRangers = 40;
 
-        DESIRED_BARRACK = of(25, 25);
-        sendToDesiredBarrackPosition = of(31, 31);
+        DESIRED_BARRACK = of(24, 24);
+        sendToDesiredBarrackPosition = of(30, 30);
 
-        sendToCenterWorkerNumbers = Set.of(15, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,43,44);
+        sendToCenterWorkerNumbers = Set.of(15, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
 
         attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
         attackPointRates = List.of(1.0, 0.0);
         useAttackHoldOverCountTreshold = false;
-        useWorkerPush = false;
+        useWorkerPush = true;
 
 //        useWorkerDefendingTurrets = true;
     }

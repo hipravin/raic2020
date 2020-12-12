@@ -19,14 +19,36 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ParsedGameStateTest {
-
+    @Test
+    void test() {
+    }
 
     @Test
-    void testNoSuch() {
-        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 8, 398);
+    void testCountEnemies() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 14, 321);
 
         PlayerView pw = get0.getPlayerView();
         ParsedGameState pgs = GameStateParser.parse(pw);
+
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(5) == 1 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(5) == 2 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(5) == 3 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(5) == 4 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+
+        assertEquals(1, countCells(pgs, c -> c.getAttackerCount(6) == 1 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(6) == 2 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(6) == 3 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(6) == 4 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+
+        assertEquals(2, countCells(pgs, c -> c.getAttackerCount(7) == 1 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(7) == 2 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(7) == 3 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(7) == 4 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+
+        assertEquals(2, countCells(pgs, c -> c.getAttackerCount(8) == 1 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(8) == 2 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(1, countCells(pgs, c -> c.getAttackerCount(8) == 3 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
+        assertEquals(0, countCells(pgs, c -> c.getAttackerCount(8) == 4 && c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT));
 
     }
 
@@ -51,7 +73,7 @@ class ParsedGameStateTest {
 
         GameStateParser.computeUniqueWorkersNearby(pgs, StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
 
-        Cell c = pgs.at(of(3,10));
+        Cell c = pgs.at(of(3, 10));
         assertEquals(3, c.getWorkersNearby().size());
     }
 
@@ -68,7 +90,7 @@ class ParsedGameStateTest {
         assertEquals(7, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 2));
 
         pgs.allCellsAsStream().forEach(c -> {
-            assertTrue(c.myNearestWorker == null || c.myNearestWorker.sourceCell.position.equals(of(4,4)));
+            assertTrue(c.myNearestWorker == null || c.myNearestWorker.sourceCell.position.equals(of(4, 4)));
         });
 
         assertEquals(252, countCells(pgs, c -> c.myNearestWorker != null));//approximately half of map is unreacheable at start. seems legit if mineral count is good
@@ -95,8 +117,8 @@ class ParsedGameStateTest {
         PlayerView pw = get0.getPlayerView();
         ParsedGameState pgs = GameStateParser.parse(pw);
 
-        assertEquals(6, pgs.at(of(10,5)).nearestMineralField.pathLenEmptyCellsToThisCell);//can mine at 5, but path is actually 6
-        assertEquals(of(11,0), pgs.at(of(10,5)).nearestMineralField.sourceCell.getPosition());
+        assertEquals(6, pgs.at(of(10, 5)).nearestMineralField.pathLenEmptyCellsToThisCell);//can mine at 5, but path is actually 6
+        assertEquals(of(11, 0), pgs.at(of(10, 5)).nearestMineralField.sourceCell.getPosition());
 
         assertEquals(2513, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 0));
         assertEquals(882 + 7, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 1));
@@ -116,12 +138,12 @@ class ParsedGameStateTest {
         ParsedGameState pgs = GameStateParser.parse(pw);
 
         Map<Position2d, NearestEntity> ws =
-                GameStateParserDjkstra.shortWideSearch(pgs, Collections.emptySet(), Set.of(of(0,0)), 10, true);
+                GameStateParserDjkstra.shortWideSearch(pgs, Collections.emptySet(), Set.of(of(0, 0)), 10, true);
         assertEquals(3, ws.size());
 
         Map<Position2d, NearestEntity> ws2 =
-                GameStateParserDjkstra.shortWideSearch(pgs, Set.of(of(7,4)), Set.of(of(8,4)), 10, true);
-        assertEquals(4, ws2.get(of(6,4)).pathLenEmptyCellsToThisCell);
+                GameStateParserDjkstra.shortWideSearch(pgs, Set.of(of(7, 4)), Set.of(of(8, 4)), 10, true);
+        assertEquals(4, ws2.get(of(6, 4)).pathLenEmptyCellsToThisCell);
     }
 
     @Test
@@ -154,7 +176,7 @@ class ParsedGameStateTest {
         long freeButUnitsTotal = 0;
 
         //test result consistency
-        for (int size = Cell.MIN_FP_SIZE; size <= Cell.MAX_FP_SIZE ; size++) {
+        for (int size = Cell.MIN_FP_SIZE; size <= Cell.MAX_FP_SIZE; size++) {
             long free = countCompletelyFree(pgs, size);
             long freeButUnits = countFreeButUnits(pgs, size);
 
@@ -166,7 +188,7 @@ class ParsedGameStateTest {
             assertTrue(free != 0);
             assertTrue(freeButUnits != 0);
 
-            if(size < Cell.MAX_FP_SIZE - 1) {
+            if (size < Cell.MAX_FP_SIZE - 1) {
                 assertTrue(free > countCompletelyFree(pgs, size + 1));
             }
         }
@@ -178,6 +200,7 @@ class ParsedGameStateTest {
     long countCompletelyFree(ParsedGameState pgs, int size) {
         return pgs.allCellsAsStream().filter(c -> pgs.calculateFreeSpace(c, size).map(f -> f.isCompletelyFree).orElse(false)).count();
     }
+
     long countFreeButUnits(ParsedGameState pgs, int size) {
         return pgs.allCellsAsStream().filter(c -> pgs.calculateFreeSpace(c, size).map(f -> f.isFreeButContainOurUnits).orElse(false)).count();
     }

@@ -50,8 +50,48 @@ public class Cell implements Cloneable {
     private FreeSpace[] freeSpaces = new FreeSpace[MAX_FP_SIZE - MIN_FP_SIZE + 1];//size - 2 -> index ()
 
     boolean isMineralEdge = false;
-    boolean isMapEdge = false;//follow...
     boolean isFogEdge = false;
+    boolean isMapEdge = false;
+
+    int range5attackersCount = 0;//5 or less
+    int range6attackersCount = 0;
+    int range7attackersCount = 0;
+    int range8attackersCount = 0;
+
+
+    public void setAttackerCount(int range, int count) {
+        switch (range) {
+            case 5:
+                range5attackersCount = count;
+                break;
+            case 6:
+                range6attackersCount = count;
+                break;
+            case 7:
+                range7attackersCount = count;
+                break;
+            case 8:
+                range8attackersCount = count;
+                break;
+        }
+    }
+
+    public int getAttackerCount(int range) {
+
+        switch(range) {
+            case 5:
+                return range5attackersCount;
+            case 6:
+                return range6attackersCount;
+            case 7:
+                return range7attackersCount;
+            case 8:
+                return range8attackersCount;
+        }
+
+        return -1;
+    }
+
 
 //    private int mineralsNearby5;
 
@@ -345,6 +385,10 @@ public class Cell implements Cloneable {
 
     public boolean isFogEdge() {
         return isFogEdge;
+    }
+
+    public boolean isMapEdge() {
+        return isMapEdge;
     }
 }
 

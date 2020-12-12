@@ -1,5 +1,7 @@
 package hipravin.model;
 
+import java.util.Comparator;
+
 public class NearestEntity {
     final Cell sourceCell;
     final Cell thisCell;
@@ -10,6 +12,11 @@ public class NearestEntity {
         this.thisCell = thisCell;
         this.pathLenEmptyCellsToThisCell = pathLenEmptyCellsToThisCell;
     }
+
+    public static Comparator<? super NearestEntity> comparedByPathLen =
+            Comparator.comparingInt(NearestEntity::getPathLenEmptyCellsToThisCell);
+    public static Comparator<? super NearestEntity> comparedByPathLenReversed
+            = Comparator.comparing(NearestEntity::getPathLenEmptyCellsToThisCell, Comparator.reverseOrder());
 
     public NearestEntity pathPlus1(Cell newThisCell) {
         return new NearestEntity(sourceCell, newThisCell, pathLenEmptyCellsToThisCell + 1);
@@ -25,5 +32,14 @@ public class NearestEntity {
 
     public int getPathLenEmptyCellsToThisCell() {
         return pathLenEmptyCellsToThisCell;
+    }
+
+    @Override
+    public String toString() {
+        return "NearestEntity{" +
+                "sourceCell=" + sourceCell.getPosition() +
+                ", thisCell=" + thisCell.getPosition() +
+                ", pathLenEmptyCellsToThisCell=" + pathLenEmptyCellsToThisCell +
+                '}';
     }
 }

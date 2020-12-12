@@ -12,7 +12,7 @@ import java.util.Set;
 import static hipravin.strategy.StrategyParams.MAX_VAL;
 
 public class CancelCommand extends Command {
-    protected CancelCommand() {
+    public CancelCommand() {
         super(MAX_VAL, Set.of());
     }
 

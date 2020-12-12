@@ -71,6 +71,7 @@ public abstract class GameStateParser {
             //TODO: set all is visible according to sight ranges
         }
 
+        calculateMapEdge(parsedGameState);
         calculateWorkerXY(parsedGameState);
 
         parsedGameState.population = Population.of(playerView);
@@ -98,7 +99,44 @@ public abstract class GameStateParser {
         //fighting zone
         calculateEnemies(parsedGameState);
 
+        calculateEnemyAttackRanges(parsedGameState);
+
         return parsedGameState;
+    }
+
+    static void calculateMapEdge(ParsedGameState pgs) {
+        for (int i = 0; i < MAP_SIZE; i++) {
+             pgs.at(i, 0).isMapEdge = true;
+             pgs.at(0, i).isMapEdge = true;
+             pgs.at(i, MAP_SIZE - 1).isMapEdge = true;
+             pgs.at(MAP_SIZE - 1, i).isMapEdge = true;
+        }
+    }
+
+    static void calculateEnemyAttackRanges(ParsedGameState pgs) {
+        for (Map.Entry<Position2d, Cell> entry : pgs.getEnemyArmy().entrySet()) {
+            Position2d up = entry.getKey();
+            Entity unit = entry.getValue().getEntity();
+
+            if(unit.getEntityType() == EntityType.RANGED_UNIT || unit.getEntityType() == EntityType.MELEE_UNIT) {
+                for (int r = 6; r <= 8; r++) {
+                    int rr = r;
+                    Position2dUtil.iterAllPositionsInExactRange(up, r, ap -> {
+                        int count = pgs.at(ap).getAttackerCount(rr);
+                        pgs.at(ap).setAttackerCount(rr, count + 1);
+                    });
+
+                }
+                int range5orless = 5;
+                for (int r = 1; r <= 5; r++) {
+                    Position2dUtil.iterAllPositionsInExactRange(up, r, ap -> {
+                        int count = pgs.at(ap).getAttackerCount(range5orless);
+                        pgs.at(ap).setAttackerCount(range5orless, count + 1);
+                    });
+
+                }
+            }
+        }
     }
 
     public static void calculateEnemies(ParsedGameState pgs) {

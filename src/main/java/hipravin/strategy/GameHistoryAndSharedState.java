@@ -26,6 +26,8 @@ public class GameHistoryAndSharedState {
     public Map<Integer, Integer> sentToBarrackTicks = new HashMap<>();
     public Map<Integer, Integer> arrivedToBarrackTicks = new HashMap<>();
 
+    public Set<Position2d> thisTickUsedTargetPositions = new HashSet<>();//not ask for conflicting moves while micro
+
 
     //    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
     List<Command> ongoingCommands = new ArrayList<>();
@@ -186,5 +188,13 @@ public class GameHistoryAndSharedState {
 
     public void setTurretRequests(List<Position2d> turretRequests) {
         this.turretRequests = turretRequests;
+    }
+
+    public Set<Position2d> getThisTickUsedTargetPositions() {
+        return thisTickUsedTargetPositions;
+    }
+
+    public void setThisTickUsedTargetPositions(Set<Position2d> thisTickUsedTargetPositions) {
+        this.thisTickUsedTargetPositions = thisTickUsedTargetPositions;
     }
 }

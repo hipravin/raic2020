@@ -2,9 +2,7 @@ package hipravin.strategy;
 
 import hipravin.DebugOut;
 import hipravin.model.*;
-import hipravin.strategy.command.Command;
-import hipravin.strategy.command.MoveSingleCommand;
-import hipravin.strategy.command.MoveTowardsCommand;
+import hipravin.strategy.command.*;
 import model.*;
 
 import java.util.List;
@@ -114,18 +112,33 @@ public class AutomineFallbackStrategy implements SubStrategy {
             return true;
         } else {
             Position2d to = strategyParams.sendToDesiredBarrackPosition;
+            Command moveTo;
             if (of(w.getPosition()).lenShiftSum(to) < 5) {
-                Command moveTo = new MoveTowardsCommand(pgs, w.getId(),
-                        of(GameHistoryAndSharedState.random.nextInt(Position2dUtil.MAP_SIZE), GameHistoryAndSharedState.random.nextInt(Position2dUtil.MAP_SIZE)),
+                moveTo = new MoveTowardsCommand(pgs, w.getId(),
+                        Position2dUtil.randomMapPosition(),
                         Position2dUtil.MAP_SIZE, strategyParams.moveTowardsMineralsDistanceTreshold);
-                gameHistoryState.addOngoingCommand(moveTo, false);
 
             } else {
-
                 //send to center
-                Command moveTo = new MoveTowardsCommand(pgs, w.getId(), to, Position2dUtil.MAP_SIZE, strategyParams.moveTowardsMineralsDistanceTreshold);
-                gameHistoryState.addOngoingCommand(moveTo, false);
+                moveTo = new MoveTowardsCommand(pgs, w.getId(), to, Position2dUtil.MAP_SIZE, strategyParams.moveTowardsMineralsDistanceTreshold);
             }
+
+            moveTo.setConditionalReplacer(new CancelCommand(), new CommandPredicate() {
+                @Override
+                public boolean test(Command command, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+                    if(! pgs.getEntityIdToCell().containsKey(w.getId())) {
+                        return  false;
+                    }
+
+                    NearestEntity m =  pgs.getEntityIdToCell().get(w.getId()).getNearestMineralField();
+                    return m != null
+                            && m.getPathLenEmptyCellsToThisCell() <= Position2dUtil.WORKER_SIGHT_RANGE;
+                }
+            });
+
+
+            gameHistoryState.addOngoingCommand(moveTo, false);
+
 
             return true;
         }

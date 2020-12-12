@@ -1,5 +1,6 @@
 package hipravin.model;
 
+import hipravin.strategy.GameHistoryAndSharedState;
 import hipravin.strategy.StrategyParams;
 
 import java.util.*;
@@ -9,10 +10,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static hipravin.model.Position2d.of;
+
 public abstract class Position2dUtil {
-    public static Position2d MY_CORNER = Position2d.of(0, 0);
-    public static Position2d ENEMY_CORNER = Position2d.of(70, 70);
-    public static Position2d MY_CC = Position2d.of(5, 5);
+    public static Position2d MY_CORNER = of(0, 0);
+    public static Position2d ENEMY_CORNER = of(70, 70);
+    public static Position2d MY_CC = of(5, 5);
     public static int TURRET_RANGE = 5;
     public static int RANGER_RANGE = 5;
     public static int WORKER_SIGHT_RANGE = 10;
@@ -72,6 +75,31 @@ public abstract class Position2dUtil {
             }
         }
     }
+
+    public static void iterAllPositionsInExactRange(Position2d dotPosition, int range, Consumer<Position2d> positionConsumer) {
+        //inv: abs(xshift) + abs(yshift) = i
+        for (int xshift = 0; xshift <= range; xshift++) {
+            int yshift = range - xshift;
+            Position2d p1 = dotPosition.shift(xshift, yshift);
+            Position2d p2 = dotPosition.shift(xshift, -yshift);
+            Position2d p3 = dotPosition.shift(-xshift, yshift);
+            Position2d p4 = dotPosition.shift(-xshift, -yshift);
+
+            if (isPositionWithinMapBorder(p1)) {
+                positionConsumer.accept(p1);
+            }
+            if (isPositionWithinMapBorder(p2)) {
+                positionConsumer.accept(p2);
+            }
+            if (isPositionWithinMapBorder(p3)) {
+                positionConsumer.accept(p3);
+            }
+            if (isPositionWithinMapBorder(p4)) {
+                positionConsumer.accept(p4);
+            }
+        }
+    }
+
 
     public static boolean isMapMyCornerPosition(Position2d pos) {
         return pos.x < StrategyParams.MAP_CORNER_SIZE && pos.y < StrategyParams.MAP_CORNER_SIZE;
@@ -151,6 +179,13 @@ public abstract class Position2dUtil {
         }
 
         toAdd.add(p);
+    }
+
+    public static Position2d randomMapPosition() {
+
+        return of(GameHistoryAndSharedState.random.nextInt(Position2dUtil.MAP_SIZE - 10) + 5,
+                GameHistoryAndSharedState.random.nextInt(Position2dUtil.MAP_SIZE - 10) + 5);
+
     }
 
     public static boolean withingMapBorderAndPassesFilter(Position2d p, Predicate<? super Position2d> filter) {

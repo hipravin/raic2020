@@ -15,6 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class Position2dUtilsTest {
 
     @Test
+    void testRandomInMap() {
+        for (int i = 0; i < 10000; i++) {
+             assertTrue(Position2dUtil.isPositionWithinMapBorder(Position2dUtil.randomMapPosition()));
+        }
+    }
+
+    @Test
     void testIterAllPositionsInRange() {
         Set<Position2d> inRange = new HashSet<>();
         Position2d dot = of(40, 40);

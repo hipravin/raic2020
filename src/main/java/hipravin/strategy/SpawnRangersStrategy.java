@@ -2,6 +2,7 @@ package hipravin.strategy;
 
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
+import hipravin.model.Position2dUtil;
 import hipravin.strategy.command.*;
 import model.Entity;
 import model.EntityType;
@@ -34,13 +35,59 @@ public class SpawnRangersStrategy implements SubStrategy {
         return false;
     }
 
+    void redefineAttackPoints(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        Position2d mainAttackPoint = strategyParams.attackPoints.get(0);
+        Position2d rangBasePos = of(pgs.getMyRangerBase().getPosition());
+
+        Optional<Position2d> entityCloseToAttackPoint = nearestEnemyEntityToPosition(mainAttackPoint, pgs);
+        Optional<Position2d> entityCloseToRangeBase = nearestEnemyEntityToPosition(rangBasePos, pgs);
+        Optional<Position2d> armyCloseToRangeBase = nearestEnemyUnitToPosition(rangBasePos, pgs);
+
+        if (!pgs.at(mainAttackPoint).isFog()
+                && entityCloseToAttackPoint.map(p -> p.lenShiftSum(mainAttackPoint) > strategyParams.cleanBaseRangeTreshhold).orElse(true)) {
+            //nothing left on base
+
+            if(armyCloseToRangeBase.isPresent()) {
+                setRedefinedAttackPoint(armyCloseToRangeBase.get(), strategyParams);
+            } else if(entityCloseToRangeBase.isPresent()) {
+                setRedefinedAttackPoint(entityCloseToRangeBase.get(), strategyParams);
+            } else {
+                setRedefinedAttackPoint(Position2dUtil.randomMapPosition(), strategyParams);
+            }
+        }
+    }
+
+    void setRedefinedAttackPoint(Position2d position, StrategyParams strategyParams) {
+        strategyParams.attackPoints = new ArrayList<>(strategyParams.attackPoints);
+        strategyParams.attackPointRates = new ArrayList<>(strategyParams.attackPointRates);
+
+        strategyParams.attackPoints.set(0, position);
+        strategyParams.attackPointRates.set(0, 0.9);//no need/benefit for spread anymore
+    }
+
+    Optional<Position2d> nearestEnemyEntityToPosition(Position2d toPosition, ParsedGameState pgs) {
+        return Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                .map(e -> of(e.getPosition()))
+                .min(Comparator.comparingInt(p -> p.lenShiftSum(toPosition)));
+    }
+
+    Optional<Position2d> nearestEnemyUnitToPosition(Position2d toPosition, ParsedGameState pgs) {
+        return pgs.getEnemyArmy().keySet()
+                .stream()
+                .min(Comparator.comparingInt(p -> p.lenShiftSum(toPosition)));
+
+    }
+
     @Override
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        if(defendRangBase(gameHistoryState, pgs, strategyParams, assignedActions)) {
+        redefineAttackPoints(gameHistoryState, pgs, strategyParams, assignedActions);
+
+        if (defendRangBase(gameHistoryState, pgs, strategyParams, assignedActions)) {
             return;
         }
 
-        if(defendMyTerritory(gameHistoryState, pgs, strategyParams, assignedActions)) {
+        if (defendMyTerritory(gameHistoryState, pgs, strategyParams, assignedActions)) {
             return;
         }
 
@@ -58,7 +105,7 @@ public class SpawnRangersStrategy implements SubStrategy {
         int countOurRangers = pgs.getDefendingAreaMyRangers().size();
         int countOppArmy = countOppArmyValueInDefArea(gameHistoryState, pgs, strategyParams, assignedActions);
 
-        if(countOppArmy < countOurRangers * strategyParams.defendArmyOvercomeRatio ) {
+        if (countOppArmy < countOurRangers * strategyParams.defendArmyOvercomeRatio) {
             return false;
         }
 
@@ -68,11 +115,11 @@ public class SpawnRangersStrategy implements SubStrategy {
                 .map(e -> of(e.getPosition()))
                 .orElse(null);
 
-        if(vragUvorot != null) {
+        if (vragUvorot != null) {
             Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
             Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUvorot))).orElse(null);
 
-            if(closestSpawn != null) {
+            if (closestSpawn != null) {
                 buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
             }
         }
@@ -87,7 +134,6 @@ public class SpawnRangersStrategy implements SubStrategy {
                 .map(e -> strategyParams.armyValues.get(e.getEntityType()))
                 .mapToInt(i -> i).sum();
     }
-
 
 
     boolean defendRangBase(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -111,7 +157,7 @@ public class SpawnRangersStrategy implements SubStrategy {
             Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUVorot))).orElse(null);
 
             if (closestSpawn != null) {
-                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams);
+                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, vragUVorot);
 
             }
 
@@ -150,7 +196,7 @@ public class SpawnRangersStrategy implements SubStrategy {
     }
 
     void buildRangerAttacking(Position2d spawnPos, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                              StrategyParams strategyParams) {
+                              StrategyParams strategyParams, Position2d attackPosition) {
 
         Command buildRangerCommand = new BuildRangerCommand(spawnPos, pgs, 1);
 
@@ -158,13 +204,16 @@ public class SpawnRangersStrategy implements SubStrategy {
         Position2d retreatPosition = Optional.ofNullable(pgs.getMyRangerBase())
                 .map(b -> of(b.getPosition()).shift(6, 6)).orElse(of(40, 40));
 
-        Position2d attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
+        if (attackPosition == null) {
+            attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
+        }
 
         RangerAttackHoldRetreatCommand rahrc = new RangerAttackHoldRetreatCommand(null, attackPosition, retreatPosition, false);
         CommandUtil.chainCommands(buildRangerCommand, rahrc);
 
         gameHistoryState.addOngoingCommand(buildRangerCommand, false);
     }
+
 
     void createBuildRangerCommand(Position2d spawnPos, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                   StrategyParams strategyParams) {

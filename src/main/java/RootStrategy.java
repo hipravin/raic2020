@@ -224,6 +224,7 @@ public class RootStrategy extends MyStrategy {
             initStaticParams(playerView);
             parseDataForSingleTick(playerView);
             gameHistoryState.turretRequests = new ArrayList<>();
+            gameHistoryState.thisTickUsedTargetPositions = new HashSet<>();
 
             afterParse = Instant.now();
 
