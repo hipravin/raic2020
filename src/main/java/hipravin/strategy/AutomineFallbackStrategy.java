@@ -148,7 +148,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
                          StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         EntityAction autoAttack = new EntityAction();
         AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.WORKER_SIGHT_RANGE,
-                new EntityType[]{EntityType.RESOURCE}));
+                new EntityType[]{EntityType.RESOURCE, EntityType.WALL, EntityType.BUILDER_UNIT}));
         autoAttack.setAttackAction(attackAction);
         assignedActions.put(w.getId(), new ValuedEntityAction(0.5, w.getId(), autoAttack));
     }

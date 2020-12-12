@@ -73,6 +73,10 @@ public class RootStrategy extends MyStrategy {
 
             setMyCorner(playerView);
             setBuildingSizes(playerView);
+
+            if(playerView.getPlayers().length > 2) {
+                strategyParams.activateRound2();
+            }
         }
     }
 

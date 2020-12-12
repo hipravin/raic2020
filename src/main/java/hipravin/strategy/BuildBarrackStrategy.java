@@ -51,6 +51,18 @@ public class BuildBarrackStrategy implements SubStrategy {
 
     }
 
+    public boolean barrackPositionUnderAttack(Position2d barrackPosition, ParsedGameState pgs) {
+        Set<Position2d> outerEdge = Position2dUtil.buildingOuterEdgeWithoutCorners(barrackPosition, Position2dUtil.RANGED_BASE_SIZE);
+
+        for (Position2d edge : outerEdge) {
+            if (pgs.at(edge).getAttackerCount(Position2dUtil.RANGER_RANGE) > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public boolean tryToBuildBarrackShortDistance(int minWorkersNear, int maxDistanceToWorker, int maxDistanceToDesiredBarrack,
                                                   GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                                   StrategyParams strategyParams, boolean withNonDesiredAndSpacingFiltering) {
@@ -63,6 +75,10 @@ public class BuildBarrackStrategy implements SubStrategy {
                 .collect(Collectors.toMap(Cell::getPosition, c -> pgs.calculateFreeSpace(c, size).get()));
 
         barrackOptions.entrySet().removeIf(bo -> StrategyParams.DESIRED_BARRACK.lenShiftSum(bo.getKey()) > maxDistanceToDesiredBarrack);
+
+        if(!pgs.getEnemyArmy().isEmpty()) {
+            barrackOptions.entrySet().removeIf(boe -> barrackPositionUnderAttack(boe.getKey(), pgs));
+        }
 
         if (withNonDesiredAndSpacingFiltering) {
             barrackOptions.entrySet().removeIf(e -> !doesntTouchOtherBuildings(e.getKey(), size, pgs));
