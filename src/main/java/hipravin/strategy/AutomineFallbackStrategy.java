@@ -32,7 +32,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
                 }
 
                 if (moved.getValue().x > 10 || moved.getValue().y > 10
-                           && BlockDetector.checkIfWorkerBlocksWayOut(moved.getValue(), gameHistoryState, pgs, strategyParams)) {
+                        && BlockDetector.checkIfWorkerBlocksWayOut(moved.getValue(), gameHistoryState, pgs, strategyParams)) {
                     DebugOut.println("Worker at " + moved.getValue() + " blocks way out");
 
                     Position2d cur = moved.getValue();
@@ -57,21 +57,21 @@ public class AutomineFallbackStrategy implements SubStrategy {
             return null;
         }
 
-        if(cur.x > cur.y && cur.x > 10) {
-            if(pgs.at(cur.shift(1,0)).isEmpty() && pgs.at(cur.shift(2,0)).isEmpty() && pgs.at(cur.shift(3,0)).isEmpty()) {
+        if (cur.x > cur.y && cur.x > 10) {
+            if (pgs.at(cur.shift(1, 0)).isEmpty() && pgs.at(cur.shift(2, 0)).isEmpty() && pgs.at(cur.shift(3, 0)).isEmpty()) {
                 result = cur.shift(3, 0);
-            } else if(pgs.at(cur.shift(1,0)).isEmpty() && pgs.at(cur.shift(2,0)).isEmpty()) {
-                result = cur.shift(2,0);
-            } else if(pgs.at(cur.shift(1,0)).isEmpty()) {
-                result = cur.shift(1,0);
+            } else if (pgs.at(cur.shift(1, 0)).isEmpty() && pgs.at(cur.shift(2, 0)).isEmpty()) {
+                result = cur.shift(2, 0);
+            } else if (pgs.at(cur.shift(1, 0)).isEmpty()) {
+                result = cur.shift(1, 0);
             }
-        } else if(cur.y > 10) {
-            if(pgs.at(cur.shift(0,1)).isEmpty() && pgs.at(cur.shift(0,2)).isEmpty() && pgs.at(cur.shift(0,3)).isEmpty()) {
+        } else if (cur.y > 10) {
+            if (pgs.at(cur.shift(0, 1)).isEmpty() && pgs.at(cur.shift(0, 2)).isEmpty() && pgs.at(cur.shift(0, 3)).isEmpty()) {
                 result = cur.shift(0, 3);
-            } else if(pgs.at(cur.shift(0,1)).isEmpty() && pgs.at(cur.shift(0,2)).isEmpty()) {
-                result = cur.shift(0,2);
-            } else if(pgs.at(cur.shift(0,1)).isEmpty()) {
-                result = cur.shift(0,1);
+            } else if (pgs.at(cur.shift(0, 1)).isEmpty() && pgs.at(cur.shift(0, 2)).isEmpty()) {
+                result = cur.shift(0, 2);
+            } else if (pgs.at(cur.shift(0, 1)).isEmpty()) {
+                result = cur.shift(0, 1);
             }
         }
 
@@ -90,7 +90,8 @@ public class AutomineFallbackStrategy implements SubStrategy {
                 .collect(Collectors.toList());
 
         notBusyWorkers.forEach(w -> {
-            if (!handleNoCloseMinerals(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
+            if (!handleRunAway(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions)
+                    && !handleNoCloseMinerals(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
                 justMine(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
             }
         });
@@ -126,11 +127,11 @@ public class AutomineFallbackStrategy implements SubStrategy {
             moveTo.setConditionalReplacer(new CancelCommand(), new CommandPredicate() {
                 @Override
                 public boolean test(Command command, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
-                    if(! pgs.getEntityIdToCell().containsKey(w.getId())) {
-                        return  false;
+                    if (!pgs.getEntityIdToCell().containsKey(w.getId())) {
+                        return false;
                     }
 
-                    NearestEntity m =  pgs.getEntityIdToCell().get(w.getId()).getNearestMineralField();
+                    NearestEntity m = pgs.getEntityIdToCell().get(w.getId()).getNearestMineralField();
                     return m != null
                             && m.getPathLenEmptyCellsToThisCell() <= Position2dUtil.WORKER_SIGHT_RANGE;
                 }
@@ -142,6 +143,23 @@ public class AutomineFallbackStrategy implements SubStrategy {
 
             return true;
         }
+    }
+
+    public boolean handleRunAway(Entity w, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                 StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        Entity rangBase = pgs.getMyRangerBase();
+
+        if (!pgs.getEnemyArmy().isEmpty()) {
+            if (pgs.at(w.getPosition()).test(c -> c.getAttackerCount(7) > 0 || c.getAttackerCount(6) > 0 || c.getAttackerCount(5) > 0)) {
+                if (rangBase != null) {
+                    Command retreatToRangBase = new MoveTowardsCommand(pgs, w.getId(),
+                            of(rangBase.getPosition()).shift(2, 2), 3, 5);
+                    gameHistoryState.addOngoingCommand(retreatToRangBase, false);
+                }
+            }
+        }
+
+        return false;
     }
 
     public void justMine(Entity w, GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,

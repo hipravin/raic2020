@@ -39,10 +39,9 @@ public class BuildBarrackStrategy implements SubStrategy {
                 StrategyParams.BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER);
 
         boolean success =
-                tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, false)
+                tryToBuildBarrackShortDistance(1, distance, 10, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(1, distance, 10, gameHistoryState, pgs, strategyParams, false)
                         || tryToBuildBarrackShortDistance(3, distance, 15, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, false)
                         || tryToBuildBarrackShortDistance(3, distance, 15, gameHistoryState, pgs, strategyParams, false)
                         || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, true)
                         || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, false)
@@ -77,7 +76,7 @@ public class BuildBarrackStrategy implements SubStrategy {
 
         barrackOptions.entrySet().removeIf(bo -> StrategyParams.DESIRED_BARRACK.lenShiftSum(bo.getKey()) > maxDistanceToDesiredBarrack);
 
-        if(!pgs.getEnemyArmy().isEmpty()) {
+        if (!pgs.getEnemyArmy().isEmpty()) {
             barrackOptions.entrySet().removeIf(boe -> barrackPositionUnderAttack(boe.getKey(), pgs));
         }
 

@@ -10,6 +10,7 @@ import hipravin.strategy.ValuedEntityAction;
 import model.*;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -74,14 +75,19 @@ public class MoveTowardsCommand extends SingleEntityCommand {
         EntityAction action = new EntityAction();
         Position2d toPosition = targetPosition;
 
-        Position2d ccPosition = Position2dUtil.MY_CC;
+        Position2d ccPosition = Position2dUtil.MY_CC.shift(5,5);
         Position2d currentPosition = currentParsedGameState.getEntityIdToCell().get(entityId).getPosition();
+
+        Position2d followEntityIdPosition = Optional.ofNullable(currentParsedGameState.getEntityIdToCell()
+                .get(followEntityId)).map(Cell::getPosition).orElse(null);
 
         if (followEntityId != null && currentParsedGameState.getEntityIdToCell().containsKey(followEntityId)
                 && gameHistoryState.allOMoveTowardsCommadsRelatedIds().contains(followEntityId)
-                && ccPosition.lenShiftSum(currentPosition) > strategyParams.useWorkerFollowMinRange) {
+                && followEntityIdPosition != null
+                && ccPosition.lenShiftSum(currentPosition) > strategyParams.useWorkerFollowMinRange
+                && targetPosition.lenShiftSum(currentPosition) > targetPosition.lenShiftSum(followEntityIdPosition)) {
             //follow unit
-            toPosition = currentParsedGameState.getEntityIdToCell().get(followEntityId).getPosition();
+            toPosition = followEntityIdPosition;
         }
 
         MoveAction moveAction = new MoveAction(toPosition.toVec2dInt(), true, true);

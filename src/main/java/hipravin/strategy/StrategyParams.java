@@ -152,7 +152,7 @@ public class StrategyParams {
     public List<Double> attackPointRates = List.of(0.4, 0.5);
 
     public int cleanBaseRangeTreshhold = 15;
-    public int useWorkerFollowMinRange = 10;//close to cc follow can stuck workers
+    public int useWorkerFollowMinRange = 13;//close to cc follow can stuck workers
 
 
 
@@ -221,7 +221,7 @@ public class StrategyParams {
 
         populationOfWorkersToBuildBeforeRangers = 35;
 
-        DESIRED_BARRACK = of(33, 33);
+        DESIRED_BARRACK = of(29, 29);
         sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
         sendToCenterWorkerNumbers = Set.of(15, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
