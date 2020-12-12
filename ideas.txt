@@ -111,32 +111,25 @@
 
 54 проверит диагональ холд, пош дргуих напралений
 
-55. send to fog - only to reacheable
-
 56. если долго пробивались....
 
-57 туретка - считать как 5 лучниц
-
 58 worker switch roles...
-
-59 базовый алгоритм туп.... фоллоц ме?
-
-60. pull workers
 
 61 pull workers for house preeemptively?
 
 61. оценить длину пути по первому скауту
 
-62 conflicting house builds - no minerals for second house
-
-63  push split
-
 64 scout workers
 
-65 улучшит если нет минералов рядом?
 
 66. attack seen worker?
 
+67. follow для армий?
+
+
+68 ввести параметр map toughness / worker empty cells reacheable (short range)
+
+69 если из тумана достижимы только несколько рабочих, значит они блочат - ппослать их в туман!
 
 аггрить рабочим, чтобы успеть достроить
 

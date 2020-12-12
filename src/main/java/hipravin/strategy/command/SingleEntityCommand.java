@@ -29,4 +29,7 @@ public abstract class SingleEntityCommand extends Command {
     }
 
 
+    public Integer getEntityId() {
+        return entityId;
+    }
 }

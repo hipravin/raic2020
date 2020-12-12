@@ -3,10 +3,7 @@ package hipravin.strategy;
 import hipravin.DebugOut;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
-import hipravin.strategy.command.BuildThenRepairCommand;
-import hipravin.strategy.command.Command;
-import hipravin.strategy.command.MineExactMineral;
-import hipravin.strategy.command.MoveSingleCommand;
+import hipravin.strategy.command.*;
 import model.Action;
 import model.Entity;
 import model.EntityType;
@@ -156,7 +153,16 @@ public class GameHistoryAndSharedState {
                 .filter(c -> {
                     if(c instanceof BuildThenRepairCommand) {
                         return ((BuildThenRepairCommand) c).getBuildingType() == EntityType.RANGED_BASE
-                                || ((BuildThenRepairCommand) c).getBuildingType() == EntityType.MELEE_BASE ;
+                                 ;
+                    }
+                    if(c instanceof MoveSingleCommand) {
+                        for (Command nextCommand : c.getNextCommands()) {
+                            if(nextCommand instanceof BuildThenRepairCommand) {
+                                if (((BuildThenRepairCommand) nextCommand).getBuildingType() == EntityType.RANGED_BASE) {
+                                    return true;
+                                }
+                            }
+                        }
                     }
 
                     return false;
@@ -170,6 +176,13 @@ public class GameHistoryAndSharedState {
     public Set<Integer> allOngoingRelatedEntitiIdsExceptMineExact() {
         return ongoingCommands.stream()
                 .filter(c -> !(c instanceof MineExactMineral))
+                .flatMap(c -> c.getRelatedEntityIds().stream())
+                .collect(Collectors.toSet());
+    }
+
+    public Set<Integer> allOMoveTowardsCommadsRelatedIds() {
+        return ongoingCommands.stream()
+                .filter(c -> (c instanceof MoveTowardsCommand))
                 .flatMap(c -> c.getRelatedEntityIds().stream())
                 .collect(Collectors.toSet());
     }

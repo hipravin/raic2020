@@ -15,6 +15,7 @@ import static hipravin.strategy.StrategyParams.MAX_VAL;
 public class SendNewWorkerToPositionCommand extends Command {
     final Position2d spawnPosition;
     final Position2d targetPosition;
+    Integer followEntityId;
     final CommandPredicate moveCancelPredicate;
     final int distanceCancelTreshhold;
     BiConsumer<Integer, Integer> oncompleteIdTickConsumer;
@@ -62,6 +63,7 @@ public class SendNewWorkerToPositionCommand extends Command {
                 moveTowardsCommand.setOncompleteIdTickConsumer(oncompleteIdTickConsumer);
                 moveTowardsCommand.setOnStartIdTickConsumer(onStartIdTickConsumer);
 
+                moveTowardsCommand.setFollowEntityId(followEntityId);
 
                 CommandUtil.chainCommands(this, moveTowardsCommand);
             }
@@ -83,5 +85,9 @@ public class SendNewWorkerToPositionCommand extends Command {
                 ", targetPosition=" + targetPosition +
                 ", moveCancelPredicate=" + moveCancelPredicate +
                 '}';
+    }
+
+    public void setFollowEntityId(Integer followEntityId) {
+        this.followEntityId = followEntityId;
     }
 }

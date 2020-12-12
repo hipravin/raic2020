@@ -40,6 +40,7 @@ public class BuildBarrackStrategy implements SubStrategy {
 
         boolean success =
                 tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, false)
                         || tryToBuildBarrackShortDistance(3, distance, 15, gameHistoryState, pgs, strategyParams, true)
                         || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, false)
                         || tryToBuildBarrackShortDistance(3, distance, 15, gameHistoryState, pgs, strategyParams, false)

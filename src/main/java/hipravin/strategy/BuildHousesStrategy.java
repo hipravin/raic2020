@@ -89,9 +89,6 @@ public class BuildHousesStrategy implements SubStrategy {
 
         GameStateParser.computeUniqueWorkersNearby(pgs, StrategyParams.HOUSE_WORKERS_NEARBY_MAX_PATH);
 
-
-
-
         boolean success =
                 tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true, true)
                         || tryToBuildHouseShortDistance(3, distance, gameHistoryState, pgs, strategyParams, true,false)
@@ -121,7 +118,7 @@ public class BuildHousesStrategy implements SubStrategy {
             Position2d rangBasePosition = Position2d.of(pgs.getMyRangerBase().getPosition());
             houseOptions.entrySet().removeIf(ho ->
                     ho.getKey().lenShiftSum(StrategyParams.DESIRED_BARRACK.shift(3, 3)) < strategyParams.minHouseDistanceToCenter
-                    && (ho.getKey().getX()  > rangBasePosition.getX() && ho.getKey().getY()  > rangBasePosition.getY())
+                    && (ho.getKey().getX()  > rangBasePosition.getX() - 2 && ho.getKey().getY()  > rangBasePosition.getY() - 2)
             );//avoid house that can be attacked by opp
 
         }

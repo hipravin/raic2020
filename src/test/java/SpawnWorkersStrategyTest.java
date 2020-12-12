@@ -9,6 +9,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class SpawnWorkersStrategyTest {
 
     @Test
+    void testCorrectSpawnNearestToCenter() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 15, 135);
+        RootStrategy rstrategy = new RootStrategy();
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+//        assertEquals(3, spawnStrategy.getLastMineralPositions().size());
+    }
+
+   @Test
+    void test() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 15, 70);
+        RootStrategy rstrategy = new RootStrategy();
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+//        assertEquals(3, spawnStrategy.getLastMineralPositions().size());
+    }
+
+
+
+    @Test
     void testSpawn1() {
         ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 5, 71);
         RootStrategy rstrategy = new RootStrategy();

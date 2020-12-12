@@ -29,6 +29,7 @@ public class PushMinersStrategy implements SubStrategy {
         pushMineralScripts.add(new Step2JumpNextMineral());
 
         hodorScripts.add(new StepTurnHodorScript());
+        hodorScripts.add(new UnblockAngle());
     }
 
     boolean shouldTryApplyPushThisTick(ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
@@ -187,6 +188,15 @@ public class PushMinersStrategy implements SubStrategy {
         return pgs.at(p).isMyWorker();
     }
 
+    public static boolean atleastOneNotEmpty(ParsedGameState pgs, Position2d... positions) {
+        for (Position2d p : positions) {
+            if (!inMap(p) || !pgs.at(p).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean allNotEmpty(ParsedGameState pgs, Position2d... positions) {
         for (Position2d p : positions) {
             if (inMap(p) && pgs.at(p).isEmpty()) {
@@ -209,6 +219,59 @@ public class PushMinersStrategy implements SubStrategy {
         boolean tryApply(Position2d worker,
                          GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams,
                          Map<Integer, ValuedEntityAction> assignedActions);
+    }
+
+    public static class UnblockAngle implements PushScript {
+
+        @Override
+        public boolean tryApply(Position2d w, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+            return
+
+                    canMove(w, w.right(), w.up().left(),
+                            w.left(), w.up(), w.up().right(),
+                            gameHistoryState, pgs, strategyParams, assignedActions
+                            )
+                    || canMove(w, w.right(), w.down().left(),
+                            w.left(), w.down(), w.down().right(),
+                            gameHistoryState, pgs, strategyParams, assignedActions
+                            )
+                    || canMove(w, w.left(), w.up().right(),
+                            w.right(), w.up(), w.up().left(),
+                            gameHistoryState, pgs, strategyParams, assignedActions
+                            )
+                    || canMove(w, w.left(), w.down().right(),
+                            w.right(), w.down(), w.down().left(),
+                            gameHistoryState, pgs, strategyParams, assignedActions
+                            )
+
+
+                    ;
+        }
+
+        boolean canMove(Position2d worker, Position2d b1, Position2d b2,
+                        Position2d e1, Position2d e2, Position2d to,
+                        GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+
+            if(!allNotEmpty(pgs, b1, b2)) {
+                return false;
+            }
+
+            if(!allEmpty(pgs, e1,e2,to)) {
+                return false;
+            }
+            if(countMineralsUpRightLeftDown(to, pgs) == 0) {
+                return false;
+
+            }
+            if (basePoint.lenShiftSum(worker) > basePoint.lenShiftSum(to)) {
+                return false;
+            }
+
+
+            applyMove(worker, to, 2, gameHistoryState, pgs, strategyParams, assignedActions);
+
+            return true;
+        }
     }
 
     public static class StepTurnHodorScript implements PushScript {

@@ -21,11 +21,12 @@ public class StrategyParams {
     public static final int TURRET_WORKERS_NEARBY_MAX_PATH = 10;
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER = 15;
     public static final int RESP_SURROUNDED_DETECT_RANGE = 12;
+    public static final int SEND_TO_CENTER_WS_RANGE = 20;
 
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public static Position2d DESIRED_BARRACK = of(33, 33);
+    public static Position2d DESIRED_BARRACK = of(35, 35);
     public static Position2d sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
     public static final int MAP_CORNER_SIZE = 10;
@@ -40,7 +41,7 @@ public class StrategyParams {
 
     public int wayOutMinHouses = 1;
     public int wayOutFindPathLen = 22;
-    public int wayOutDiffDetectTreshhold = 7;
+    public int wayOutDiffDetectTreshhold = 9;
     public double wayOutDiffDetectTreshholdMul = 0.2;
     public int wayOutBlockFindMaxPopulation = 60;
 
@@ -77,10 +78,9 @@ public class StrategyParams {
     public double worstMineralSpawnProb = 0.2;
     public int switchToAutoMineRange = 4;
 
+    public int dontSpawnWorkersVragUVorotPathLen = 20;
+
     //    public int populationOfWorkersToBuildBeforeRangers = 60;
-    public int populationOfWorkersToBuildBeforeRangers = 35;
-    public int populationOfWorkersToBuildAfterRangers = 60;
-    public int populationOfWorkersToIfExtraResources = 80;
 
     public int maxNumberOfRangers = 100;
     public int extraMoney = 100;
@@ -108,7 +108,7 @@ public class StrategyParams {
     public EntityType[] rangerWorkHuntAttackTargets = new EntityType[]{EntityType.BUILDER_UNIT};
 
     public Map<EntityType, Integer> magnetRepairRanges = Map.of(
-            EntityType.HOUSE, 2,
+            EntityType.HOUSE, 3,
             EntityType.RANGED_BASE, 20,
             EntityType.BUILDER_BASE, 20,
             EntityType.MELEE_BASE, 20,
@@ -125,8 +125,13 @@ public class StrategyParams {
             EntityType.WALL, 1
     );
 
+    public int populationOfWorkersToBuildBeforeRangers = 30;//35 is optimal rush?
+    public int populationOfWorkersToBuildAfterRangers = 60;
+    public int populationOfWorkersToIfExtraResources = 80;
+
     public boolean sendToCenter = true;
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 18, 19, 20, 21, 22, 23, 24, 25);
+    //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 18, 19, 20, 21, 22, 23, 24, 25);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
 
     public int minHouseDistanceToCenter = 15;
 
@@ -141,12 +146,14 @@ public class StrategyParams {
         return of(x, y);
     }
 
-//    public List<Position2d> attackPoints = List.of(of(70, 70), of(30, 75), of(75, 30));
+    //    public List<Position2d> attackPoints = List.of(of(70, 70), of(30, 75), of(75, 30));
 //    public List<Double> attackPointRates = List.of(0.9, 0.5);
     public List<Position2d> attackPoints = List.of(of(73, 73), of(40, 75), of(75, 40));
     public List<Double> attackPointRates = List.of(0.4, 0.5);
 
     public int cleanBaseRangeTreshhold = 15;
+    public int useWorkerFollowMinRange = 10;//close to cc follow can stuck workers
+
 
 
     public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
@@ -212,16 +219,16 @@ public class StrategyParams {
     public void activateOption2() {
         GameHistoryAndSharedState.random.nextInt();
 
-        populationOfWorkersToBuildBeforeRangers = 40;
+        populationOfWorkersToBuildBeforeRangers = 35;
 
-        DESIRED_BARRACK = of(24, 24);
-        sendToDesiredBarrackPosition = of(30, 30);
+        DESIRED_BARRACK = of(33, 33);
+        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
-        sendToCenterWorkerNumbers = Set.of(15, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
+        sendToCenterWorkerNumbers = Set.of(15, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
 
-        attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
-        attackPointRates = List.of(1.0, 0.0);
-        useAttackHoldOverCountTreshold = false;
+//        attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
+//        attackPointRates = List.of(1.0, 0.0);
+
         useWorkerPush = true;
 
 //        useWorkerDefendingTurrets = true;
@@ -233,7 +240,7 @@ public class StrategyParams {
         DESIRED_BARRACK = of(15, 15);
         sendToDesiredBarrackPosition = of(19, 19);
 
-        sendToCenterWorkerNumbers = Set.of(15,16,17, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
+        sendToCenterWorkerNumbers = Set.of(15, 16, 17, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
         minHouseDistanceToCenter = 3;
 
         attackPoints = List.of(of(10, 70), of(70, 10), of(70, 70));

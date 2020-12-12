@@ -20,6 +20,19 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
     boolean shouldSpawnMoreWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
+        if (pgs.getEnemyArmy() != null) {
+            Position2d vragUvorot = pgs.getDefendingAreaEnemies()
+                    .stream()
+                    .min(Comparator.comparingInt(e -> of(e.getPosition()).lenShiftSum(pgs.getMyCc().getPosition())))
+                    .map(e -> of(e.getPosition()))
+                    .orElse(null);
+
+
+            if (vragUvorot != null
+                    && vragUvorot.lenShiftSum(pgs.getMyCc().getPosition()) < strategyParams.dontSpawnWorkersVragUVorotPathLen) {
+                return false;
+            }
+        }
 
         if (pgs.getMyRangerBase() != null && !pgs.getMyRangerBase().isActive()) {
             if (outOfMoney(pgs, gameHistoryState, strategyParams)
@@ -106,8 +119,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
             return;
         }
 
-        if(!workerAlreadySentToCenter) {
-            if(detectRespIsSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
+        if (!workerAlreadySentToCenter) {
+            if (detectRespIsSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
                 sendWorkerToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams);
 
                 workerAlreadySentToCenter = true;
@@ -177,51 +190,22 @@ public class SpawnWorkersStrategy implements SubStrategy {
         Optional<NearestEntity> farthest = nes.values().stream()
                 .max(NearestEntity.comparedByPathLen);
 
-        if (farthest.isPresent() && farthest.map(
-                f -> f.getThisCell().isMineral() || f.getThisCell().isMapEdge())
-                .orElse(false)) {
-            DebugOut.println("Resp is surrounded: " + farthest.get() );
+        if (farthest.isPresent()) {
+            boolean surrounded = nes.values().stream()
+                    .filter(ne -> ne.getPathLenEmptyCellsToThisCell() == farthest.get().getPathLenEmptyCellsToThisCell())
+                    .allMatch(ne -> (ne.getThisCell().isMineral() || ne.getThisCell().isMapEdge()));
 
-            return true;
+            if(surrounded) {
+
+                DebugOut.println("Resp is surrounded ");
+                return true;
+            }
         }
-
         DebugOut.println("Resp is not surrounded: " + farthest.map(NearestEntity::toString).orElse("no way"));
 
         return false;
 
 
-    }
-
-
-    boolean ifSentToFog(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                        StrategyParams strategyParams) {
-
-        if (pgs.getPlayerView().isFogOfWar()) {
-            int countOfWorkersOnResp = countWorkersOnResp(gameHistoryState, pgs, strategyParams);
-            if (countOfWorkersOnResp >= strategyParams.maxWorkerRespCountBeforeSendToFog) {
-
-
-                List<Position2d> fogEdges = pgs.getFogEdgePositions();
-                fogEdges.removeIf(fe -> !pgs.at(fe).isEmpty());
-
-                if (fogEdges.isEmpty()) {
-                    return false;
-                }
-                Position2d randomFogPosition = fogEdges.get(GameHistoryAndSharedState.random.nextInt(fogEdges.size()));
-                Position2d spawnPos = ccOuterEdge.stream().min(Comparator.comparing(e -> e.lenShiftSum(randomFogPosition))).orElse(null);
-
-                if (spawnPos != null) {
-                    Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
-                    Command sendToFog = new SendNewWorkerToPositionCommand(spawnPos, randomFogPosition, null, strategyParams.moveTowardsMineralsDistanceTreshold);
-
-                    CommandUtil.chainCommands(buildWorker, sendToFog);
-                    gameHistoryState.addOngoingCommand(buildWorker, false);
-                    DebugOut.println("Worker sent to fog:" + randomFogPosition);
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     boolean ifSentToCenter(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -238,9 +222,30 @@ public class SpawnWorkersStrategy implements SubStrategy {
         return false;
     }
 
+    public Position2d sendToCenterSpawnPos(Set<Position2d> ccOuterEdge, Position2d centerPos,//center or barrack
+                                           GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                           StrategyParams strategyParams) {
+
+        Set<Position2d> ccOuter = new HashSet<>(ccOuterEdge);
+
+        Map<Position2d, NearestEntity> nes =
+                GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), ccOuter, StrategyParams.SEND_TO_CENTER_WS_RANGE, false, false, Set.of());
+
+        NearestEntity closestToBarr = nes.values().stream().min(Comparator.comparingInt(ne -> ne.getThisCell().getPosition().lenShiftSum(centerPos)))
+                .orElse(null);
+
+        if(closestToBarr != null) {
+            return closestToBarr.getSourceCell().getPosition();
+        } else {
+            return ccOuterEdge.stream().max(Comparator.comparingInt(p -> p.x + p.y)).orElse(null);
+        }
+
+    }
+
     public void sendWorkerToCenter(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                                    StrategyParams strategyParams) {
-        Position2d spawnPos = ccOuterEdge.stream().max(Comparator.comparingInt(p -> p.x + p.y)).orElse(null);
+                                   StrategyParams strategyParams) {
+        Position2d centerOrBarrackPosition = fixedToCenterPosition();
+        Position2d spawnPos = sendToCenterSpawnPos(ccOuterEdge, centerOrBarrackPosition, gameHistoryState, pgs, strategyParams);
 
         CommandPredicate barrackStartedToBuild = new CommandPredicate() {
             @Override
@@ -267,8 +272,14 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
 
         Command buildWorker = new BuildWorkerCommand(spawnPos, pgs, 1);
-        Command sendToCenter = new SendNewWorkerToPositionCommand(spawnPos, fixedToCenterPosition(), barrackStartedToBuild,
+        SendNewWorkerToPositionCommand sendToCenter = new SendNewWorkerToPositionCommand(spawnPos, centerOrBarrackPosition, barrackStartedToBuild,
                 strategyParams.moveTowardsBarracksDistanceTreshold, onDone, onStart);
+        if (!gameHistoryState.sentToBarrackEntityIds.isEmpty()) {
+            int followId = gameHistoryState.sentToBarrackEntityIds.get(gameHistoryState.sentToBarrackEntityIds.size() - 1);
+            sendToCenter.setFollowEntityId(followId);
+            DebugOut.println("Following " + followId);
+        }
+
 
         CommandUtil.chainCommands(buildWorker, sendToCenter);
 

@@ -3,6 +3,7 @@ package hipravin.strategy.command;
 import hipravin.model.Cell;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
+import hipravin.model.Position2dUtil;
 import hipravin.strategy.GameHistoryAndSharedState;
 import hipravin.strategy.StrategyParams;
 import hipravin.strategy.ValuedEntityAction;
@@ -14,6 +15,8 @@ import java.util.function.BiConsumer;
 
 public class MoveTowardsCommand extends SingleEntityCommand {
     Position2d targetPosition;
+    Integer followEntityId;
+
     final int distanceCancelTreshhold;
 
     BiConsumer<Integer, Integer> oncompleteIdTickConsumer;
@@ -35,11 +38,11 @@ public class MoveTowardsCommand extends SingleEntityCommand {
     public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
         tryResolveEntityId(currentParsedGameState);
 
-        if(entityId == null) {
+        if (entityId == null) {
             return false;
         }
 
-        if(onStartIdTickConsumer != null) {
+        if (onStartIdTickConsumer != null) {
             onStartIdTickConsumer.accept(entityId, currentParsedGameState.curTick());
         }
 
@@ -55,8 +58,8 @@ public class MoveTowardsCommand extends SingleEntityCommand {
         tryResolveEntityId(currentParsedGameState);
         boolean completed = currentParsedGameState.getEntityIdToCell().get(entityId).getPosition().lenShiftSum(targetPosition) < distanceCancelTreshhold;
 
-        if(completed) {
-            if(oncompleteIdTickConsumer != null) {
+        if (completed) {
+            if (oncompleteIdTickConsumer != null) {
                 oncompleteIdTickConsumer.accept(entityId, currentParsedGameState.curTick());
             }
         }
@@ -69,7 +72,19 @@ public class MoveTowardsCommand extends SingleEntityCommand {
                                       StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
         EntityAction action = new EntityAction();
-        MoveAction moveAction = new MoveAction(targetPosition.toVec2dInt(), true, true);
+        Position2d toPosition = targetPosition;
+
+        Position2d ccPosition = Position2dUtil.MY_CC;
+        Position2d currentPosition = currentParsedGameState.getEntityIdToCell().get(entityId).getPosition();
+
+        if (followEntityId != null && currentParsedGameState.getEntityIdToCell().containsKey(followEntityId)
+                && gameHistoryState.allOMoveTowardsCommadsRelatedIds().contains(followEntityId)
+                && ccPosition.lenShiftSum(currentPosition) > strategyParams.useWorkerFollowMinRange) {
+            //follow unit
+            toPosition = currentParsedGameState.getEntityIdToCell().get(followEntityId).getPosition();
+        }
+
+        MoveAction moveAction = new MoveAction(toPosition.toVec2dInt(), true, true);
 
         AttackAction attackAction = new AttackAction(null, new AutoAttack(1,
                 new EntityType[]{EntityType.BUILDER_UNIT, EntityType.WALL}));
@@ -105,5 +120,9 @@ public class MoveTowardsCommand extends SingleEntityCommand {
 
     public void setOnStartIdTickConsumer(BiConsumer<Integer, Integer> onStartIdTickConsumer) {
         this.onStartIdTickConsumer = onStartIdTickConsumer;
+    }
+
+    public void setFollowEntityId(Integer followEntityId) {
+        this.followEntityId = followEntityId;
     }
 }

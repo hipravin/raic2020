@@ -63,7 +63,7 @@ public class BlockDetector {
         Map<Position2d, NearestEntity> wsWithout = GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), startPositions, strategyParams.wayOutFindPathLen,
                 false, ignoreUnits, additionalEmpty);
 
-        int areaDiff = wsWithout.size() - 1 - wsWith.size();
+        int areaDiff = wsWithout.size() - checkPositions.size() - wsWith.size();
 
         return areaDiff >= strategyParams.wayOutDiffDetectTreshhold
                 || areaDiff > strategyParams.wayOutDiffDetectTreshholdMul * wsWithout.size();
