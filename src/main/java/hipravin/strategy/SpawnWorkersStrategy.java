@@ -126,7 +126,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
                     && detectRespIsSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
 
                 strategyParams.sendToCenterWorkerNumbers = strategyParams.surroundedSendToCenterWorkerNumbers;
-                sendWorkerToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams);
+
                 strategyParams.populationOfWorkersToBuildBeforeRangers = strategyParams.populationOfWorkersToBuildBeforeRangersIfSurrounded;
                 if (detectRespIsDoubleSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
                     strategyParams.populationOfWorkersToBuildBeforeRangers = strategyParams.populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded;
@@ -136,7 +136,10 @@ public class SpawnWorkersStrategy implements SubStrategy {
                     requestTurretToCleanup(ccOuterEdge, gameHistoryState, pgs, strategyParams);
                 }
 
-                return;
+                if(!workerAlreadySentToCenter) {
+                    sendWorkerToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams);
+                    return;
+                }
             }
         }
 
@@ -306,7 +309,6 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
         rechekdoubleSourreounded = true;
         return false;
-
     }
 
     boolean ifSentToCenter(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,

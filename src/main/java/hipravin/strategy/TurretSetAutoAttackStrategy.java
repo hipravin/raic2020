@@ -43,7 +43,7 @@ public class TurretSetAutoAttackStrategy implements SubStrategy {
         //home turrets to attack minerals
         for (Integer turret : turrets) {
             Cell tcell = pgs.getEntityIdToCell().get(turret);
-            if (tcell.getPosition().lenShiftSum(Position2dUtil.MY_CC.shift(5, 5)) < strategyParams.turretsForCleanupRange) {
+            if (pgs.getEnemyArmy().isEmpty() && pgs.getMyRangerBase() == null) {
 
                 Integer attackTarget = mineralFieldIdToAttack(tcell, pgs).orElse(null);
 
@@ -58,6 +58,7 @@ public class TurretSetAutoAttackStrategy implements SubStrategy {
 
     Optional<Integer> mineralFieldIdToAttack(Cell tcell, ParsedGameState pgs) {
         Optional<Integer> mineral;
+        Position2d tp = tcell.getPosition();
 
         if (tcell.getPosition().getX() > tcell.getPosition().getY()) {
 
@@ -75,6 +76,19 @@ public class TurretSetAutoAttackStrategy implements SubStrategy {
                     .filter(e -> e.getPosition().getX() == tcell.getPosition().getX() + 1)
                     .findFirst().map(Entity::getId);
         }
+        mineral = Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getEntityType() == EntityType.RESOURCE)
+                .filter(e -> tp.lenShiftSum(e.getPosition()) == 1
+                        || tp.lenShiftSum(e.getPosition()) == 1
+                        || tp.shift(1, 0).lenShiftSum(e.getPosition()) == 1
+                        || tp.shift(0, 1).lenShiftSum(e.getPosition()) == 1
+                        || tp.shift(1, 1).lenShiftSum(e.getPosition()) == 1
+                        || tp.shift(-1, -1).equals(of(e.getPosition()))
+                        || tp.shift(-1, 2).equals(of(e.getPosition()))
+                        || tp.shift(2, -1).equals(of(e.getPosition()))
+                        || tp.shift(2, 2).equals(of(e.getPosition()))
+                ).findFirst().map(Entity::getId);
+
 
         return mineral.or(() ->
                 Arrays.stream(pgs.getPlayerView().getEntities())
