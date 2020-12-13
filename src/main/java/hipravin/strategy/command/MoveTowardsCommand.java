@@ -79,18 +79,22 @@ public class MoveTowardsCommand extends SingleEntityCommand {
         Position2d currentPosition = currentParsedGameState.getEntityIdToCell().get(entityId).getPosition();
 
         //turn of follow because they don't then break minerals and we don;t have time to clear path
+        //try again?
 
-//        Position2d followEntityIdPosition = Optional.ofNullable(currentParsedGameState.getEntityIdToCell()
-//                .get(followEntityId)).map(Cell::getPosition).orElse(null);
-//
-//        if (followEntityId != null && currentParsedGameState.getEntityIdToCell().containsKey(followEntityId)
-//                && gameHistoryState.allOMoveTowardsCommadsRelatedIds().contains(followEntityId)
-//                && followEntityIdPosition != null
-//                && ccPosition.lenShiftSum(currentPosition) > strategyParams.useWorkerFollowMinRange
-//                && targetPosition.lenShiftSum(currentPosition) > targetPosition.lenShiftSum(followEntityIdPosition)) {
-//            //follow unit
-//            toPosition = followEntityIdPosition;
-//        }
+        if(strategyParams.useWorkerFollow) {
+
+            Position2d followEntityIdPosition = Optional.ofNullable(currentParsedGameState.getEntityIdToCell()
+                    .get(followEntityId)).map(Cell::getPosition).orElse(null);
+
+            if (followEntityId != null && currentParsedGameState.getEntityIdToCell().containsKey(followEntityId)
+                    && gameHistoryState.allOMoveTowardsCommadsRelatedIds().contains(followEntityId)
+                    && followEntityIdPosition != null
+                    && ccPosition.lenShiftSum(currentPosition) > strategyParams.useWorkerFollowMinRange
+                    && targetPosition.lenShiftSum(currentPosition) > targetPosition.lenShiftSum(followEntityIdPosition)) {
+                //follow unit
+                toPosition = followEntityIdPosition;
+            }
+        }
 
         MoveAction moveAction = new MoveAction(toPosition.toVec2dInt(), true, true);
 

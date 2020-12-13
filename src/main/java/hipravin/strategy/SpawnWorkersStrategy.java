@@ -285,14 +285,20 @@ public class SpawnWorkersStrategy implements SubStrategy {
         Set<Position2d> ccouterEdge = new HashSet<>(pgs.getBuildingsByEntityId()
                 .get(pgs.getMyCc().getId()).getBuildingOuterEdgeWithoutCorners());
 
-        Set<Position2d> mineralEdge = pgs.allCellsAsStream().filter(Cell::isMineralEdge)
-                .map(Cell::getPosition).collect(Collectors.toSet());
+        Map<Position2d, NearestEntity> nesWith =
+                GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), ccouterEdge, StrategyParams.RESP_SURROUNDED_DETECT_RANGE,
+                        false, true, Set.of());
 
-        Map<Position2d, NearestEntity> nes =
+        Set<Position2d> mineralEdge = nesWith.values().stream()
+                .filter(ne -> ne.getThisCell().isMineralEdge())
+                .map(ne -> ne.getThisCell().getPosition())
+                .collect(Collectors.toSet());
+
+        Map<Position2d, NearestEntity> nesWithout =
                 GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), ccouterEdge, StrategyParams.RESP_SURROUNDED_DETECT_RANGE,
                         false, true, mineralEdge);
 
-        Optional<NearestEntity> farthest = nes.values().stream()
+        Optional<NearestEntity> farthest = nesWithout.values().stream()
                 .max(NearestEntity.comparedByPathLen);
 
         if (farthest.isPresent()) {
@@ -300,9 +306,9 @@ public class SpawnWorkersStrategy implements SubStrategy {
 //                    .filter(ne -> ne.getPathLenEmptyCellsToThisCell() == farthest.get().getPathLenEmptyCellsToThisCell())
 //                    .allMatch(ne -> (ne.getThisCell().isMineral() || ne.getThisCell().isMapEdge()));
 
-            boolean surrounded = nes.values().stream()
+            boolean surrounded = nesWithout.values().stream()
                     .noneMatch(ne -> ne.getPathLenEmptyCellsToThisCell() >= StrategyParams.RESP_SURROUNDED_DETECT_RANGE)
-                    && nes.values().stream()
+                    && nesWithout.values().stream()
                     .noneMatch(ne -> ne.getThisCell().isFogEdge() && !ne.getThisCell().isMineral());
 
             if (surrounded) {

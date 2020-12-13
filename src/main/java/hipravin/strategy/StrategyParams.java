@@ -138,16 +138,19 @@ public class StrategyParams {
             EntityType.WALL, 1
     );
 
-    public int populationOfWorkersToBuildBeforeRangers = 20;//35 is optimal rush?
+    public int populationOfWorkersToBuildBeforeRangers = 25;//35 is optimal rush?
     public int populationOfWorkersToBuildBeforeRangersIfSurrounded = 35;//35 is optimal rush?
     public int populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded = 45;//35 is optimal rush?
     public int populationOfWorkersToBuildAfterRangers = 60;
     public int populationOfWorkersToIfExtraResources = 80;
+    public boolean useWorkerFollow = false;
 
     public boolean sendToCenter = true;
     //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 18, 19, 20, 21, 22, 23, 24, 25);
 //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
+//    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(16, 17, 18, 19, 20, 21, 22, 23, 24, 25);
+
     public Set<Integer> surroundedSendToCenterWorkerNumbers = Set.of(13, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
     public Set<Integer> doubleSurroundedSendToCenterWorkerNumbers = Set.of(13, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50);
 

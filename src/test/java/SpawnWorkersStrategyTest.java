@@ -10,6 +10,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class SpawnWorkersStrategyTest {
 
     @Test
+    void testFalseNotDoubleSurrounded() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 16, 66);
+        RootStrategy rstrategy = new RootStrategy();
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+        SpawnWorkersStrategy spawnWorkersStrategy = new SpawnWorkersStrategy();
+
+        assertTrue(spawnWorkersStrategy.detectRespIsSurroundedByMinerals(rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+        assertTrue(spawnWorkersStrategy.detectRespIsDoubleSurroundedByMinerals(rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+
+
+        System.out.println();
+//        assertEquals(3, spawnStrategy.getLastMineralPositions().size());
+    }
+
+
+    @Test
     void testFalseSurrounded() {
         ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 16, 70);
         RootStrategy rstrategy = new RootStrategy();
