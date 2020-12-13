@@ -111,7 +111,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
         Set<Position2d> ccOuterEdge = new HashSet<>(pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
                 .getBuildingOuterEdgeWithoutCorners());
 
-        if(needToPlaceTurretToCleanup) {
+        if (needToPlaceTurretToCleanup) {
             requestTurretToCleanup(ccOuterEdge, gameHistoryState, pgs, strategyParams);
         }
 
@@ -134,18 +134,20 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
                     strategyParams.sendToCenterWorkerNumbers = strategyParams.doubleSurroundedSendToCenterWorkerNumbers;
                     requestTurretToCleanup(ccOuterEdge, gameHistoryState, pgs, strategyParams);
+                } else {
+                    needToPlaceTurretToCleanup = false;
                 }
 
-                if(!workerAlreadySentToCenter) {
+                if (!workerAlreadySentToCenter) {
                     sendWorkerToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams);
                     return;
                 }
             }
         }
 
-        if(rechekdoubleSourreounded && pgs.getMyRangerBase() == null
+        if (rechekdoubleSourreounded && pgs.getMyRangerBase() == null
                 && detectRespIsSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
-            if(detectRespIsDoubleSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
+            if (detectRespIsDoubleSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
                 strategyParams.sendToCenterWorkerNumbers = strategyParams.doubleSurroundedSendToCenterWorkerNumbers;
                 rechekdoubleSourreounded = false;
                 needToPlaceTurretToCleanup = true;
@@ -205,7 +207,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
             return;
         }
 
-        if(pgs.getPopulation().getPopulationUse() < strategyParams.minCleanupTurretPopulation) {
+        if (pgs.getPopulation().getPopulationUse() < strategyParams.minCleanupTurretPopulation) {
             return;
         }
 
@@ -227,7 +229,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
                     : p.shift(0, strategyParams.turretsForCleanupEdgeShift);
         });
 
-        if(mineralToAttack.isPresent()) {
+        if (mineralToAttack.isPresent()) {
             gameHistoryState.getTurretRequests().add(mineralToAttack.get());
         }
     }
@@ -247,7 +249,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
     }
 
     public boolean detectRespIsSurroundedByMinerals(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                                             StrategyParams strategyParams) {
+                                                    StrategyParams strategyParams) {
         Set<Position2d> ccouterEdge = new HashSet<>(pgs.getBuildingsByEntityId()
                 .get(pgs.getMyCc().getId()).getBuildingOuterEdgeWithoutCorners());
 
@@ -263,6 +265,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
 //                    .filter(ne -> ne.getPathLenEmptyCellsToThisCell() == farthest.get().getPathLenEmptyCellsToThisCell())
 //                    .allMatch(ne -> (ne.getThisCell().isMineral() || ne.getThisCell().isMapEdge()));
             boolean surrounded = nes.values().stream()
+                    .noneMatch(ne -> ne.getPathLenEmptyCellsToThisCell() >= StrategyParams.RESP_SURROUNDED_DETECT_RANGE)
+                    && nes.values().stream()
                     .noneMatch(ne -> ne.getThisCell().isFogEdge() && !ne.getThisCell().isMineral());
 
             if (surrounded) {
@@ -297,6 +301,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
 //                    .allMatch(ne -> (ne.getThisCell().isMineral() || ne.getThisCell().isMapEdge()));
 
             boolean surrounded = nes.values().stream()
+                    .noneMatch(ne -> ne.getPathLenEmptyCellsToThisCell() >= StrategyParams.RESP_SURROUNDED_DETECT_RANGE)
+                    && nes.values().stream()
                     .noneMatch(ne -> ne.getThisCell().isFogEdge() && !ne.getThisCell().isMineral());
 
             if (surrounded) {

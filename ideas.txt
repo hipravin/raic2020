@@ -154,6 +154,10 @@
 
 81 worker retreat doesnt work naer rang base
 
+82 if surrounded - find for shortest way out
+
+83 Приоритет для лучниц - рабочие, а не здания
+
 короткий поиск из fog edge
 
 на что похоже сражение (ГП)
