@@ -20,13 +20,13 @@ public class StrategyParams {
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH = 7;
     public static final int TURRET_WORKERS_NEARBY_MAX_PATH = 10;
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER = 15;
-    public static final int RESP_SURROUNDED_DETECT_RANGE = 12;
+    public static final int RESP_SURROUNDED_DETECT_RANGE = 25;
     public static final int SEND_TO_CENTER_WS_RANGE = 20;
 
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public static Position2d DESIRED_BARRACK = of(35, 35);
+    public static Position2d DESIRED_BARRACK = of(33, 33);
     public static Position2d sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
     public static final int MAP_CORNER_SIZE = 10;
@@ -45,7 +45,14 @@ public class StrategyParams {
     public double wayOutDiffDetectTreshholdMul = 0.2;
     public int wayOutBlockFindMaxPopulation = 60;
 
-    public int defensiveTurretBeforeRangersCount = 10;
+    public int workerScoutStartTickShiftAfterRangComplete = 10;
+    public int workerScoutFrequency = 10; //pull 1 worker every n ticks
+    public int workerScoutMaxRange = 11;
+    public int workerScoutToBarrackCloseMinRange = 15;
+
+    public int turretsForCleanupRange = 25;
+    public int turretsForCleanupMaxCount = 1;
+    public int turretsForCleanupEdgeShift = 2; //turret should atttack edge + X to be able to clear X lines of mineral guaranteed
 
     public int buildCommandMaxWaitTicks = 5;
     public int buildBarrackMaxWaitTicks = 10;
@@ -108,7 +115,6 @@ public class StrategyParams {
     public EntityType[] rangerWorkHuntAttackTargets = new EntityType[]{EntityType.BUILDER_UNIT};
 
 
-
     public Map<EntityType, Integer> magnetRepairRanges = Map.of(
             EntityType.HOUSE, 6,
             EntityType.RANGED_BASE, 20,
@@ -123,18 +129,25 @@ public class StrategyParams {
             EntityType.BUILDER_BASE, 20,
             EntityType.RANGED_BASE, 20,
             EntityType.MELEE_BASE, 20,
-            EntityType.TURRET, 8,
+            EntityType.TURRET, 20,
             EntityType.WALL, 1
     );
 
     public int populationOfWorkersToBuildBeforeRangers = 20;//35 is optimal rush?
+    public int populationOfWorkersToBuildBeforeRangersIfSurrounded = 35;//35 is optimal rush?
+    public int populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded = 45;//35 is optimal rush?
     public int populationOfWorkersToBuildAfterRangers = 60;
     public int populationOfWorkersToIfExtraResources = 80;
 
     public boolean sendToCenter = true;
     //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 18, 19, 20, 21, 22, 23, 24, 25);
 //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 14,15,16,17,18,19,20);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
+    public Set<Integer> surroundedSendToCenterWorkerNumbers = Set.of(13, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
+    public Set<Integer> doubleSurroundedSendToCenterWorkerNumbers = Set.of(13, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50);
+
+    public int minDetectSurroundPopulation = 10;
+    public int minCleanupTurretPopulation = 15;
 
     public int minHouseDistanceToCenter = 15;
 
@@ -156,7 +169,6 @@ public class StrategyParams {
 
     public int cleanBaseRangeTreshhold = 15;
     public int useWorkerFollowMinRange = 13;//close to cc follow can stuck workers
-
 
 
     public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
@@ -229,7 +241,7 @@ public class StrategyParams {
         sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
 //        sendToCenterWorkerNumbers = Set.of(15, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
-        sendToCenterWorkerNumbers = Set.of(15, 18,19,20,21,22,23,24,25);
+        sendToCenterWorkerNumbers = Set.of(15, 18, 19, 20, 21, 22, 23, 24, 25);
 
 //        attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
 //        attackPointRates = List.of(1.0, 0.0);

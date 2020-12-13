@@ -17,6 +17,9 @@ public class SpawnWorkersStrategy implements SubStrategy {
     //to prevent multiple workers being sent to single mineral field
     LinkedHashSet<Position2d> lastMineralPositions = new LinkedHashSet<>();
     boolean workerAlreadySentToCenter = false;
+    boolean needToPlaceTurretToCleanup = false;
+    boolean rechekdoubleSourreounded = false;
+
 
     boolean shouldSpawnMoreWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
@@ -108,24 +111,49 @@ public class SpawnWorkersStrategy implements SubStrategy {
         Set<Position2d> ccOuterEdge = new HashSet<>(pgs.findMyBuildings(EntityType.BUILDER_BASE).get(0)
                 .getBuildingOuterEdgeWithoutCorners());
 
+        if(needToPlaceTurretToCleanup) {
+            requestTurretToCleanup(ccOuterEdge, gameHistoryState, pgs, strategyParams);
+        }
+
         ccOuterEdge.removeIf(p -> !pgs.at(p).isEmpty());
 
         if (ccOuterEdge.isEmpty()) {
             return;
         }
 
+        if (pgs.getMyRangerBase() == null) {
+            if (pgs.getPopulation().getPopulationUse() >= strategyParams.minDetectSurroundPopulation
+                    && detectRespIsSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
+
+                strategyParams.sendToCenterWorkerNumbers = strategyParams.surroundedSendToCenterWorkerNumbers;
+                sendWorkerToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams);
+                strategyParams.populationOfWorkersToBuildBeforeRangers = strategyParams.populationOfWorkersToBuildBeforeRangersIfSurrounded;
+                if (detectRespIsDoubleSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
+                    strategyParams.populationOfWorkersToBuildBeforeRangers = strategyParams.populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded;
+                    needToPlaceTurretToCleanup = true;
+
+                    strategyParams.sendToCenterWorkerNumbers = strategyParams.doubleSurroundedSendToCenterWorkerNumbers;
+                    requestTurretToCleanup(ccOuterEdge, gameHistoryState, pgs, strategyParams);
+                }
+
+                return;
+            }
+        }
+
+        if(rechekdoubleSourreounded && pgs.getMyRangerBase() == null
+                && detectRespIsSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
+            if(detectRespIsDoubleSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
+                strategyParams.sendToCenterWorkerNumbers = strategyParams.doubleSurroundedSendToCenterWorkerNumbers;
+                rechekdoubleSourreounded = false;
+                needToPlaceTurretToCleanup = true;
+                requestTurretToCleanup(ccOuterEdge, gameHistoryState, pgs, strategyParams);
+            }
+        }
+
         if (ifSentToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams)) {
-            workerAlreadySentToCenter = true;
             return;
         }
 
-        if (!workerAlreadySentToCenter) {
-            if (detectRespIsSurroundedByMinerals(gameHistoryState, pgs, strategyParams)) {
-                sendWorkerToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams);
-
-                workerAlreadySentToCenter = true;
-            }
-        }
 
 //        if (ifSentToFog(ccOuterEdge, gameHistoryState, pgs, strategyParams)) { //don't like how it works
 //            return;
@@ -164,6 +192,43 @@ public class SpawnWorkersStrategy implements SubStrategy {
         }
     }
 
+    void requestTurretToCleanup(Set<Position2d> ccouterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                StrategyParams strategyParams) {
+
+        DebugOut.println("Turret requested to cleanup");
+
+        if (gameHistoryState.getTurretRequests().size() + pgs.getTurretCount() >= strategyParams.turretsForCleanupMaxCount) {
+            needToPlaceTurretToCleanup = false;
+            return;
+        }
+
+        if(pgs.getPopulation().getPopulationUse() < strategyParams.minCleanupTurretPopulation) {
+            return;
+        }
+
+        Map<Position2d, NearestEntity> reacheableMinerals =
+                GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), new HashSet<>(ccouterEdge), StrategyParams.RESP_SURROUNDED_DETECT_RANGE,
+                        false, true, Set.of());
+
+
+        Optional<Position2d> maxMineralEdge = reacheableMinerals.values().stream()
+                .map(NearestEntity::getThisCell)
+                .filter(c -> c.getPosition().getX() > 3 && c.getPosition().getY() > 3)
+                .filter(Cell::isMineralEdge)
+                .max(Comparator.comparingInt(c -> c.getPosition().x + c.getPosition().y))
+                .map(Cell::getPosition);
+
+        Optional<Position2d> mineralToAttack = maxMineralEdge.map(p -> {
+            return p.getX() > p.getY()
+                    ? p.shift(strategyParams.turretsForCleanupEdgeShift, 0)
+                    : p.shift(0, strategyParams.turretsForCleanupEdgeShift);
+        });
+
+        if(mineralToAttack.isPresent()) {
+            gameHistoryState.getTurretRequests().add(mineralToAttack.get());
+        }
+    }
+
     int countWorkersOnResp(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                            StrategyParams strategyParams) {
         int count = 0;
@@ -178,7 +243,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
         return count;
     }
 
-    boolean detectRespIsSurroundedByMinerals(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+    public boolean detectRespIsSurroundedByMinerals(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                              StrategyParams strategyParams) {
         Set<Position2d> ccouterEdge = new HashSet<>(pgs.getBuildingsByEntityId()
                 .get(pgs.getMyCc().getId()).getBuildingOuterEdgeWithoutCorners());
@@ -191,11 +256,13 @@ public class SpawnWorkersStrategy implements SubStrategy {
                 .max(NearestEntity.comparedByPathLen);
 
         if (farthest.isPresent()) {
+//            boolean surrounded = nes.values().stream()
+//                    .filter(ne -> ne.getPathLenEmptyCellsToThisCell() == farthest.get().getPathLenEmptyCellsToThisCell())
+//                    .allMatch(ne -> (ne.getThisCell().isMineral() || ne.getThisCell().isMapEdge()));
             boolean surrounded = nes.values().stream()
-                    .filter(ne -> ne.getPathLenEmptyCellsToThisCell() == farthest.get().getPathLenEmptyCellsToThisCell())
-                    .allMatch(ne -> (ne.getThisCell().isMineral() || ne.getThisCell().isMapEdge()));
+                    .noneMatch(ne -> ne.getThisCell().isFogEdge() && !ne.getThisCell().isMineral());
 
-            if(surrounded) {
+            if (surrounded) {
 
                 DebugOut.println("Resp is surrounded ");
                 return true;
@@ -204,7 +271,41 @@ public class SpawnWorkersStrategy implements SubStrategy {
         DebugOut.println("Resp is not surrounded: " + farthest.map(NearestEntity::toString).orElse("no way"));
 
         return false;
+    }
 
+    public boolean detectRespIsDoubleSurroundedByMinerals(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                                          StrategyParams strategyParams) {
+        Set<Position2d> ccouterEdge = new HashSet<>(pgs.getBuildingsByEntityId()
+                .get(pgs.getMyCc().getId()).getBuildingOuterEdgeWithoutCorners());
+
+        Set<Position2d> mineralEdge = pgs.allCellsAsStream().filter(Cell::isMineralEdge)
+                .map(Cell::getPosition).collect(Collectors.toSet());
+
+        Map<Position2d, NearestEntity> nes =
+                GameStateParserDjkstra.shortWideSearch(pgs, Set.of(), ccouterEdge, StrategyParams.RESP_SURROUNDED_DETECT_RANGE,
+                        false, true, mineralEdge);
+
+        Optional<NearestEntity> farthest = nes.values().stream()
+                .max(NearestEntity.comparedByPathLen);
+
+        if (farthest.isPresent()) {
+//            boolean surrounded = nes.values().stream()
+//                    .filter(ne -> ne.getPathLenEmptyCellsToThisCell() == farthest.get().getPathLenEmptyCellsToThisCell())
+//                    .allMatch(ne -> (ne.getThisCell().isMineral() || ne.getThisCell().isMapEdge()));
+
+            boolean surrounded = nes.values().stream()
+                    .noneMatch(ne -> ne.getThisCell().isFogEdge() && !ne.getThisCell().isMineral());
+
+            if (surrounded) {
+                DebugOut.println("Resp is double surrounded ");
+                return true;
+            }
+
+        }
+        DebugOut.println("Resp is not double surrounded: " + farthest.map(NearestEntity::toString).orElse("no way"));
+
+        rechekdoubleSourreounded = true;
+        return false;
 
     }
 
@@ -234,7 +335,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
         NearestEntity closestToBarr = nes.values().stream().min(Comparator.comparingInt(ne -> ne.getThisCell().getPosition().lenShiftSum(centerPos)))
                 .orElse(null);
 
-        if(closestToBarr != null) {
+        if (closestToBarr != null) {
             return closestToBarr.getSourceCell().getPosition();
         } else {
             return ccOuterEdge.stream().max(Comparator.comparingInt(p -> p.x + p.y)).orElse(null);
@@ -263,6 +364,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
             DebugOut.println("Sent to center (onstart) " + id + ", " + tick);
             gameHistoryState.sentToBarrackEntityIds.add(id);
             gameHistoryState.sentToBarrackTicks.put(id, tick);
+            workerAlreadySentToCenter = true;
         };
         BiConsumer<Integer, Integer> onDone = (id, tick) -> {
             DebugOut.println("Arrived to center (ondone) " + id + ", " + tick);

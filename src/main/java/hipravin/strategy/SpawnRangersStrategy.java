@@ -202,7 +202,7 @@ public class SpawnRangersStrategy implements SubStrategy {
 
 
         Position2d retreatPosition = Optional.ofNullable(pgs.getMyRangerBase())
-                .map(b -> of(b.getPosition()).shift(6, 6)).orElse(of(40, 40));
+                .map(b -> of(b.getPosition()).shift(2, 2)).orElse(of(40, 40));
 
         if (attackPosition == null) {
             attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);

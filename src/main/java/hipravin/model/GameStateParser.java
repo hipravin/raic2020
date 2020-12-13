@@ -104,6 +104,20 @@ public abstract class GameStateParser {
         return parsedGameState;
     }
 
+    public static void trackRangeBaseBuildTicks(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
+        if(gameHistoryAndSharedState.getMyRangBaseCompletedTick() != null) {
+            return;
+        }
+        Entity rangBase = pgs.getMyRangerBase();
+
+        if(gameHistoryAndSharedState.getMyRangBaseStartedBuildTick() == null && rangBase != null) {
+            gameHistoryAndSharedState.setMyRangBaseStartedBuildTick(pgs.curTick());
+        }
+        if(gameHistoryAndSharedState.getMyRangBaseCompletedTick() == null && rangBase != null && rangBase.isActive()) {
+            gameHistoryAndSharedState.setMyRangBaseCompletedTick(pgs.curTick());
+        }
+    }
+
     static void calculateMapEdge(ParsedGameState pgs) {
         for (int i = 0; i < MAP_SIZE; i++) {
              pgs.at(i, 0).isMapEdge = true;
@@ -151,8 +165,10 @@ public abstract class GameStateParser {
                     .filter(e -> e.getEntityType() == EntityType.RANGED_UNIT)
                     .forEach(e -> pgs.defendingAreaMyRangers.add(e));
         } else {
-            int defX = rangBase.getPosition().getX();
-            int defY = rangBase.getPosition().getY();
+            Position2d defArea = pgs.defAreaPosition();
+
+            int defX = defArea.getX();
+            int defY = defArea.getY();
 
             Arrays.stream(pgs.getPlayerView().getEntities())
                     .filter(e -> e.getPlayerId() != null && e.getPlayerId() == pgs.getPlayerView().getMyId())

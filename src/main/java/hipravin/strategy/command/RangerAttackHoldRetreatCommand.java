@@ -169,9 +169,9 @@ public class RangerAttackHoldRetreatCommand extends Command {
     public void updateRetreat(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         EntityAction autoAttack = new EntityAction();
-//        AttackAction attackAction = new AttackAction(null, new AutoAttack(0,
-//                strategyParams.rangerDefaultAttackTargets));
-//        autoAttack.setAttackAction(attackAction);
+        AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.RANGER_RANGE,
+                strategyParams.rangerDefaultAttackTargets));
+        autoAttack.setAttackAction(attackAction);
 
         autoAttack.setMoveAction(new MoveAction(retreatPosition.toVec2dInt(), true, true));
 

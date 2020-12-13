@@ -4,11 +4,13 @@ import hipravin.strategy.StrategyParams;
 import model.*;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static hipravin.model.GameStateParser.forEachPosition;
 import static hipravin.model.Position2d.of;
+import static hipravin.model.Position2dUtil.MAP_SIZE;
 import static hipravin.model.Position2dUtil.isSquareWithinMapBorder;
 
 public class ParsedGameState {
@@ -48,7 +50,7 @@ public class ParsedGameState {
 
     public Optional<Position2d> findClosesEnemyArmy(Position2d toPosition) {
         return enemyArmy.keySet().stream()
-                .min(Comparator.comparingInt(p -> (int)p.lenShiftSum(toPosition)));
+                .min(Comparator.comparingInt(p -> p.lenShiftSum(toPosition)));
 
     }
 
@@ -101,6 +103,14 @@ public class ParsedGameState {
                 .count();
     }
 
+    public int getTurretCount() {
+        return (int) Arrays.stream(playerView.getEntities())
+                .filter(e -> e.getEntityType() == EntityType.TURRET
+                        && e.getPlayerId() != null && e.getPlayerId() == playerView.getMyId()
+                        && e.isActive())
+                .count();
+    }
+
     public int getHouseCost() {
         return playerView.getEntityProperties().get(EntityType.HOUSE).getInitialCost();
     }
@@ -118,6 +128,21 @@ public class ParsedGameState {
 
     public int curTick() {
         return playerView.getCurrentTick();
+    }
+
+    public Position2d defAreaPosition() {
+        Entity rangBase = getMyRangerBase();
+
+        int defX =  rangBase != null
+                ? rangBase.getPosition().getX() + 3
+                : MAP_SIZE - 1;
+
+        int defY =  rangBase != null
+                ? rangBase.getPosition().getY() + 3
+                : MAP_SIZE - 1;
+
+        return Position2d.of(defX, defY);
+
     }
 
     public Entity getMyCc() {

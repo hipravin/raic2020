@@ -117,11 +117,11 @@ public class AutomineFallbackStrategy implements SubStrategy {
             if (of(w.getPosition()).lenShiftSum(to) < 5) {
                 moveTo = new MoveTowardsCommand(pgs, w.getId(),
                         Position2dUtil.randomMapPosition(),
-                        Position2dUtil.MAP_SIZE, strategyParams.moveTowardsMineralsDistanceTreshold);
+                        10, strategyParams.moveTowardsMineralsDistanceTreshold);
 
             } else {
                 //send to center
-                moveTo = new MoveTowardsCommand(pgs, w.getId(), to, Position2dUtil.MAP_SIZE, strategyParams.moveTowardsMineralsDistanceTreshold);
+                moveTo = new MoveTowardsCommand(pgs, w.getId(), to, 10, strategyParams.moveTowardsMineralsDistanceTreshold);
             }
 
             moveTo.setConditionalReplacer(new CancelCommand(), new CommandPredicate() {
@@ -150,10 +150,10 @@ public class AutomineFallbackStrategy implements SubStrategy {
         Entity rangBase = pgs.getMyRangerBase();
 
         if (!pgs.getEnemyArmy().isEmpty()) {
-            if (pgs.at(w.getPosition()).test(c -> c.getAttackerCount(7) > 0 || c.getAttackerCount(6) > 0 || c.getAttackerCount(5) > 0)) {
+            if (pgs.at(w.getPosition()).test(c -> c.getAttackerCount(8) > 0 || c.getAttackerCount(7) > 0 || c.getAttackerCount(6) > 0 || c.getAttackerCount(5) > 0)) {
                 if (rangBase != null) {
                     Command retreatToRangBase = new MoveTowardsCommand(pgs, w.getId(),
-                            of(rangBase.getPosition()).shift(2, 2), 3, 5);
+                            of(rangBase.getPosition()).shift(2, 2), 4, 5);
                     gameHistoryState.addOngoingCommand(retreatToRangBase, false);
                 }
             }

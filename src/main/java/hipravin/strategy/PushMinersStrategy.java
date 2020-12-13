@@ -28,8 +28,8 @@ public class PushMinersStrategy implements SubStrategy {
         pushMineralScripts.add(new Step1ToNextMineral());
         pushMineralScripts.add(new Step2JumpNextMineral());
 
-        hodorScripts.add(new StepTurnHodorScript());
-        hodorScripts.add(new UnblockAngle());
+//        hodorScripts.add(new StepTurnHodorScript());
+//        hodorScripts.add(new UnblockAngle());
     }
 
     boolean shouldTryApplyPushThisTick(ParsedGameState currentParsedGameState, StrategyParams strategyParams) {

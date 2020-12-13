@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static hipravin.strategy.StrategyParams.MAX_VAL;
+
 public class GameHistoryAndSharedState {
 
     public static Random random = new Random(0);
@@ -24,6 +26,9 @@ public class GameHistoryAndSharedState {
     public Map<Integer, Integer> arrivedToBarrackTicks = new HashMap<>();
 
     public Set<Position2d> thisTickUsedTargetPositions = new HashSet<>();//not ask for conflicting moves while micro
+
+    public Integer myRangBaseStartedBuildTick = null;
+    public Integer myRangBaseCompletedTick = null;
 
 
     //    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
@@ -209,5 +214,21 @@ public class GameHistoryAndSharedState {
 
     public void setThisTickUsedTargetPositions(Set<Position2d> thisTickUsedTargetPositions) {
         this.thisTickUsedTargetPositions = thisTickUsedTargetPositions;
+    }
+
+    public Integer getMyRangBaseStartedBuildTick() {
+        return myRangBaseStartedBuildTick;
+    }
+
+    public void setMyRangBaseStartedBuildTick(Integer myRangBaseStartedBuildTick) {
+        this.myRangBaseStartedBuildTick = myRangBaseStartedBuildTick;
+    }
+
+    public Integer getMyRangBaseCompletedTick() {
+        return myRangBaseCompletedTick;
+    }
+
+    public void setMyRangBaseCompletedTick(Integer myRangBaseCompletedTick) {
+        this.myRangBaseCompletedTick = myRangBaseCompletedTick;
     }
 }

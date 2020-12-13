@@ -15,31 +15,8 @@ import static hipravin.strategy.StrategyParams.MAX_VAL;
 
 public class BuildTurretStrategy implements SubStrategy {
 
-    public void addSomeTurretRequests(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
-        Entity rangBase = pgs.getMyRangerBase();
-
-        if(rangBase != null && !rangBase.isActive()
-                && pgs.findMyBuildings(EntityType.TURRET).size() < strategyParams.defensiveTurretBeforeRangersCount) {
-//            List<Position2d> fogEdges = pgs.getFogEdgePositions();
-            List<Position2d> fogEdges = List.of(of(20,20), of(25,20), of(20, 25)); //TODO: tets stub
-            if (!fogEdges.isEmpty()) {
-
-                List<Integer> randomFogEdgeIndices = GameHistoryAndSharedState.splittableRandom
-                        .ints(strategyParams.numberOfRandomScoutChoices, 0, fogEdges.size())
-                        .limit(strategyParams.numberOfRandomScoutChoices)
-                        .boxed().collect(Collectors.toList());
-
-                Position2d turretAttackPosition = randomFogEdgeIndices.stream().map(fogEdges::get)
-                        .min(Comparator.comparingInt(p -> (int) p.lenShiftSum(Position2dUtil.ENEMY_CORNER))).orElse(null);
-
-                gameHistoryState.getTurretRequests().add(turretAttackPosition);
-            }
-        }
-    }
-
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-//        addSomeTurretRequests(gameHistoryState, pgs, strategyParams);
 
         return true;
     }

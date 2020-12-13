@@ -4,9 +4,59 @@ import model.Action;
 import model.ServerMessage;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SpawnWorkersStrategyTest {
+
+    @Test
+    void testFalseSurrounded() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 16, 70);
+        RootStrategy rstrategy = new RootStrategy();
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+        SpawnWorkersStrategy spawnWorkersStrategy = new SpawnWorkersStrategy();
+
+        assertFalse(spawnWorkersStrategy.detectRespIsSurroundedByMinerals(rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+        assertFalse(spawnWorkersStrategy.detectRespIsDoubleSurroundedByMinerals(rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+
+
+        System.out.println();
+//        assertEquals(3, spawnStrategy.getLastMineralPositions().size());
+    }
+
+    @Test
+    void testDoubleSurroundedFalse() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 16, 94);
+        RootStrategy rstrategy = new RootStrategy();
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+        SpawnWorkersStrategy spawnWorkersStrategy = new SpawnWorkersStrategy();
+
+        assertFalse(spawnWorkersStrategy.detectRespIsSurroundedByMinerals(rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+        assertFalse(spawnWorkersStrategy.detectRespIsDoubleSurroundedByMinerals(rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+
+
+        System.out.println();
+//        assertEquals(3, spawnStrategy.getLastMineralPositions().size());
+    }
+
+    @Test
+    void testDoubleSurrounded() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 16, 116);
+        RootStrategy rstrategy = new RootStrategy();
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+        SpawnWorkersStrategy spawnWorkersStrategy = new SpawnWorkersStrategy();
+
+        assertTrue(spawnWorkersStrategy.detectRespIsSurroundedByMinerals(rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+        assertTrue(spawnWorkersStrategy.detectRespIsDoubleSurroundedByMinerals(rstrategy.gameHistoryState, rstrategy.currentParsedGameState, rstrategy.strategyParams));
+
+
+
+        System.out.println();
+//        assertEquals(3, spawnStrategy.getLastMineralPositions().size());
+    }
 
     @Test
     void testCorrectSpawnNearestToCenter() {

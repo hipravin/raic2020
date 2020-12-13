@@ -42,6 +42,8 @@ public class RootStrategy extends MyStrategy {
         UnsetBuildCommandsStrategy unsetStrategy = new UnsetBuildCommandsStrategy();
         BuildTurretStrategy buildTurretStrategy = new BuildTurretStrategy();
 
+
+        WorkerScoutStrategy workerScoutStrategy = new WorkerScoutStrategy();
         AutomineFallbackStrategy autoMine = new AutomineFallbackStrategy();
         RangerAutoattackFallbackStrategy rangerAutoAttack = new RangerAutoattackFallbackStrategy();
 
@@ -54,6 +56,8 @@ public class RootStrategy extends MyStrategy {
         subStrategies.add(workerDefendingTurretsStrategy);
         subStrategies.add(buildBarrackStrategy);
         subStrategies.add(buildTurretStrategy);
+        subStrategies.add(workerScoutStrategy);
+
         subStrategies.add(autoMine);
         subStrategies.add(rangerAutoAttack);
         subStrategies.add(unsetStrategy);
@@ -112,10 +116,15 @@ public class RootStrategy extends MyStrategy {
 
     void parseDataForSingleTick(PlayerView playerView) {
         currentParsedGameState = GameStateParser.parse(playerView);
-        GameStateParser.calculateNewEntityIds(currentParsedGameState, gameHistoryState.getPreviousParsedGameState(), gameHistoryState);
-        GameStateParser.calculateWorkersMovedSinceLastTurn(currentParsedGameState, gameHistoryState.getPreviousParsedGameState());
+        trackChanges();
         removeCompletedOrStaleCommands();
 
+    }
+
+    void trackChanges() {
+        GameStateParser.calculateNewEntityIds(currentParsedGameState, gameHistoryState.getPreviousParsedGameState(), gameHistoryState);
+        GameStateParser.calculateWorkersMovedSinceLastTurn(currentParsedGameState, gameHistoryState.getPreviousParsedGameState());
+        GameStateParser.trackRangeBaseBuildTicks(currentParsedGameState, gameHistoryState);
     }
 
     void removeCompletedOrStaleCommands() {

@@ -45,8 +45,10 @@ public class BuildBarrackStrategy implements SubStrategy {
                         || tryToBuildBarrackShortDistance(3, distance, 15, gameHistoryState, pgs, strategyParams, false)
                         || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, true)
                         || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, false)
-//                        || tryToBuildBarrackShortDistance(5, distance, 30, gameHistoryState, pgs, strategyParams, true)
-//                        || tryToBuildBarrackShortDistance(5, distance, 30, gameHistoryState, pgs, strategyParams, false)
+                        || tryToBuildBarrackShortDistance(7, distance, 30, gameHistoryState, pgs, strategyParams, true)
+                        || tryToBuildBarrackShortDistance(7, distance, 30, gameHistoryState, pgs, strategyParams, false)
+//                        || tryToBuildBarrackShortDistance(5, distance, 40, gameHistoryState, pgs, strategyParams, true)
+//                        || tryToBuildBarrackShortDistance(5, distance, 40, gameHistoryState, pgs, strategyParams, false)
                 ;
 
     }
