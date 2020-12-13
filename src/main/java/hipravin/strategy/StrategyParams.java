@@ -45,9 +45,11 @@ public class StrategyParams {
     public int wayOutDiffDetectTreshhold = 9;
     public double wayOutDiffDetectTreshholdMul = 0.2;
     public int wayOutBlockFindMaxPopulation = 60;
-    public int wayOutBlockFindMinPopulation = 15;
+    public int wayOutBlockFindMinPopulation = 10;
     public int wayOutWorkerCountDiff = 5;
     public int wayOutWorkerMaxPullCount = 3;
+
+    public int rangerCountToAddSomeWorkers = 10;
 
 
     public int workerScoutStartTickShiftAfterRangComplete = 10;
@@ -246,6 +248,8 @@ public class StrategyParams {
 
 //        populationOfWorkersToBuildBeforeRangers = 35;
         populationOfWorkersToBuildBeforeRangers = 25;
+
+        rangerCountToAddSomeWorkers = 25;
 
         DESIRED_BARRACK = of(29, 29);
         sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
