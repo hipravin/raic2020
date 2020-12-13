@@ -37,7 +37,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
             }
         }
 
-        if (pgs.getMyRangerBase() != null && !pgs.getMyRangerBase().isActive()) {
+        if (pgs.getMyRangerBase() != null && pgs.getMyRangerBase().isActive()) {
             if (outOfMoney(pgs, gameHistoryState, strategyParams)
                     || outOfPopulation(pgs, strategyParams)) {
                 return false;

@@ -38,12 +38,17 @@ public class StrategyParams {
     public int attackHoldMyRange = 10;
     public double attackOverCountTreshhold = 1.2;
     public int rangersCloserHold = 2;
+    public int retreatStopRange = 4;
 
     public int wayOutMinHouses = 1;
     public int wayOutFindPathLen = 22;
     public int wayOutDiffDetectTreshhold = 9;
     public double wayOutDiffDetectTreshholdMul = 0.2;
     public int wayOutBlockFindMaxPopulation = 60;
+    public int wayOutBlockFindMinPopulation = 15;
+    public int wayOutWorkerCountDiff = 5;
+    public int wayOutWorkerMaxPullCount = 3;
+
 
     public int workerScoutStartTickShiftAfterRangComplete = 10;
     public int workerScoutFrequency = 10; //pull 1 worker every n ticks
@@ -51,7 +56,7 @@ public class StrategyParams {
     public int workerScoutToBarrackCloseMinRange = 15;
 
     public int turretsForCleanupRange = 25;
-    public int turretsForCleanupMaxCount = 1;
+    public int turretsForCleanupMaxCount = 5;
     public int turretsForCleanupEdgeShift = 2; //turret should atttack edge + X to be able to clear X lines of mineral guaranteed
 
     public int buildCommandMaxWaitTicks = 5;
@@ -169,6 +174,8 @@ public class StrategyParams {
 
     public int cleanBaseRangeTreshhold = 15;
     public int useWorkerFollowMinRange = 13;//close to cc follow can stuck workers
+    public boolean useOldRangerMicro = false;
+
 
 
     public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
@@ -247,6 +254,8 @@ public class StrategyParams {
 //        attackPointRates = List.of(1.0, 0.0);
 
         useWorkerPush = true;
+
+        useOldRangerMicro = true;
 
 //        useWorkerDefendingTurrets = true;
     }

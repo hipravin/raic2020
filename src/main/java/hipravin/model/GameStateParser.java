@@ -170,20 +170,22 @@ public abstract class GameStateParser {
             int defX = defArea.getX();
             int defY = defArea.getY();
 
+            int defXY = defX + defY;
+
             Arrays.stream(pgs.getPlayerView().getEntities())
                     .filter(e -> e.getPlayerId() != null && e.getPlayerId() == pgs.getPlayerView().getMyId())
                     .filter(e -> e.getEntityType() == EntityType.RANGED_UNIT)
-                    .filter(e -> e.getPosition().getX() <= defX || e.getPosition().getY() <= defY)
+                    .filter(e -> e.getPosition().getX() + e.getPosition().getY() < defXY)
                     .forEach(e -> pgs.defendingAreaMyRangers.add(e));
 
             Arrays.stream(pgs.getPlayerView().getEntities())
                     .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
-                    .filter(e -> e.getPosition().getX() <= defX || e.getPosition().getY() <= defY)
+                    .filter(e -> e.getPosition().getX() + e.getPosition().getY() < defXY)
                     .forEach(e -> pgs.defendingAreaEnemies.add(e));
 
             Arrays.stream(pgs.getPlayerView().getEntities())
                     .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
-                    .filter(e -> e.getPosition().getX() > defX && e.getPosition().getY() > defY)
+                    .filter(e -> e.getPosition().getX() + e.getPosition().getY() >= defXY)
                     .forEach(e -> pgs.attackAreaEnemies.add(e));
         }
 

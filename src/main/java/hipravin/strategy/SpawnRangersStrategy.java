@@ -1,5 +1,6 @@
 package hipravin.strategy;
 
+import hipravin.DebugOut;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
@@ -120,6 +121,7 @@ public class SpawnRangersStrategy implements SubStrategy {
             Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUvorot))).orElse(null);
 
             if (closestSpawn != null) {
+                DebugOut.println("Build ranger defending: " + vragUvorot);
                 buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
             }
         }
@@ -152,6 +154,7 @@ public class SpawnRangersStrategy implements SubStrategy {
         if (vragUVorot == null) {
             return false;
         } else {
+            DebugOut.println("Vrag u vorot detected: " + vragUVorot);
             Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
 
             Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUVorot))).orElse(null);
@@ -208,8 +211,13 @@ public class SpawnRangersStrategy implements SubStrategy {
             attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
         }
 
-        RangerAttackHoldRetreatCommand rahrc = new RangerAttackHoldRetreatCommand(null, attackPosition, retreatPosition, false);
-        CommandUtil.chainCommands(buildRangerCommand, rahrc);
+        if(strategyParams.useOldRangerMicro) {
+            RangerAttackHoldRetreatCommand rahrc = new RangerAttackHoldRetreatCommand(null, attackPosition, retreatPosition, false);
+            CommandUtil.chainCommands(buildRangerCommand, rahrc);
+        } else {
+            RangerAttackHoldRetreatMicroCommand rahrc = new RangerAttackHoldRetreatMicroCommand(null, attackPosition, retreatPosition, false);
+            CommandUtil.chainCommands(buildRangerCommand, rahrc);
+        }
 
         gameHistoryState.addOngoingCommand(buildRangerCommand, false);
     }
@@ -226,9 +234,19 @@ public class SpawnRangersStrategy implements SubStrategy {
 
         Position2d attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
 
-        RangerAttackHoldRetreatCommand rahrc = new RangerAttackHoldRetreatCommand(null, attackPosition, retreatPosition, false);
-        CommandUtil.chainCommands(buildRangerCommand, rahrc);
+        if(strategyParams.useOldRangerMicro) {
+            RangerAttackHoldRetreatCommand rahrc = new RangerAttackHoldRetreatCommand(null, attackPosition, retreatPosition, false);
+            CommandUtil.chainCommands(buildRangerCommand, rahrc);
+        } else {
+            RangerAttackHoldRetreatMicroCommand rahrc = new RangerAttackHoldRetreatMicroCommand(null, attackPosition, retreatPosition, false);
+            CommandUtil.chainCommands(buildRangerCommand, rahrc);
+
+        }
 
         gameHistoryState.addOngoingCommand(buildRangerCommand, false);
+    }
+
+    public void createRangerCommand() {
+
     }
 }

@@ -76,7 +76,7 @@ public class TurretSetAutoAttackStrategy implements SubStrategy {
                     .filter(e -> e.getPosition().getX() == tcell.getPosition().getX() + 1)
                     .findFirst().map(Entity::getId);
         }
-        mineral = Arrays.stream(pgs.getPlayerView().getEntities())
+        mineral = mineral.or(() -> Arrays.stream(pgs.getPlayerView().getEntities())
                 .filter(e -> e.getEntityType() == EntityType.RESOURCE)
                 .filter(e -> tp.lenShiftSum(e.getPosition()) == 1
                         || tp.lenShiftSum(e.getPosition()) == 1
@@ -87,7 +87,7 @@ public class TurretSetAutoAttackStrategy implements SubStrategy {
                         || tp.shift(-1, 2).equals(of(e.getPosition()))
                         || tp.shift(2, -1).equals(of(e.getPosition()))
                         || tp.shift(2, 2).equals(of(e.getPosition()))
-                ).findFirst().map(Entity::getId);
+                ).findFirst().map(Entity::getId));
 
 
         return mineral.or(() ->

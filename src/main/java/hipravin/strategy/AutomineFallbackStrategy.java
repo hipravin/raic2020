@@ -21,35 +21,6 @@ public class AutomineFallbackStrategy implements SubStrategy {
         autoAttackAllUnboundWorkers(gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
     }
 
-    public void handleWayBlockers(Set<Integer> busyEntities, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                                  StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-
-        if (pgs.getPopulation().getPopulationUse() <= strategyParams.wayOutBlockFindMaxPopulation) {
-
-            for (Map.Entry<Position2d, Position2d> moved : pgs.getWorkersMovedSinceLastTick().entrySet()) {
-                if (pgs.at(moved.getValue()).test(c -> busyEntities.contains(c.getEntityId()))) {
-                    continue;//if busy worker block way - dont' touch him
-                }
-
-                if (moved.getValue().x > 10 || moved.getValue().y > 10
-                        && BlockDetector.checkIfWorkerBlocksWayOut(moved.getValue(), gameHistoryState, pgs, strategyParams)) {
-                    DebugOut.println("Worker at " + moved.getValue() + " blocks way out");
-
-                    Position2d cur = moved.getValue();
-
-                    Position2d moveTo = tryToUnblockTheWay(cur, pgs);
-
-                    if (moveTo != null) {
-                        MoveSingleCommand moveCommand = new MoveSingleCommand(pgs, pgs.at(moved.getValue()).getEntityId(),
-                                moveTo, (int) cur.lenShiftSum(moveTo));
-
-                        gameHistoryState.addOngoingCommand(moveCommand, true);
-                    }
-                }
-            }
-        }
-    }
-
     public static Position2d tryToUnblockTheWay(Position2d cur, ParsedGameState pgs) {
         Position2d result = null;
 
