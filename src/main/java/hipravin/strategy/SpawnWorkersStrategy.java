@@ -45,6 +45,20 @@ public class SpawnWorkersStrategy implements SubStrategy {
             }
         }
 
+        if(pgs.getMyRangerBase() != null && !pgs.getMyRangerBase().isActive()
+                && pgs.getMyRangerBase().getHealth() > strategyParams.barrackHealthToHoldResources) {
+
+
+            boolean canBuild = pgs.getEstimatedResourceAfterTicks(1) >= pgs.getMyWorkers().size() + 10
+                    + gameHistoryState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                    + strategyParams.resourcesToHold;
+
+            if(!canBuild) {
+                return false;
+            }
+
+        }
+
         if (pgs.getMyWorkers().size() <= strategyParams.populationOfWorkersToIfExtraResources
                 && haveExtraResources(pgs, gameHistoryState, strategyParams)
                 && (pgs.getMyRangerBase() == null || !pgs.getMyRangerBase().isActive())) {

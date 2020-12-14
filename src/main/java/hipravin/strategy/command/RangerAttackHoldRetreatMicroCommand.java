@@ -107,11 +107,22 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
     @Override
     public void updateAssignedActions(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         Position2d rp = pgs.getEntityIdToCell().get(rangerEntityId).getPosition();
-        if (rp.lenShiftSum(attackPosition) < 8) {
-            DebugOut.println("Reach attackPosition: " + attackPosition);
+
+        AtomicInteger countSwitched = new AtomicInteger(0);
+
+        if (rp.lenShiftSum(attackPosition) < 15) {
+            Position2dUtil.iterAllPositionsInExactRange(rp, 3, p -> {
+                if(pgs.at(p).test(c -> c.isMyRanger() && c.getRangerSwitchedAttackPositionTo() != null)) {
+                    countSwitched.incrementAndGet();
+                }
+            });
+        }
+
+        if (rp.lenShiftSum(attackPosition) < 9 || countSwitched.get() > 0) {
+            DebugOut.println("Reach attackPosition: " + attackPosition + ", nbs: " + countSwitched.get());
 
             if (attackPosition.equals(strategyParams.attackPoints.get(0))) {
-                attackPosition = Position2dUtil.randomMapPosition();
+                attackPosition = pgs.findClosesEnemyArmy(rp).orElse(Position2dUtil.randomMapPosition());
             } else {
                 attackPosition = strategyParams.attackPoints.get(0);
             }

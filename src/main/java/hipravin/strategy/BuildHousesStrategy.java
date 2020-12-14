@@ -45,12 +45,17 @@ public class BuildHousesStrategy implements SubStrategy {
     }
 
     boolean willHaveResourcesIn2Ticks(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
-        if(pgs.getMyRangerBase() != null && !pgs.getMyRangerBase().isActive() && pgs.getMyRangerBase().getHealth() > strategyParams.barrackHealthToHoldResources) {
+        if (pgs.getMyRangerBase() != null && !pgs.getMyRangerBase().isActive() && pgs.getMyRangerBase().getHealth() > strategyParams.barrackHealthToHoldResources) {
             return pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
                     + strategyParams.resourcesToHold;
         }
 
+        int rangCost = pgs.getMyRangerBase() != null && pgs.getMyRangerBase().isActive()
+                ? pgs.getNextRangerCost()
+                : 0;
+
         return pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                + rangCost
                 ;
     }
 

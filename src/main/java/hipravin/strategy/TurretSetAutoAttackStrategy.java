@@ -43,7 +43,7 @@ public class TurretSetAutoAttackStrategy implements SubStrategy {
         //home turrets to attack minerals
         for (Integer turret : turrets) {
             Cell tcell = pgs.getEntityIdToCell().get(turret);
-            if (pgs.getEnemyArmy().isEmpty() && pgs.getMyRangerBase() == null) {
+            if (pgs.getEnemyArmy().isEmpty() && (pgs.getMyRangerBase() == null || !pgs.getMyRangerBase().isActive())) {
 
                 Integer attackTarget = mineralFieldIdToAttack(tcell, pgs).orElse(null);
 

@@ -145,7 +145,7 @@ public class StrategyParams {
     public int populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded = 45;//35 is optimal rush?
     public int populationOfWorkersToBuildAfterRangers = 60;
     public int populationOfWorkersToIfExtraResources = 80;
-    public boolean useWorkerFollow = true;
+    public boolean useWorkerFollow = false;
 
     public boolean sendToCenter = true;
     //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 18, 19, 20, 21, 22, 23, 24, 25);
@@ -177,7 +177,7 @@ public class StrategyParams {
 
     //    public List<Position2d> attackPoints = List.of(of(70, 70), of(30, 75), of(75, 30));
 //    public List<Double> attackPointRates = List.of(0.9, 0.5);
-    public List<Position2d> attackPoints = List.of(of(73, 73), of(40, 75), of(75, 40));
+    public List<Position2d> attackPoints = List.of(of(74, 74), of(40, 76), of(76, 40));
     public List<Double> attackPointRates = List.of(0.4, 0.5);
 
     public int cleanBaseRangeTreshhold = 15;
@@ -245,26 +245,25 @@ public class StrategyParams {
         return options.get(options.size() - 1);
     }
 
-    public void activateOption2() {
+    public void activateOption2() {//super fast home
         GameHistoryAndSharedState.random.nextInt();
 
 //        populationOfWorkersToBuildBeforeRangers = 35;
-        populationOfWorkersToBuildBeforeRangers = 25;
+        populationOfWorkersToBuildBeforeRangers = 20;
 
-        rangerCountToAddSomeWorkers = 25;
+        rangerCountToAddSomeWorkers = 10;
 
-        DESIRED_BARRACK = of(29, 29);
+        DESIRED_BARRACK = of(25, 25);
         sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
-//        sendToCenterWorkerNumbers = Set.of(15, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
-        sendToCenterWorkerNumbers = Set.of(15, 18, 19, 20, 21, 22, 23, 24, 25);
+        sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
 
 //        attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
 //        attackPointRates = List.of(1.0, 0.0);
 
         useWorkerPush = true;
 
-        useOldRangerMicro = true;
+        useOldRangerMicro = false;
 
         useWorkerFollow = false;
 
@@ -298,7 +297,7 @@ public class StrategyParams {
         useWorkerFollow = false;
 
         attackPoints = List.of(of(10, 70), of(70, 10), of(70, 70));
-        attackPointRates = List.of(0.4, 0.9);
+        attackPointRates = List.of(0.9, 0.9);
     }
 
     public int round1WorkersFirst = 15;

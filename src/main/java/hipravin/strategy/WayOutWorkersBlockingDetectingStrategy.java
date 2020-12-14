@@ -67,7 +67,7 @@ public class WayOutWorkersBlockingDetectingStrategy implements SubStrategy {
                 blockerCandidates = blockerCandidates.subList(0, strategyParams.wayOutWorkerMaxPullCount);
             }
 
-            DebugOut.println("Way is blocked detected, move out : " + workersFromFog);
+            DebugOut.println("Way is blocked detected, move out : " + blockerCandidates);
 
             for (Position2d blockerCandidate : blockerCandidates) {
                 createMoveTowardsNearestFog(blockerCandidate, nes, gameHistoryState, pgs, strategyParams);

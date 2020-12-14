@@ -26,6 +26,8 @@ public class Cell implements Cloneable {
     int healthLeft = -1;
     int maxHealth = -1;
 
+    Position2d rangerSwitchedAttackPositionTo = null;
+
     boolean isMineral = false;
     boolean isBuilding = false;
     int buildingSize = -1;
@@ -389,6 +391,10 @@ public class Cell implements Cloneable {
 
     public boolean isMapEdge() {
         return isMapEdge;
+    }
+
+    public Position2d getRangerSwitchedAttackPositionTo() {
+        return rangerSwitchedAttackPositionTo;
     }
 }
 

@@ -134,6 +134,9 @@ public class ParsedGameState {
     public int getRangCost() {
         return playerView.getEntityProperties().get(EntityType.RANGED_BASE).getInitialCost();
     }
+    public int getNextRangerCost() {
+        return playerView.getEntityProperties().get(EntityType.RANGED_UNIT).getInitialCost() + getMyRangers().size();
+    }
 
     public int getTurretCost() {
         return playerView.getEntityProperties().get(EntityType.TURRET).getInitialCost();
