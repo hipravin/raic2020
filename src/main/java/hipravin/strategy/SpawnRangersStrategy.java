@@ -53,21 +53,28 @@ public class SpawnRangersStrategy implements SubStrategy {
             //nothing left on base
 
             if(armyCloseToRangeBase.isPresent()) {
-                setRedefinedAttackPoint(armyCloseToRangeBase.get(), strategyParams);
+                setRedefinedAttackPoint(armyCloseToRangeBase.get(), gameHistoryState, strategyParams);
             } else if(entityCloseToRangeBase.isPresent()) {
-                setRedefinedAttackPoint(entityCloseToRangeBase.get(), strategyParams);
+                setRedefinedAttackPoint(entityCloseToRangeBase.get(), gameHistoryState, strategyParams);
             } else {
-                setRedefinedAttackPoint(Position2dUtil.randomMapPosition(), strategyParams);
+                setRedefinedAttackPoint(Position2dUtil.randomMapPosition(), gameHistoryState, strategyParams);
             }
         }
     }
 
-    void setRedefinedAttackPoint(Position2d position, StrategyParams strategyParams) {
+    void setRedefinedAttackPoint(Position2d position, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
         strategyParams.attackPoints = new ArrayList<>(strategyParams.attackPoints);
         strategyParams.attackPointRates = new ArrayList<>(strategyParams.attackPointRates);
 
         strategyParams.attackPoints.set(0, position);
         strategyParams.attackPointRates.set(0, 0.9);//no need/benefit for spread anymore
+
+        gameHistoryAndSharedState.ongoingCommands.forEach(c -> {
+            if(c instanceof RangerAttackHoldRetreatMicroCommand) {
+                ((RangerAttackHoldRetreatMicroCommand) c).setAttackPosition(position);
+            }
+        });
+
     }
 
     Optional<Position2d> nearestEnemyEntityToPosition(Position2d toPosition, ParsedGameState pgs) {

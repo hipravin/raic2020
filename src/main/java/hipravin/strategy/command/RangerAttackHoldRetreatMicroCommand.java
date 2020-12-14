@@ -104,6 +104,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         return false;
     }
 
+
     @Override
     public void updateAssignedActions(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         Position2d rp = pgs.getEntityIdToCell().get(rangerEntityId).getPosition();
@@ -121,11 +122,22 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         if (rp.lenShiftSum(attackPosition) < 9 || countSwitched.get() > 0) {
             DebugOut.println("Reach attackPosition: " + attackPosition + ", nbs: " + countSwitched.get());
 
+            Position2d currentAttackPosition = attackPosition;
+
             if (attackPosition.equals(strategyParams.attackPoints.get(0))) {
                 attackPosition = pgs.findClosesEnemyArmy(rp).orElse(Position2dUtil.randomMapPosition());
             } else {
                 attackPosition = strategyParams.attackPoints.get(0);
             }
+
+            gameHistoryState.getOngoingCommands().forEach(c -> {
+                if(c instanceof RangerAttackHoldRetreatMicroCommand) {
+                    RangerAttackHoldRetreatMicroCommand mc = (RangerAttackHoldRetreatMicroCommand) c;
+                    if(mc.getAttackPosition().equals(currentAttackPosition)) {
+                        mc.setAttackPosition(attackPosition);
+                    }
+                }
+            });
         }
 
         Cell rc = pgs.at(rp);
@@ -189,6 +201,10 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         assignedActions.put(rangerEntityId, new ValuedEntityAction(0.5, rangerEntityId, autoAttack));
     }
 
+    public void setAttackPosition(Position2d attackPosition) {
+        this.attackPosition = attackPosition;
+    }
+
     @Override
     public String toString() {
         return "RangerAttackHoldRetreatCommand{" +
@@ -196,5 +212,9 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
                 ", attackPosition=" + attackPosition +
                 ", retreatPosition=" + retreatPosition +
                 '}';
+    }
+
+    public Position2d getAttackPosition() {
+        return attackPosition;
     }
 }

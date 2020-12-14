@@ -1,5 +1,6 @@
 package hipravin.strategy;
 
+import hipravin.DebugOut;
 import hipravin.model.Cell;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
@@ -42,7 +43,7 @@ public class WorkerScoutStrategy implements SubStrategy {
 
         if(fog.isPresent() && worker.isPresent()) {
 
-            System.out.println("Selected scout: " + worker.get() + " sent to " + fog.get());
+            DebugOut.println("Selected scout: " + worker.get() + " sent to " + fog.get());
             int workerId = pgs.at(worker.get()).getEntityId();
 
             MoveTowardsCommand moveToFog = new MoveTowardsCommand(pgs, workerId, fog.get(),

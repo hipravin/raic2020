@@ -289,15 +289,15 @@ public class StrategyParams {
     public void activateRound2() {
         populationOfWorkersToBuildBeforeRangers = 40;
 
-        DESIRED_BARRACK = of(15, 15);
+        DESIRED_BARRACK = of(20, 15);
         sendToDesiredBarrackPosition = of(19, 19);
 
         sendToCenterWorkerNumbers = Set.of(15, 16, 17, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
         minHouseDistanceToCenter = 3;
         useWorkerFollow = false;
 
-        attackPoints = List.of(of(10, 70), of(70, 10), of(70, 70));
-        attackPointRates = List.of(0.9, 0.9);
+        attackPoints = List.of(of(75, 75), of(75, 10), of(10, 75));
+        attackPointRates = List.of(0.05, 0.9);
     }
 
     public int round1WorkersFirst = 15;

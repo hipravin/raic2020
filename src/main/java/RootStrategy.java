@@ -244,6 +244,7 @@ public class RootStrategy extends MyStrategy {
         Instant afterParse = Instant.now();
 
         try {
+
             initStaticParams(playerView);
             parseDataForSingleTick(playerView);
             gameHistoryState.turretRequests = new ArrayList<>();
@@ -253,14 +254,18 @@ public class RootStrategy extends MyStrategy {
 
             Action decision = combineDecisions();
             updateGameHistoryState(decision);
+
+            verifyResponse(decision, playerView);
+
             return decision;
         } catch (RuntimeException e) {
+            e.printStackTrace(System.err);
             e.printStackTrace();
             DebugOut.println(e.getMessage());
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             DebugOut.println(sw.toString());
-            return new Action();
+            return new Action(Collections.emptyMap());
             //Index -1 out of bounds for length 5 ??????????
         } finally {
             if(DebugOut.enabled) {
@@ -271,6 +276,44 @@ public class RootStrategy extends MyStrategy {
                         + " / avg: " + totalTimeConsumed.dividedBy(playerView.getCurrentTick() + 1) + " / afterParse: " + Duration.between(afterParse, Instant.now()));
             }
         }
+    }
+
+    public void ensurePosition(Vec2Int position) {
+        if(position.getX() < 0) {
+            System.err.println("Position x < 0" + position.getX());
+            position.setX(0);
+        }
+        if(position.getX() > 79) {
+            System.err.println("Position x > 79" + position.getX());
+            position.setX(79);
+        }
+        if(position.getY() < 0) {
+            System.err.println("Position y < 0" + position.getY());
+            position.setY(0);
+        }
+        if(position.getY() > 79) {
+            System.err.println("Position x > 79" + position.getY());
+            position.setY(79);
+        }
+    }
+
+
+
+
+    void verifyResponse(Action action, PlayerView pw) {
+
+        Set<Integer> entityIds = Arrays.stream(pw.getEntities()).map(Entity::getId).collect(Collectors.toSet());
+        action.getEntityActions().entrySet().removeIf(e-> !entityIds.contains(e.getKey()));
+
+        action.getEntityActions().forEach((id, ea) -> {
+            if(ea.getMoveAction() != null) {
+                ensurePosition(ea.getMoveAction().getTarget());
+            }
+            if(ea.getBuildAction()!= null) {
+                ensurePosition(ea.getBuildAction().getPosition());
+            }
+        } );
+
     }
 
     @Override

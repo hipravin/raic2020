@@ -30,7 +30,9 @@ public class Round1Strategy implements SubStrategy {
     void spawnSwordmans(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                         StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
-        if (pgs.getMyWorkers().size() < strategyParams.round1WorkersFirst && pgs.curTick() < 200 || pgs.getSwordCount() > 10) {
+        if (pgs.getMyWorkers().size() < strategyParams.round1WorkersFirst && pgs.curTick() < 200
+                || pgs.getSwordCount() > 10
+                || pgs.getMyRangers().size() < 15) {
             return;
         }
 
