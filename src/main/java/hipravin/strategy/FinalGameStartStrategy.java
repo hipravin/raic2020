@@ -465,6 +465,10 @@ public class FinalGameStartStrategy implements SubStrategy {
 
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        if(currentParsedGameState.isRound1()) {
+            return false;
+        }
+
         if(gameStartStrategyDone) {
             return false;
         }

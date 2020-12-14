@@ -145,8 +145,11 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         int enemyCount = countEnemyRangersNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
         int myCount = countMyRangersNearby(rp, strategyParams.attackHoldMyRange, gameHistoryState, pgs, strategyParams);
 
+
         if(pgs.isRound1() && enemyCount > myCount) {
             updateRetreat(gameHistoryState, pgs, strategyParams, assignedActions);
+        } else if(pgs.isRound1() && myCount < 5 && enemyCount > 0) {
+            updateHold(gameHistoryState, pgs, strategyParams, assignedActions);
         } else {
 
             if (rc.getAttackerCount(6) > 1 && rc.getPosition().lenShiftSum(retreatPosition) >= strategyParams.retreatStopRange) {
@@ -156,7 +159,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
             } else if ((rc.getAttackerCount(6) == 1
                     || rc.getAttackerCount(7) == 1)
 
-                    && (enemyCount > 1 || enemyCount > myCount * 2)) {
+                    && (enemyCount > 1 || 2 * enemyCount > 3 *  myCount)) {
                 DebugOut.println("Ranger hold: " + rp);
 
                 updateHold(gameHistoryState, pgs, strategyParams, assignedActions);

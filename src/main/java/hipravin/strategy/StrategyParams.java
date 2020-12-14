@@ -13,7 +13,7 @@ import static hipravin.model.Position2d.of;
 public class StrategyParams {
     public static int MAX_VAL = Integer.MAX_VALUE >> 1;
 
-    public static final int NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 20;
+    public static int NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 20;
     public static int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 15;
 
     public static final int HOUSE_WORKERS_NEARBY_MAX_PATH = 5;
@@ -177,7 +177,7 @@ public class StrategyParams {
 
     //    public List<Position2d> attackPoints = List.of(of(70, 70), of(30, 75), of(75, 30));
 //    public List<Double> attackPointRates = List.of(0.9, 0.5);
-    public List<Position2d> attackPoints = List.of(of(74, 74), of(40, 76), of(76, 40));
+    public List<Position2d> attackPoints = List.of(of(76, 76), of(40, 76), of(76, 40));
     public List<Double> attackPointRates = List.of(0.4, 0.5);
 
     public int cleanBaseRangeTreshhold = 15;
@@ -271,9 +271,11 @@ public class StrategyParams {
     }
 
     public void activateRound1() {
-        StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 10;
+        StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 7;
+        StrategyParams.NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 15;
 
-        populationOfWorkersToBuildBeforeRangers = 50;
+
+        populationOfWorkersToBuildBeforeRangers = 15;
 
         DESIRED_BARRACK = of(15, 15);
         sendToDesiredBarrackPosition = of(19, 19);
@@ -281,23 +283,26 @@ public class StrategyParams {
         sendToCenterWorkerNumbers = Set.of();
         minHouseDistanceToCenter = 3;
 
-        attackPoints = List.of(of(70, 10), of(10, 70), of(70, 70));
-        attackPointRates = List.of(0.7, 0.9);
+        attackPoints = List.of(of(76, 10), of(10, 76), of(76, 76));
+        attackPointRates = List.of(0.9, 0.9);
         useWorkerFollow = false;
+        cleanBaseRangeTreshhold = 12;
     }
 
     public void activateRound2() {
         populationOfWorkersToBuildBeforeRangers = 40;
 
-        DESIRED_BARRACK = of(20, 15);
+        DESIRED_BARRACK = of(25, 15);
         sendToDesiredBarrackPosition = of(19, 19);
 
         sendToCenterWorkerNumbers = Set.of(15, 16, 17, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
         minHouseDistanceToCenter = 3;
         useWorkerFollow = false;
 
-        attackPoints = List.of(of(75, 75), of(75, 10), of(10, 75));
-        attackPointRates = List.of(0.05, 0.9);
+        attackPoints = List.of(of(76, 10), of(10, 76), of(76, 76));
+        attackPointRates = List.of(0.9, 0.9);
+
+        cleanBaseRangeTreshhold = 12;
     }
 
     public int round1WorkersFirst = 15;

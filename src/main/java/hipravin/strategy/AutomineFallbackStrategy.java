@@ -88,7 +88,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
             if (of(w.getPosition()).lenShiftSum(to) < 15) {
                 moveTo = new MoveTowardsCommand(pgs, w.getId(),
                         Position2dUtil.randomMapPosition(),
-                        10, strategyParams.moveTowardsMineralsDistanceTreshold);
+                        Position2dUtil.MAP_SIZE, strategyParams.moveTowardsMineralsDistanceTreshold);
 
             } else {
                 //send to center

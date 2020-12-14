@@ -86,10 +86,12 @@ public class RootStrategy extends MyStrategy {
             setBuildingSizes(playerView);
 
             if(!playerView.isFogOfWar() && playerView.getPlayers().length > 2) {
+                System.out.println("round1");
                 strategyParams.activateRound1();
             }
             if(playerView.isFogOfWar() && playerView.getPlayers().length > 2) {
                 strategyParams.activateRound2();
+                System.out.println("round2");
             }
         }
     }
