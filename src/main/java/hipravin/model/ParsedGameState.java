@@ -49,7 +49,7 @@ public class ParsedGameState {
     Entity enemyArmyBase = null;
 
     public boolean isRound1() {
-        return !getPlayerView().isFogOfWar() && getPlayerView().getPlayers().length > 2;
+        return !getPlayerView().isFogOfWar();
     }
 
     public boolean isRound2() {
@@ -119,6 +119,14 @@ public class ParsedGameState {
                 .count();
     }
 
+    public int getSwordCount() {
+        return (int) Arrays.stream(playerView.getEntities())
+                .filter(e -> e.getEntityType() == EntityType.MELEE_UNIT
+                        && e.getPlayerId() != null && e.getPlayerId() == playerView.getMyId()
+                        && e.isActive())
+                .count();
+    }
+
     public int getHouseCost() {
         return playerView.getEntityProperties().get(EntityType.HOUSE).getInitialCost();
     }
@@ -168,6 +176,13 @@ public class ParsedGameState {
     public Entity getMyRangerBase() {
         return Arrays.stream(playerView.getEntities())
                 .filter(e -> e.getEntityType() == EntityType.RANGED_BASE
+                        && e.getPlayerId() != null && e.getPlayerId() == playerView.getMyId())
+                .findAny().orElse(null);
+    }
+
+    public Entity getMySwordBase() {
+        return Arrays.stream(playerView.getEntities())
+                .filter(e -> e.getEntityType() == EntityType.MELEE_BASE
                         && e.getPlayerId() != null && e.getPlayerId() == playerView.getMyId())
                 .findAny().orElse(null);
     }

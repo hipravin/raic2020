@@ -16,6 +16,10 @@ import static hipravin.model.Position2d.of;
 public class SpawnRangersStrategy implements SubStrategy {
     boolean shouldSpawnMoreRangers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
+        if(pgs.isRound1() && pgs.getMyWorkers().size() < strategyParams.round1WorkersFirst && pgs.curTick() < 200) {
+            return false;
+        }
+
         if (pgs.getPopulation().getMyRangerCount() >= strategyParams.maxNumberOfRangers) {
             return false; //hold
         }
@@ -189,6 +193,10 @@ public class SpawnRangersStrategy implements SubStrategy {
 
     void buildRangerDefending(Position2d spawnPos, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                               StrategyParams strategyParams) {
+
+        if(pgs.isRound1() && pgs.getMyWorkers().size() < strategyParams.round1WorkersFirst) {
+            return;
+        }
 
         Command buildRangerCommand = new BuildRangerCommand(spawnPos, pgs, 1);
 

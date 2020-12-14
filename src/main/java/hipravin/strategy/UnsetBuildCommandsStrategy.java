@@ -27,6 +27,8 @@ public class UnsetBuildCommandsStrategy implements SubStrategy {
 
         notBusyProducingEntityIds.removeAll(busyEntities);
 
+
+
         for (Integer id : notBusyProducingEntityIds) {
             DebugOut.println("Unset build for: " + id);
 

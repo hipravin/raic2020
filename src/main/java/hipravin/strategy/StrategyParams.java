@@ -92,7 +92,7 @@ public class StrategyParams {
     public double worstMineralSpawnProb = 0.2;
     public int switchToAutoMineRange = 4;
 
-    public int dontSpawnWorkersVragUVorotPathLen = 20;
+    public int dontSpawnWorkersVragUVorotPathLen = 15;
 
     //    public int populationOfWorkersToBuildBeforeRangers = 60;
 
@@ -281,13 +281,12 @@ public class StrategyParams {
         minHouseDistanceToCenter = 3;
 
         attackPoints = List.of(of(70, 10), of(10, 70), of(70, 70));
-        attackPointRates = List.of(0.8, 0.9);
+        attackPointRates = List.of(0.7, 0.9);
         useWorkerFollow = false;
     }
 
-
     public void activateRound2() {
-        populationOfWorkersToBuildBeforeRangers = 50;
+        populationOfWorkersToBuildBeforeRangers = 40;
 
         DESIRED_BARRACK = of(15, 15);
         sendToDesiredBarrackPosition = of(19, 19);
@@ -299,4 +298,6 @@ public class StrategyParams {
         attackPoints = List.of(of(10, 70), of(70, 10), of(70, 70));
         attackPointRates = List.of(0.3, 0.9);
     }
+
+    public int round1WorkersFirst = 15;
 }

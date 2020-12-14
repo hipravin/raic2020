@@ -23,7 +23,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
     boolean shouldSpawnMoreWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
-        if (pgs.getEnemyArmy() != null) {
+        if (pgs.getEnemyArmy() != null && !pgs.isRound1()) {
             Position2d vragUvorot = pgs.getDefendingAreaEnemies()
                     .stream()
                     .min(Comparator.comparingInt(e -> of(e.getPosition()).lenShiftSum(pgs.getMyCc().getPosition())))
@@ -37,7 +37,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
             }
         }
 
-        if (pgs.getMyRangerBase() != null && pgs.getMyRangerBase().isActive()) {
+        if (pgs.getMyRangerBase() != null && pgs.getMyRangerBase().isActive() && !pgs.isRound1()) {
             if (pgs.getMyRangers().size() < strategyParams.rangerCountToAddSomeWorkers
                     && (outOfMoney(pgs, gameHistoryState, strategyParams)
                     || outOfPopulation(pgs, strategyParams))) {

@@ -38,6 +38,8 @@ public class RootStrategy extends MyStrategy {
         MagnetRepairStrategy magnetRepairStrategy = new MagnetRepairStrategy();
         BuildBarrackStrategy buildBarrackStrategy = new BuildBarrackStrategy();
 
+        Round1Strategy round1Strategy = new Round1Strategy();
+
         TurretSetAutoAttackStrategy turretsAutoAttack = new TurretSetAutoAttackStrategy();
         UnsetBuildCommandsStrategy unsetStrategy = new UnsetBuildCommandsStrategy();
         BuildTurretStrategy buildTurretStrategy = new BuildTurretStrategy();
@@ -54,6 +56,9 @@ public class RootStrategy extends MyStrategy {
         subStrategies.add(magnetRepairStrategy);
         subStrategies.add(buildHousesStrategy);
         subStrategies.add(workerDefendingTurretsStrategy);
+
+        subStrategies.add(round1Strategy);
+
         subStrategies.add(buildBarrackStrategy);
         subStrategies.add(buildTurretStrategy);
         subStrategies.add(wayOutWorkersBlockingDetectingStrategy);

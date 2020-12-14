@@ -119,13 +119,17 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
         Cell rc = pgs.at(rp);
 
+        int enemyCount = countEnemyRangersNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
+        int myCount = countMyRangersNearby(rp, strategyParams.attackHoldMyRange, gameHistoryState, pgs, strategyParams);
 
         if (rc.getAttackerCount(6) > 1 && rc.getPosition().lenShiftSum(retreatPosition) >= strategyParams.retreatStopRange) {
             DebugOut.println("Ranger retreat: " + rp);
 
             updateRetreat(gameHistoryState, pgs, strategyParams, assignedActions);
-        } else if (rc.getAttackerCount(6) == 1
-                        || rc.getAttackerCount(7) == 1) {
+        } else if ((rc.getAttackerCount(6) == 1
+                || rc.getAttackerCount(7) == 1)
+
+                && (enemyCount > 1 || enemyCount > myCount * 2)) {
             DebugOut.println("Ranger hold: " + rp);
 
             updateHold(gameHistoryState, pgs, strategyParams, assignedActions);
