@@ -154,11 +154,13 @@
 
 81 worker retreat doesnt work naer rang base
 
-82 if surrounded - find for shortest way out
+82 if surrounded - find for shortest way out/ x y min 
 
 83 Приоритет для лучниц - рабочие, а не здания
 
 84 достраивать рабочих как-то после барака?
+
+85 guess path to center complexity
 
 короткий поиск из fog edge
 

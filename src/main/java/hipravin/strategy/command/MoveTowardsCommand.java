@@ -89,7 +89,7 @@ public class MoveTowardsCommand extends SingleEntityCommand {
             if (followEntityId != null && currentParsedGameState.getEntityIdToCell().containsKey(followEntityId)
                     && gameHistoryState.allOMoveTowardsCommadsRelatedIds().contains(followEntityId)
                     && followEntityIdPosition != null
-                    && ccPosition.lenShiftSum(currentPosition) > strategyParams.useWorkerFollowMinRange
+//                    && ccPosition.lenShiftSum(currentPosition) > strategyParams.useWorkerFollowMinRange
                     && targetPosition.lenShiftSum(currentPosition) > targetPosition.lenShiftSum(followEntityIdPosition)) {
                 //follow unit
                 toPosition = followEntityIdPosition;

@@ -13,6 +13,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WayOUtBlockersDetectorStrategyTest {
     @Test
+    void testDetect3() {
+        RootStrategy strategy = new RootStrategy();
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 17, 97);
+
+        Action action = strategy.getAction(get0.getPlayerView(), null);
+        WayOutWorkersBlockingDetectingStrategy wstrategy = new WayOutWorkersBlockingDetectingStrategy();
+
+        assertTrue(wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>()));
+    }
+
+    @Test
     void testDetect2() {
         RootStrategy strategy = new RootStrategy();
         ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 17, 113);

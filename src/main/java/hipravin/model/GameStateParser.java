@@ -200,9 +200,6 @@ public abstract class GameStateParser {
                 .filter(e -> (e.getEntityType() == EntityType.RANGED_BASE || e.getEntityType() == EntityType.MELEE_BASE)
                         && e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
                 .findAny().orElse(null);
-
-
-
     }
 
     public static void calculateWorkersMovedSinceLastTurn(ParsedGameState currentPgs, ParsedGameState previousPgs) {

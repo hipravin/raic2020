@@ -42,7 +42,7 @@ public class RootStrategy extends MyStrategy {
         UnsetBuildCommandsStrategy unsetStrategy = new UnsetBuildCommandsStrategy();
         BuildTurretStrategy buildTurretStrategy = new BuildTurretStrategy();
 
-
+        WayOutWorkersBlockingDetectingStrategy wayOutWorkersBlockingDetectingStrategy = new WayOutWorkersBlockingDetectingStrategy();
         WorkerScoutStrategy workerScoutStrategy = new WorkerScoutStrategy();
         AutomineFallbackStrategy autoMine = new AutomineFallbackStrategy();
         RangerAutoattackFallbackStrategy rangerAutoAttack = new RangerAutoattackFallbackStrategy();
@@ -56,6 +56,8 @@ public class RootStrategy extends MyStrategy {
         subStrategies.add(workerDefendingTurretsStrategy);
         subStrategies.add(buildBarrackStrategy);
         subStrategies.add(buildTurretStrategy);
+        subStrategies.add(wayOutWorkersBlockingDetectingStrategy);
+
         subStrategies.add(workerScoutStrategy);
 
         subStrategies.add(autoMine);
@@ -78,7 +80,10 @@ public class RootStrategy extends MyStrategy {
             setMyCorner(playerView);
             setBuildingSizes(playerView);
 
-            if(playerView.getPlayers().length > 2) {
+            if(!playerView.isFogOfWar() && playerView.getPlayers().length > 2) {
+                strategyParams.activateRound1();
+            }
+            if(playerView.isFogOfWar() && playerView.getPlayers().length > 2) {
                 strategyParams.activateRound2();
             }
         }
@@ -118,10 +123,10 @@ public class RootStrategy extends MyStrategy {
         currentParsedGameState = GameStateParser.parse(playerView);
         trackChanges();
         removeCompletedOrStaleCommands();
-
     }
 
     void trackChanges() {
+        GameStateParser.calculateNewEntityIds(currentParsedGameState, gameHistoryState.getPreviousParsedGameState(), gameHistoryState);
         GameStateParser.calculateNewEntityIds(currentParsedGameState, gameHistoryState.getPreviousParsedGameState(), gameHistoryState);
         GameStateParser.calculateWorkersMovedSinceLastTurn(currentParsedGameState, gameHistoryState.getPreviousParsedGameState());
         GameStateParser.trackRangeBaseBuildTicks(currentParsedGameState, gameHistoryState);

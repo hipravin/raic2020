@@ -48,6 +48,14 @@ public class ParsedGameState {
 
     Entity enemyArmyBase = null;
 
+    public boolean isRound1() {
+        return !getPlayerView().isFogOfWar() && getPlayerView().getPlayers().length > 2;
+    }
+
+    public boolean isRound2() {
+        return getPlayerView().isFogOfWar() && getPlayerView().getPlayers().length > 2;
+    }
+
     public Optional<Position2d> findClosesEnemyArmy(Position2d toPosition) {
         return enemyArmy.keySet().stream()
                 .min(Comparator.comparingInt(p -> p.lenShiftSum(toPosition)));
@@ -56,7 +64,7 @@ public class ParsedGameState {
 
     public Optional<Position2d> findClosesEnemyArmyInDefArea(Position2d toPosition) {
         return defendingAreaEnemies.stream()
-                .min(Comparator.comparingInt(e -> (int)toPosition.lenShiftSum(of(e.getPosition()))))
+                .min(Comparator.comparingInt(e -> (int) toPosition.lenShiftSum(of(e.getPosition()))))
                 .map(e -> of(e.getPosition()));
 
     }
@@ -122,6 +130,7 @@ public class ParsedGameState {
     public int getTurretCost() {
         return playerView.getEntityProperties().get(EntityType.TURRET).getInitialCost();
     }
+
     public int getBarrackCost(EntityType barrackType) {
         return playerView.getEntityProperties().get(barrackType).getInitialCost();
     }
@@ -131,13 +140,17 @@ public class ParsedGameState {
     }
 
     public Position2d defAreaPosition() {
+        if(isRound1() || isRound2()) {
+            return of(35,35);
+        }
+
         Entity rangBase = getMyRangerBase();
 
-        int defX =  rangBase != null
+        int defX = rangBase != null
                 ? rangBase.getPosition().getX() + 3
                 : MAP_SIZE - 1;
 
-        int defY =  rangBase != null
+        int defY = rangBase != null
                 ? rangBase.getPosition().getY() + 3
                 : MAP_SIZE - 1;
 
@@ -222,6 +235,7 @@ public class ParsedGameState {
     public Cell at(Position2d position2d) {
         return cells[position2d.x][position2d.y];
     }
+
     public Cell at(int x, int y) {
         return cells[x][y];
     }

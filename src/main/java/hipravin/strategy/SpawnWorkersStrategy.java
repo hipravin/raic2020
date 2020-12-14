@@ -99,11 +99,24 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
     @Override
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        countSeenMineralsDebug(pgs);
+
         if (!shouldSpawnMoreWorkers(gameHistoryState, pgs, strategyParams)) {
             return;
         }
 
         findBestSpawnPos(gameHistoryState, pgs, strategyParams);
+    }
+
+    public void countSeenMineralsDebug(ParsedGameState pgs) {
+        long mineralsAround = Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getEntityType() == EntityType.RESOURCE)
+                .filter(e -> e.getPosition().getX() > 5)
+                .filter(e -> e.getPosition().getY() > 5)
+                .filter(e -> e.getPosition().getX() + e.getPosition().getY() > 20 &&  e.getPosition().getX() + e.getPosition().getY() < 30)
+                .count();
+
+        DebugOut.println("Mineral complexity: " + mineralsAround);
     }
 
     public void findBestSpawnPos(

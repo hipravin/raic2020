@@ -26,7 +26,7 @@ public class BuildHousesStrategy implements SubStrategy {
             return false; //hold houses, collect resources for ranger baase
         }
 
-        boolean willHaveResources = willHaveResourcesIn2Ticks(pgs, gameHistoryAndSharedState);//have money - > build house, the fastest strateg
+        boolean willHaveResources = willHaveResourcesIn2Ticks(pgs, gameHistoryAndSharedState, strategyParams);//have money - > build house, the fastest strateg
 
         //TODO: check houses already in progress, other stuff
         boolean populationAheadRequired = populationAheadRequired(pgs, gameHistoryAndSharedState, strategyParams);
@@ -44,7 +44,12 @@ public class BuildHousesStrategy implements SubStrategy {
         }
     }
 
-    boolean willHaveResourcesIn2Ticks(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
+    boolean willHaveResourcesIn2Ticks(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+        if(pgs.getMyRangerBase() != null && !pgs.getMyRangerBase().isActive() && pgs.getMyRangerBase().getHealth() > strategyParams.barrackHealthToHoldResources) {
+            return pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                    + strategyParams.resourcesToHold;
+        }
+
         return pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
                 ;
     }

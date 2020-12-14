@@ -38,7 +38,7 @@ public class StrategyParams {
     public int attackHoldMyRange = 10;
     public double attackOverCountTreshhold = 1.2;
     public int rangersCloserHold = 2;
-    public int retreatStopRange = 4;
+    public int retreatStopRange = 6;
 
     public int wayOutMinHouses = 1;
     public int wayOutFindPathLen = 22;
@@ -145,13 +145,13 @@ public class StrategyParams {
     public int populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded = 45;//35 is optimal rush?
     public int populationOfWorkersToBuildAfterRangers = 60;
     public int populationOfWorkersToIfExtraResources = 80;
-    public boolean useWorkerFollow = false;
+    public boolean useWorkerFollow = true;
 
     public boolean sendToCenter = true;
     //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 18, 19, 20, 21, 22, 23, 24, 25);
 //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
 //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(16, 17, 18, 19, 20, 21, 22, 23, 24, 25);
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(14, 17, 18, 19, 20, 21, 22, 23, 24, 25);
 
     public Set<Integer> surroundedSendToCenterWorkerNumbers = Set.of(13, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
     public Set<Integer> doubleSurroundedSendToCenterWorkerNumbers = Set.of(13, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50);
@@ -160,6 +160,9 @@ public class StrategyParams {
     public int minCleanupTurretPopulation = 15;
 
     public int minHouseDistanceToCenter = 15;
+
+    public int barrackHealthToHoldResources = 240;
+    public int resourcesToHold = 50;
 
     public static boolean ifRandom(double prob) {
         return GameHistoryAndSharedState.random.nextDouble() < prob;
@@ -180,7 +183,6 @@ public class StrategyParams {
     public int cleanBaseRangeTreshhold = 15;
     public int useWorkerFollowMinRange = 13;//close to cc follow can stuck workers
     public boolean useOldRangerMicro = false;
-
 
 
     public int getHousesAheadPopulationBeforeRangers(int currentPopulation) {
@@ -264,8 +266,25 @@ public class StrategyParams {
 
         useOldRangerMicro = true;
 
+        useWorkerFollow = false;
+
 //        useWorkerDefendingTurrets = true;
     }
+
+    public void activateRound1() {
+        populationOfWorkersToBuildBeforeRangers = 50;
+
+        DESIRED_BARRACK = of(15, 15);
+        sendToDesiredBarrackPosition = of(19, 19);
+
+        sendToCenterWorkerNumbers = Set.of();
+        minHouseDistanceToCenter = 3;
+
+        attackPoints = List.of(of(70, 10), of(10, 70), of(70, 70));
+        attackPointRates = List.of(0.8, 0.9);
+        useWorkerFollow = false;
+    }
+
 
     public void activateRound2() {
         populationOfWorkersToBuildBeforeRangers = 50;
@@ -275,10 +294,9 @@ public class StrategyParams {
 
         sendToCenterWorkerNumbers = Set.of(15, 16, 17, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
         minHouseDistanceToCenter = 3;
+        useWorkerFollow = false;
 
         attackPoints = List.of(of(10, 70), of(70, 10), of(70, 70));
-        attackPointRates = List.of(0.4, 0.8);
-        useWorkerDefendingTurrets = true;
+        attackPointRates = List.of(0.3, 0.9);
     }
-
 }
