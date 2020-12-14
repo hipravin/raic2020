@@ -30,7 +30,7 @@ public class Round1Strategy implements SubStrategy {
     void spawnSwordmans(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                         StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
-        if (pgs.getMyWorkers().size() < strategyParams.round1WorkersFirst && pgs.curTick() < 200 || pgs.getSwordCount() > 20) {
+        if (pgs.getMyWorkers().size() < strategyParams.round1WorkersFirst && pgs.curTick() < 200 || pgs.getSwordCount() > 10) {
             return;
         }
 
@@ -62,7 +62,7 @@ public class Round1Strategy implements SubStrategy {
             if (sword.getPlayerId() != null && sword.getPlayerId() == pgs.getPlayerView().getMyId()
                     && sword.getEntityType() == EntityType.MELEE_UNIT) {
 
-                Position2d attackPos = pgs.findClosesEnemyArmyInDefArea(of(sword.getPosition())).orElse(of(10, 70));
+                Position2d attackPos = pgs.findClosesEnemyArmyInDefArea(of(sword.getPosition())).orElse(of(25, 25));
 
                 EntityAction autoAttack = new EntityAction();
                 AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.MAP_SIZE,

@@ -14,7 +14,7 @@ public class StrategyParams {
     public static int MAX_VAL = Integer.MAX_VALUE >> 1;
 
     public static final int NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 20;
-    public static final int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 15;
+    public static int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 15;
 
     public static final int HOUSE_WORKERS_NEARBY_MAX_PATH = 5;
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH = 7;
@@ -272,6 +272,8 @@ public class StrategyParams {
     }
 
     public void activateRound1() {
+        StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 10;
+
         populationOfWorkersToBuildBeforeRangers = 50;
 
         DESIRED_BARRACK = of(15, 15);
@@ -296,7 +298,7 @@ public class StrategyParams {
         useWorkerFollow = false;
 
         attackPoints = List.of(of(10, 70), of(70, 10), of(70, 70));
-        attackPointRates = List.of(0.3, 0.9);
+        attackPointRates = List.of(0.4, 0.9);
     }
 
     public int round1WorkersFirst = 15;

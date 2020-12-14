@@ -43,10 +43,10 @@ public class GameStateParserDjkstra {//wide search actually
 
                 List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
                         Arrays.asList(
-                                p -> !visited.contains(p),
+                                p -> ignoreFog || pgs.at(p).test(c -> !c.fog || c.isFogEdge),
                                 p -> !result.containsKey(p) || result.get(p).pathLenEmptyCellsToThisCell > pathLen,
-                                p -> ignoreFog || pgs.at(p).test(c -> !c.fog || c.isFogEdge)
-                        ));
+                                p -> !visited.contains(p)
+                                ));
 
                 neighbourstoAdd.forEach(p -> {
                     visited.add(p);
@@ -89,10 +89,10 @@ public class GameStateParserDjkstra {//wide search actually
 
                 List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
                         Arrays.asList(
-                                p -> !visited.contains(p),
                                 p -> pgs.at(p).test(c -> c.isEmpty || c.isMyWorker()),
-                                p -> pgs.at(p).nearestMineralField == null || pgs.at(p).nearestMineralField.pathLenEmptyCellsToThisCell > pathLen
-                        ));
+                                p -> pgs.at(p).nearestMineralField == null || pgs.at(p).nearestMineralField.pathLenEmptyCellsToThisCell > pathLen,
+                                p -> !visited.contains(p)
+                                ));
 
                 neighbourstoAdd.forEach(p -> {
                     visited.add(p);
@@ -131,10 +131,10 @@ public class GameStateParserDjkstra {//wide search actually
                 final int pathLen = len;
                 List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
                         Arrays.asList(
-                                p -> !visited.contains(p),
                                 p -> pgs.at(p).isEmpty,
-                                p -> pgs.at(p).myNearestWorker == null || pgs.at(p).myNearestWorker.pathLenEmptyCellsToThisCell > pathLen
-                        ));
+                                p -> pgs.at(p).myNearestWorker == null || pgs.at(p).myNearestWorker.pathLenEmptyCellsToThisCell > pathLen,
+                                p -> !visited.contains(p)
+                                ));
 
                 neighbourstoAdd.forEach(p -> {
                     visited.add(p);

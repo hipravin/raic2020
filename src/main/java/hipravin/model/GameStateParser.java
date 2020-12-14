@@ -352,6 +352,10 @@ public abstract class GameStateParser {
     }
 
     static void markupFog(ParsedGameState pgs) {
+        if(pgs.isRound1()) {
+            return;
+        }
+
         Map<EntityType, EntityProperties> entityProperties = pgs.getPlayerView().getEntityProperties();
 
         int unitSightRange = entityProperties.get(EntityType.BUILDER_UNIT).getSightRange();
