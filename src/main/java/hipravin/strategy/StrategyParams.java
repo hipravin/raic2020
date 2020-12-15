@@ -14,7 +14,7 @@ public class StrategyParams {
     public static int MAX_VAL = Integer.MAX_VALUE >> 1;
 
     public static int NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 20;
-    public static int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 15;
+    public static int NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 10;
 
     public static final int HOUSE_WORKERS_NEARBY_MAX_PATH = 5;
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH = 7;
@@ -274,7 +274,7 @@ public class StrategyParams {
         StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 7;
         StrategyParams.NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 15;
 
-
+        populationOfWorkersToBuildAfterRangers = 30;
         populationOfWorkersToBuildBeforeRangers = 15;
 
         DESIRED_BARRACK = of(15, 15);
@@ -287,23 +287,27 @@ public class StrategyParams {
         attackPointRates = List.of(0.9, 0.9);
         useWorkerFollow = false;
         cleanBaseRangeTreshhold = 12;
+        workerScoutFrequency = 1000; //no w scout
     }
 
     public void activateRound2() {
-        populationOfWorkersToBuildBeforeRangers = 40;
+        populationOfWorkersToBuildBeforeRangers = 35;
 
-        DESIRED_BARRACK = of(25, 15);
+        DESIRED_BARRACK = of(30, 15);
         sendToDesiredBarrackPosition = of(19, 19);
 
-        sendToCenterWorkerNumbers = Set.of(15, 16, 17, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
+        sendToCenterWorkerNumbers = Set.of(15, 16, 17, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
         minHouseDistanceToCenter = 3;
         useWorkerFollow = false;
 
-        attackPoints = List.of(of(76, 10), of(10, 76), of(76, 76));
-        attackPointRates = List.of(0.9, 0.9);
+        attackPoints = List.of(of(76, 7), of(7, 46), of(76, 76));
+        attackPointRates = List.of(0.7, 0.9);
 
         cleanBaseRangeTreshhold = 12;
+        workerScoutFrequency = 1000; //no w scout
+
     }
+
 
     public int round1WorkersFirst = 15;
 }

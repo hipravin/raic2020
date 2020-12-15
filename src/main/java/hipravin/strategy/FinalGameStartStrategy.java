@@ -18,7 +18,7 @@ import static hipravin.strategy.StrategyParams.MAX_VAL;
  * According to my perfect calculations we need to build first house with exact 3 workers. And 2 workers at desperate
  */
 public class FinalGameStartStrategy implements SubStrategy {
-    public  static BeforeFirstHouseBuildOrder buildOrder = null;
+    public static BeforeFirstHouseBuildOrder buildOrder = null;
 
     public static boolean gameStartStrategyDone = false;
 
@@ -27,26 +27,34 @@ public class FinalGameStartStrategy implements SubStrategy {
                        StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
         if (pgs.curTick() == 0) {
+
             buildOrder = tryToFind2Build1DiagRepair(gameHistoryState, pgs, strategyParams, assignedActions).orElse(null);
 
-            if(buildOrder != null) {
-                if(DebugOut.enabled) {
+
+            System.out.println("Build order computation done in ");
+
+            if (buildOrder != null) {
+                if (DebugOut.enabled) {
                     DebugOut.println(buildOrder.toString());
                 }
                 createFirstWorkerMineMove(gameHistoryState, pgs);
                 createBuildWorkerCommands(gameHistoryState, pgs, strategyParams, assignedActions);
             } else {
-                if(DebugOut.enabled) {
+                if (DebugOut.enabled) {
                     DebugOut.println("Unable to find start build");
                 }
                 gameStartStrategyDone = true;
             }
         }
 
-        if(buildOrder != null
-            && pgs.getPopulation().getPopulationUse() >= pgs.getPopulation().getActiveLimit()
-              && pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost()) {
-            tryToBuildHouseAccordingPlan(gameHistoryState, pgs, strategyParams);
+        if (buildOrder != null
+                && pgs.getPopulation().getPopulationUse() >= pgs.getPopulation().getActiveLimit()
+                && pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost()) {
+            try {
+                tryToBuildHouseAccordingPlan(gameHistoryState, pgs, strategyParams);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
 
             gameStartStrategyDone = true;
         }
@@ -58,19 +66,19 @@ public class FinalGameStartStrategy implements SubStrategy {
         Position2d firstHouseWhereToBuild = buildOrder.firstHouseWhereToBuild;
 
         FreeSpace fs = pgs.calculateFreeSpace(pgs.at(firstHouseWhereToBuild), Position2dUtil.HOUSE_SIZE).orElse(null);
-        if(fs != null && fs.isCompletelyFree()) {
+        if (fs != null && fs.isCompletelyFree()) {
             Set<Position2d> houseEdge = Position2dUtil.buildingOuterEdgeWithoutCorners(firstHouseWhereToBuild, Position2dUtil.HOUSE_SIZE);
             List<Position2d> len0Workers = houseEdge.stream().filter(he -> pgs.at(he).isMyWorker()).collect(Collectors.toList());
 
-            if(len0Workers.size() >= 3) {
+            if (len0Workers.size() >= 3) {
                 build3Workers(firstHouseWhereToBuild, len0Workers.subList(0, 3), gameHistoryState, pgs, strategyParams);
-            } else if(len0Workers.size() < 2) {
+            } else if (len0Workers.size() < 2) {
                 //can't follow algorithm
                 return;
             }
             //find repairer len 2
             Optional<List<Position2d>> repairer2 = canRepair2(firstHouseWhereToBuild, len0Workers, gameHistoryState, pgs, strategyParams);
-            if(repairer2.isPresent()) {
+            if (repairer2.isPresent()) {
                 build2Workers1Repairer2(firstHouseWhereToBuild, len0Workers,
                         repairer2.get().get(0), repairer2.get().get(1),
                         gameHistoryState, pgs, strategyParams);
@@ -95,7 +103,7 @@ public class FinalGameStartStrategy implements SubStrategy {
 
         Command brp1 = new BuildThenRepairCommand(firstHouseWhereToBuild, EntityType.HOUSE, pgs.at(len0Workers.get(0)).getEntityId(), pgs, strategyParams);
         Command brp2 = new AutoRepairCommand(firstHouseWhereToBuild, pgs.at(len0Workers.get(1)).getEntityId(), pgs, strategyParams);
-        Command moveThenAutoRepair = new MoveSingleCommand(pgs,  pgs.at(len2Worker).getEntityId(), len2WorkerMoveTo, MAX_VAL);
+        Command moveThenAutoRepair = new MoveSingleCommand(pgs, pgs.at(len2Worker).getEntityId(), len2WorkerMoveTo, MAX_VAL);
         Command arp3 = new AutoRepairCommand(firstHouseWhereToBuild, pgs.at(len2Worker).getEntityId(), pgs, strategyParams);
         //sometimes after repair worker just stays... try to send him back
 //        Command moveBack = new MoveSingleCommand(pgs,  pgs.at(len2Worker).getEntityId(), len2Worker, MAX_VAL);
@@ -108,14 +116,14 @@ public class FinalGameStartStrategy implements SubStrategy {
     }
 
     Optional<List<Position2d>> canRepair2(Position2d firstHouseWhereToBuild, List<Position2d> builders,
-                                    GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                                    StrategyParams strategyParams) {
+                                          GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                          StrategyParams strategyParams) {
         Set<Position2d> houseEdgeWithoutBuilders = Position2dUtil.buildingOuterEdgeWithoutCorners(firstHouseWhereToBuild, Position2dUtil.HOUSE_SIZE);
         houseEdgeWithoutBuilders.removeIf(rp -> builders.contains(rp));
 
         for (Cell workerCell : pgs.getMyWorkers().values()) {
             Position2d workerPosition = workerCell.getPosition();
-            if(builders.contains(workerPosition)) {
+            if (builders.contains(workerPosition)) {
                 continue;
             }
 
@@ -123,7 +131,7 @@ public class FinalGameStartStrategy implements SubStrategy {
 
             for (Position2d outerEdgePosition : houseEdgeWithoutBuilders) {
 
-                if(nearest.containsKey(outerEdgePosition)) {
+                if (nearest.containsKey(outerEdgePosition)) {
                     return Optional.of(List.of(workerPosition, outerEdgePosition));
                 }
             }
@@ -149,7 +157,7 @@ public class FinalGameStartStrategy implements SubStrategy {
 
     void createBuildWorkerCommands(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        if(buildOrder == null) {
+        if (buildOrder == null) {
             return;
         }
 
@@ -158,7 +166,7 @@ public class FinalGameStartStrategy implements SubStrategy {
         for (BeforeFirstHouseBuildOrder.BuildMine buildMine : buildOrder.workersWhereToBuild) {
             Command current = buildMineCommand(buildMine, pgs);
 
-            if(prev == null) {
+            if (prev == null) {
                 gameHistoryState.addOngoingCommand(current, false);
             } else {
                 CommandUtil.addNextCommands(prev, List.of(current));
@@ -187,7 +195,7 @@ public class FinalGameStartStrategy implements SubStrategy {
 
         FinalGameStartStrategy.MineralAndMinerPosition firstMiner = minerAndMineralClosest(firstWorker, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
 
-        if(firstMiner == null) {
+        if (firstMiner == null) {
             return Optional.empty();
         }
 
@@ -197,7 +205,7 @@ public class FinalGameStartStrategy implements SubStrategy {
                                 && c.getLen1MineralsCount() > 0))
                 .collect(Collectors.toList());
 
-        if(firstMinerPositionsAfterFirstMined.isEmpty()) {
+        if (firstMinerPositionsAfterFirstMined.isEmpty()) {
             firstMinerPositionsAfterFirstMined = Position2dUtil.upRightLeftDown(firstMiner.mineralPosition)//
                     .filter(p -> currentParsedGameState.at(p)
                             .test(c -> (c.getPosition().equals(firstMiner.mineralPosition) || c.isEmpty())
@@ -230,7 +238,7 @@ public class FinalGameStartStrategy implements SubStrategy {
                                     .filter(hp -> isEmptyForHouseIgnoringUnitsAnd1Mineral(hp, firstMiner.mineralPosition, currentParsedGameState))
                                     .collect(Collectors.toSet())));
 
-            if(buildMines.isEmpty()) {
+            if (buildMines.isEmpty()) {
                 return Optional.empty();
             }
 
@@ -414,7 +422,7 @@ public class FinalGameStartStrategy implements SubStrategy {
             List<BeforeFirstHouseBuildOrder.BuildMine> bestBuildMines = new ArrayList<>();
 
             for (int i = 0; i < bestPositions.size(); i++) {
-                if(!mmps.get(i).mineralPosition.equals(firstWorkerMineralToMinePosition)) { //if mine same mineral tey both move and result is unpredicted
+                if (!mmps.get(i).mineralPosition.equals(firstWorkerMineralToMinePosition)) { //if mine same mineral tey both move and result is unpredicted
                     bestBuildMines.add(new BeforeFirstHouseBuildOrder.BuildMine(bestPositions.get(i),
                             mmps.get(i).minerPosition, mmps.get(i).mineralPosition));
                 }
@@ -434,7 +442,7 @@ public class FinalGameStartStrategy implements SubStrategy {
             GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
             StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
-        if(pgs.at(workerPosition).getNearestMineralField() == null) {
+        if (pgs.at(workerPosition).getNearestMineralField() == null) {
             return null;
         }
 
@@ -465,11 +473,11 @@ public class FinalGameStartStrategy implements SubStrategy {
 
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        if(currentParsedGameState.isRound1()) {
+        if (currentParsedGameState.isRound1()) {
             return false;
         }
 
-        if(gameStartStrategyDone) {
+        if (gameStartStrategyDone) {
             return false;
         }
 
@@ -477,9 +485,10 @@ public class FinalGameStartStrategy implements SubStrategy {
                 && currentParsedGameState.findMyBuildings(EntityType.MELEE_BASE).size() == 0
                 && currentParsedGameState.findMyBuildings(EntityType.RANGED_BASE).size() == 0
                 && currentParsedGameState.findMyBuildings(EntityType.BUILDER_BASE).size() == 1
-                && currentParsedGameState.getPlayerView().getCurrentTick() < 200; //just in case
+                && currentParsedGameState.getEstimatedResourceAfterTicks(0) < 60
+                && currentParsedGameState.getPlayerView().getCurrentTick() < 100; //just in case
 
-        if(!applicable) {
+        if (!applicable) {
             gameStartStrategyDone = true;
         }
 

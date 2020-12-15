@@ -241,6 +241,9 @@ public class RootStrategy extends MyStrategy {
 
     @Override
     public Action getAction(PlayerView playerView, DebugInterface debugInterface) {
+        if(playerView.getCurrentTick() % 100 == 0 ) {
+            System.out.println("Tick #" + playerView.getCurrentTick());
+        }
 
         Instant start = Instant.now();
         Instant afterParse = Instant.now();

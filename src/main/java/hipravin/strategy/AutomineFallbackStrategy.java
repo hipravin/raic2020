@@ -126,6 +126,8 @@ public class AutomineFallbackStrategy implements SubStrategy {
                     Command retreatToRangBase = new MoveTowardsCommand(pgs, w.getId(),
                             of(rangBase.getPosition()).shift(-5, -5), 7, 5);
                     gameHistoryState.addOngoingCommand(retreatToRangBase, false);
+
+                    return true;
                 }
             }
         }

@@ -67,7 +67,7 @@ public class BuildHousesStrategy implements SubStrategy {
 
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        if (!FinalGameStartStrategy.gameStartStrategyDone) {
+        if (!FinalGameStartStrategy.gameStartStrategyDone && !pgs.isRound1()) {
             return false;
         }
         if (pgs.getActiveHouseCount() == 0
@@ -207,6 +207,10 @@ public class BuildHousesStrategy implements SubStrategy {
 
         List<Position2d> acceptableHousePositions = new ArrayList<>(hpUniqueBestWorkers.keySet());
         acceptableHousePositions.sort(sumPathLen);
+
+        if(pgs.isRound1() || pgs.isRound2()) {
+            acceptableHousePositions.sort(Comparator.comparingInt(p -> p.x + p.y));
+        }
 
 
         if (!acceptableHousePositions.isEmpty()) {

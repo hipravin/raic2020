@@ -11,6 +11,8 @@ import java.util.*;
 import static hipravin.model.Position2d.of;
 
 public class Round1Strategy implements SubStrategy {
+    public static Position2d basePosition = of(25,25);
+
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState,
                                           ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
@@ -67,7 +69,7 @@ public class Round1Strategy implements SubStrategy {
                 Position2d attackPos = pgs.findClosesEnemyArmyInDefArea(of(sword.getPosition())).orElse(of(25, 25));
 
                 EntityAction autoAttack = new EntityAction();
-                AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.MAP_SIZE,
+                AttackAction attackAction = new AttackAction(null, new AutoAttack(10,
                         strategyParams.rangerDefaultAttackTargets));
                 autoAttack.setAttackAction(attackAction);
 

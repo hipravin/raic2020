@@ -182,6 +182,7 @@ public abstract class Position2dUtil {
     }
 
     public static Position2d randomMapPosition() {
+        //but not in center
 
         return of(GameHistoryAndSharedState.random.nextInt(Position2dUtil.MAP_SIZE - 10) + 5,
                 GameHistoryAndSharedState.random.nextInt(Position2dUtil.MAP_SIZE - 10) + 5);

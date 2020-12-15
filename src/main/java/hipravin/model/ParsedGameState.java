@@ -46,6 +46,13 @@ public class ParsedGameState {
 
     Map<Position2d, Cell> enemyArmy = new HashMap<>();
 
+    Map<Position2d, Cell> enemyArmyRight = new HashMap<>();
+    Map<Position2d, Cell> enemyArmyTop = new HashMap<>();
+    Map<Position2d, Cell> enemyArmyMid = new HashMap<>();
+    Map<Position2d, Cell> myArmyRight = new HashMap<>();
+    Map<Position2d, Cell> myArmyTop = new HashMap<>();
+    Map<Position2d, Cell> myArmyMid = new HashMap<>();
+
     Entity enemyArmyBase = null;
 
     public boolean isRound1() {
@@ -343,6 +350,30 @@ public class ParsedGameState {
 
     public List<Entity> getDefendingAreaMyRangers() {
         return defendingAreaMyRangers;
+    }
+
+    public Map<Position2d, Cell> getEnemyArmyRight() {
+        return enemyArmyRight;
+    }
+
+    public Map<Position2d, Cell> getEnemyArmyTop() {
+        return enemyArmyTop;
+    }
+
+    public Map<Position2d, Cell> getEnemyArmyMid() {
+        return enemyArmyMid;
+    }
+
+    public Map<Position2d, Cell> getMyArmyRight() {
+        return myArmyRight;
+    }
+
+    public Map<Position2d, Cell> getMyArmyTop() {
+        return myArmyTop;
+    }
+
+    public Map<Position2d, Cell> getMyArmyMid() {
+        return myArmyMid;
     }
 }
 

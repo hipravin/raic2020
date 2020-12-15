@@ -124,7 +124,7 @@ class ParsedGameStateTest {
         assertEquals(882 + 7, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 1));
         assertEquals(751 + 2, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 2));
         assertEquals(696, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 3));
-        assertEquals(3, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 14));
+        assertEquals(0, countCells(pgs, c -> c.nearestMineralField != null && c.nearestMineralField.pathLenEmptyCellsToThisCell == 14));
 
         assertEquals(9, pgs.getMineralsAtMapCorner());
         assertEquals(7, pgs.getMyWorkersAtMapCorner());

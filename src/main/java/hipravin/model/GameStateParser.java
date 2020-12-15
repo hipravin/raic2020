@@ -97,7 +97,12 @@ public abstract class GameStateParser {
 
         calculateWorkersAtMiningPositions(parsedGameState);
         //fighting zone
-        calculateEnemies(parsedGameState);
+
+        if (!parsedGameState.isRound1() && !parsedGameState.isRound2()) {
+            calculateEnemies(parsedGameState);
+        } else {
+            calculateEnemies12(parsedGameState);
+        }
 
         calculateEnemyAttackRanges(parsedGameState);
 
@@ -105,25 +110,25 @@ public abstract class GameStateParser {
     }
 
     public static void trackRangeBaseBuildTicks(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
-        if(gameHistoryAndSharedState.getMyRangBaseCompletedTick() != null) {
+        if (gameHistoryAndSharedState.getMyRangBaseCompletedTick() != null) {
             return;
         }
         Entity rangBase = pgs.getMyRangerBase();
 
-        if(gameHistoryAndSharedState.getMyRangBaseStartedBuildTick() == null && rangBase != null) {
+        if (gameHistoryAndSharedState.getMyRangBaseStartedBuildTick() == null && rangBase != null) {
             gameHistoryAndSharedState.setMyRangBaseStartedBuildTick(pgs.curTick());
         }
-        if(gameHistoryAndSharedState.getMyRangBaseCompletedTick() == null && rangBase != null && rangBase.isActive()) {
+        if (gameHistoryAndSharedState.getMyRangBaseCompletedTick() == null && rangBase != null && rangBase.isActive()) {
             gameHistoryAndSharedState.setMyRangBaseCompletedTick(pgs.curTick());
         }
     }
 
     static void calculateMapEdge(ParsedGameState pgs) {
         for (int i = 0; i < MAP_SIZE; i++) {
-             pgs.at(i, 0).isMapEdge = true;
-             pgs.at(0, i).isMapEdge = true;
-             pgs.at(i, MAP_SIZE - 1).isMapEdge = true;
-             pgs.at(MAP_SIZE - 1, i).isMapEdge = true;
+            pgs.at(i, 0).isMapEdge = true;
+            pgs.at(0, i).isMapEdge = true;
+            pgs.at(i, MAP_SIZE - 1).isMapEdge = true;
+            pgs.at(MAP_SIZE - 1, i).isMapEdge = true;
         }
     }
 
@@ -132,7 +137,7 @@ public abstract class GameStateParser {
             Position2d up = entry.getKey();
             Entity unit = entry.getValue().getEntity();
 
-            if(unit.getEntityType() == EntityType.RANGED_UNIT || unit.getEntityType() == EntityType.MELEE_UNIT) {
+            if (unit.getEntityType() == EntityType.RANGED_UNIT || unit.getEntityType() == EntityType.MELEE_UNIT) {
                 for (int r = 6; r <= 8; r++) {
                     int rr = r;
                     Position2dUtil.iterAllPositionsInExactRange(up, r, ap -> {
@@ -152,6 +157,91 @@ public abstract class GameStateParser {
             }
         }
     }
+
+    public static void calculateEnemies12(ParsedGameState pgs) {
+        Entity rangBase = pgs.getMyRangerBase();
+        if (rangBase == null) {
+            Arrays.stream(pgs.getPlayerView().getEntities())
+                    .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                    .forEach(e -> pgs.defendingAreaEnemies.add(e));
+
+            Arrays.stream(pgs.getPlayerView().getEntities())
+                    .filter(e -> e.getPlayerId() != null && e.getPlayerId() == pgs.getPlayerView().getMyId())
+                    .filter(e -> e.getEntityType() == EntityType.RANGED_UNIT)
+                    .forEach(e -> pgs.defendingAreaMyRangers.add(e));
+        } else {
+            Position2d defArea = pgs.defAreaPosition();
+
+            int defX = defArea.getX();
+            int defY = defArea.getY();
+
+            int defXY = defX + defY;
+
+            int defLine = 40;
+
+            Arrays.stream(pgs.getPlayerView().getEntities())
+                    .filter(e -> e.getPlayerId() != null && e.getPlayerId() == pgs.getPlayerView().getMyId())
+                    .filter(e -> e.getEntityType() == EntityType.RANGED_UNIT)
+                    .filter(e -> e.getPosition().getX() + e.getPosition().getY() < defXY)
+                    .filter(e -> e.getPosition().getX() < defLine)
+                    .filter(e -> e.getPosition().getY() < defLine)
+                    .forEach(e -> pgs.defendingAreaMyRangers.add(e));
+
+            Arrays.stream(pgs.getPlayerView().getEntities())
+                    .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                    .filter(e -> e.getPosition().getX() + e.getPosition().getY() < defXY)
+                    .filter(e -> e.getPosition().getX() < defLine)
+                    .filter(e -> e.getPosition().getY() < defLine)
+                    .forEach(e -> pgs.defendingAreaEnemies.add(e));
+
+            Arrays.stream(pgs.getPlayerView().getEntities())
+                    .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                    .filter(e -> e.getPosition().getX() + e.getPosition().getY() >= defXY
+                            || e.getPosition().getX() >= defLine
+                            || e.getPosition().getY() >= defLine
+                    )
+                    .forEach(e -> pgs.attackAreaEnemies.add(e));
+        }
+
+        EnumSet<EntityType> armyTypes = EnumSet.of(EntityType.MELEE_UNIT, EntityType.RANGED_UNIT, EntityType.TURRET);
+
+        Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                .filter(e -> armyTypes.contains(e.getEntityType()))
+                .forEach(e -> pgs.enemyArmy.put(of(e.getPosition()), pgs.at(e.getPosition())));
+
+        pgs.enemyArmyBase = Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> (e.getEntityType() == EntityType.RANGED_BASE || e.getEntityType() == EntityType.MELEE_BASE)
+                        && e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                .findAny().orElse(null);
+
+        int line = 30;
+
+        Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                .filter(e -> armyTypes.contains(e.getEntityType()))
+                .filter(e -> e.getPosition().getY() < line)
+                .forEach(e -> pgs.enemyArmyRight.put(of(e.getPosition()), pgs.at(e.getPosition())));
+
+        Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                .filter(e -> armyTypes.contains(e.getEntityType()))
+                .filter(e -> e.getPosition().getX() < line)
+                .forEach(e -> pgs.enemyArmyTop.put(of(e.getPosition()), pgs.at(e.getPosition())));
+
+        Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getPlayerId() != null && e.getPlayerId() == pgs.getPlayerView().getMyId())
+                .filter(e -> armyTypes.contains(e.getEntityType()))
+                .filter(e -> e.getPosition().getY() < line)
+                .forEach(e -> pgs.myArmyRight.put(of(e.getPosition()), pgs.at(e.getPosition())));
+
+        Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getPlayerId() != null && e.getPlayerId() == pgs.getPlayerView().getMyId())
+                .filter(e -> armyTypes.contains(e.getEntityType()))
+                .filter(e -> e.getPosition().getX() < line)
+                .forEach(e -> pgs.myArmyTop.put(of(e.getPosition()), pgs.at(e.getPosition())));
+    }
+
 
     public static void calculateEnemies(ParsedGameState pgs) {
         Entity rangBase = pgs.getMyRangerBase();
@@ -352,7 +442,7 @@ public abstract class GameStateParser {
     }
 
     static void markupFog(ParsedGameState pgs) {
-        if(pgs.isRound1()) {
+        if (pgs.isRound1()) {
             return;
         }
 

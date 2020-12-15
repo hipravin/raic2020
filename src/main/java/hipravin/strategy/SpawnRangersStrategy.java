@@ -41,8 +41,9 @@ public class SpawnRangersStrategy implements SubStrategy {
     }
 
     List<Position2d> attackPointsOrdered = new ArrayList<>(Arrays.asList(
-            of(76, 10),
-            of(10, 76),
+            of(76, 7),
+            of(7, 46),
+            of(7, 76),
             of(45, 45),
             of(76, 76)
     ));
@@ -150,7 +151,11 @@ public class SpawnRangersStrategy implements SubStrategy {
             return;
         }
 
-        findBestSpawnPos(gameHistoryState, pgs, strategyParams);
+        if(!pgs.isRound1()) {
+            findBestSpawnPos(gameHistoryState, pgs, strategyParams);
+        } else {
+            findBestSpawnPosRound1(gameHistoryState, pgs, strategyParams);
+        }
     }
 
     boolean defendMyTerritory(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -241,6 +246,62 @@ public class SpawnRangersStrategy implements SubStrategy {
         createBuildRangerCommand(edgeSorted.get(0), gameHistoryState, pgs, strategyParams);
     }
 
+    public void findBestSpawnPosRound1(
+            GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+            StrategyParams strategyParams) {
+        Set<Position2d> rangOuterEdge = new HashSet<>(pgs.findMyBuildings(EntityType.RANGED_BASE).get(0)
+                .getBuildingOuterEdgeWithoutCorners());
+
+        rangOuterEdge.removeIf(p -> !pgs.at(p).isEmpty());
+
+        if (rangOuterEdge.isEmpty()) {
+            return;
+        }
+
+        List<Position2d> edgeSorted = new ArrayList<>(rangOuterEdge);
+        edgeSorted.sort(Comparator.comparing(p -> p.x + p.y, Comparator.reverseOrder()));
+
+        int attackLine = 45;
+        int attackWidth = 30;
+        int retreatShift = -10;
+
+        if(pgs.getMyArmyRight().size() < pgs.getEnemyArmyRight().size()) {
+            Position2d attackPoint = of(attackLine, GameHistoryAndSharedState.random.nextInt(attackWidth) + 5);
+            Position2d retreatPoint = attackPoint.shift(retreatShift, 0) ;
+
+            createBuildRangerCommandRound1(edgeSorted.get(0), attackPoint, retreatPoint, gameHistoryState, pgs, strategyParams);
+        } else if (pgs.getMyArmyTop().size() < pgs.getEnemyArmyTop().size()) {
+            Position2d attackPoint = of(GameHistoryAndSharedState.random.nextInt(attackWidth) + 5, attackLine);
+            Position2d retreatPoint = attackPoint.shift(0, retreatShift) ;
+
+            createBuildRangerCommandRound1(edgeSorted.get(0), attackPoint, retreatPoint, gameHistoryState, pgs, strategyParams);
+
+        } else if(pgs.getEnemyArmyRight().size() > pgs.getEnemyArmyTop().size()) {
+            Position2d attackPoint = of(attackLine, GameHistoryAndSharedState.random.nextInt(attackWidth) + 5);
+            Position2d retreatPoint = attackPoint.shift(retreatShift, 0) ;
+
+            createBuildRangerCommandRound1(edgeSorted.get(0), attackPoint, retreatPoint, gameHistoryState, pgs, strategyParams);
+
+        } else if(pgs.getEnemyArmyRight().size() < pgs.getEnemyArmyTop().size()) {
+            Position2d attackPoint = of(GameHistoryAndSharedState.random.nextInt(attackWidth) + 5, attackLine);
+            Position2d retreatPoint = attackPoint.shift(0, retreatShift) ;
+
+            createBuildRangerCommandRound1(edgeSorted.get(0), attackPoint, retreatPoint, gameHistoryState, pgs, strategyParams);
+        } else {
+            Position2d attackPoint = of(75, 75);
+            Position2d retreatPoint = of(35,35) ;
+
+            createBuildRangerCommandRound1(edgeSorted.get(0), attackPoint, retreatPoint, gameHistoryState, pgs, strategyParams);
+
+        }
+
+
+
+
+    }
+
+
+
     void buildRangerDefending(Position2d spawnPos, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                               StrategyParams strategyParams) {
 
@@ -304,7 +365,22 @@ public class SpawnRangersStrategy implements SubStrategy {
         gameHistoryState.addOngoingCommand(buildRangerCommand, false);
     }
 
-    public void createRangerCommand() {
+    void createBuildRangerCommandRound1(Position2d spawnPos, Position2d attackPosition, Position2d retreatPosition,
+                                        GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                  StrategyParams strategyParams) {
 
+        Command buildRangerCommand = new BuildRangerCommand(spawnPos, pgs, 1);
+
+        if (strategyParams.useOldRangerMicro) {
+            RangerAttackHoldRetreatCommand rahrc = new RangerAttackHoldRetreatCommand(null, attackPosition, retreatPosition, false);
+            CommandUtil.chainCommands(buildRangerCommand, rahrc);
+        } else {
+            RangerAttackHoldRetreatMicroCommand rahrc = new RangerAttackHoldRetreatMicroCommand(null, attackPosition, retreatPosition, false);
+            CommandUtil.chainCommands(buildRangerCommand, rahrc);
+        }
+
+        gameHistoryState.addOngoingCommand(buildRangerCommand, false);
     }
+
+
 }
