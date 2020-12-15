@@ -24,9 +24,7 @@ public class RootStrategy extends MyStrategy {
 
     public RootStrategy() {
         strategyParams = new StrategyParams();
-        if(System.getProperty("OPTION2") != null) {
-            strategyParams.activateOption2();
-        }
+
 
 
         FinalGameStartStrategy buildFirstHouseFinalStrategy = new FinalGameStartStrategy();
@@ -92,6 +90,10 @@ public class RootStrategy extends MyStrategy {
             if(playerView.isFogOfWar() && playerView.getPlayers().length > 2) {
                 strategyParams.activateRound2();
                 System.out.println("round2");
+            }
+
+            if(System.getProperty("OPTION2") != null) {
+                strategyParams.activateOption2();
             }
         }
     }

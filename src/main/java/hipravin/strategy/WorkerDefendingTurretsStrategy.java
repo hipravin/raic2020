@@ -15,9 +15,11 @@ import static hipravin.model.Position2d.of;
 public class WorkerDefendingTurretsStrategy implements SubStrategy {
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+
         return strategyParams.useWorkerDefendingTurrets
                 && pgs.getMyRangerBase() != null
-                && gameHistoryState.ongoingTurretBuildCommandCount() == 0;
+                && gameHistoryState.ongoingTurretBuildCommandCount() == 0
+                && pgs.getMyRangers().size() > strategyParams.turretsMinRangers;
     }
 
     @Override
@@ -30,6 +32,7 @@ public class WorkerDefendingTurretsStrategy implements SubStrategy {
                 .filter(c -> c.getPosition().getX() < c.getPosition().getY())
                 .min(Comparator.comparingInt(c -> c.getPosition().lenShiftSum(emenyCenterPos)))
                 .orElse(null);
+
 
         if (closestYWorker != null && !alreadyHaveTurret(closestYWorker.getPosition(), pgs, strategyParams)) {
             if (haveResources(pgs, gameHistoryState, strategyParams)) {

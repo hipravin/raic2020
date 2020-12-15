@@ -63,6 +63,30 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
         return counter.get();
     }
+    public int countEnemySwordmansNearby(Position2d rangerPosition, int range,
+                                       GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+        AtomicInteger counter = new AtomicInteger(0);
+        Position2dUtil.iterAllPositionsInRangeExclusive(rangerPosition, range, p -> {
+            if (pgs.at(p).test(c -> c.isUnit() && !c.isMyEntity() && c.getEntityType() == EntityType.MELEE_UNIT)) {
+                counter.incrementAndGet();
+            }
+        });
+
+        return counter.get();
+    }
+    public int countEnemyTurretsNearby(Position2d rangerPosition, int range,
+                                       GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+        AtomicInteger healthCounter = new AtomicInteger(0);
+
+        Position2dUtil.iterAllPositionsInRangeExclusive(rangerPosition, range, p -> {
+            if (pgs.at(p).test(c -> c.isBuilding()
+                    && c.getEntityType() == EntityType.TURRET && c.getEntity().isActive() && !c.isMyEntity())) {
+                healthCounter.addAndGet(pgs.at(p).getEntity().getHealth());
+            }
+        });
+
+        return healthCounter.get() / 18;
+    }
 
     public int countMyRangersNearby(Position2d rangerPosition, int range,
                                     GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
@@ -142,11 +166,15 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
         Cell rc = pgs.at(rp);
 
-        int enemyCount = countEnemyRangersNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
+        int enemyCount = countEnemyRangersNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams)
+                + countEnemySwordmansNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams)
+                ;
         int myCount = countMyRangersNearby(rp, strategyParams.attackHoldMyRange, gameHistoryState, pgs, strategyParams);
 
+        int turretHealth18 = countEnemyTurretsNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
+        enemyCount += turretHealth18;
 
-        if(pgs.isRound1() && enemyCount > myCount) {
+        if((pgs.isRound1() || pgs.isRound2()) && enemyCount > myCount) {
             updateRetreat(gameHistoryState, pgs, strategyParams, assignedActions);
         } else if(pgs.isRound1() && myCount < 5 && enemyCount > 0) {
             updateHold(gameHistoryState, pgs, strategyParams, assignedActions);

@@ -81,7 +81,9 @@ public class StrategyParams {
     public double defendArmyOvercomeRatio = 1.5;
 
     public boolean useWorkerDefendingTurrets = false;//worker nearest to enemy cc or rang base requets turret
-    public int turretsFrequency = 9;
+    public int turretsFrequency = 6;
+    public int turretsMinRangers = 15;
+
     public int turretMinMinerals = 50;
 
     public int maxSpawnToMineralsRememberCount = 5;
@@ -267,6 +269,8 @@ public class StrategyParams {
 
         useWorkerFollow = false;
 
+        useWorkerDefendingTurrets = false;
+
 //        useWorkerDefendingTurrets = true;
     }
 
@@ -274,7 +278,7 @@ public class StrategyParams {
         StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 7;
         StrategyParams.NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 15;
 
-        populationOfWorkersToBuildAfterRangers = 30;
+        populationOfWorkersToBuildAfterRangers = 40;
         populationOfWorkersToBuildBeforeRangers = 15;
 
         DESIRED_BARRACK = of(15, 15);
@@ -288,12 +292,14 @@ public class StrategyParams {
         useWorkerFollow = false;
         cleanBaseRangeTreshhold = 12;
         workerScoutFrequency = 1000; //no w scout
+        useWorkerDefendingTurrets = true;
     }
 
     public void activateRound2() {
         populationOfWorkersToBuildBeforeRangers = 25;
+        populationOfWorkersToBuildAfterRangers = 60;
 
-        DESIRED_BARRACK = of(30, 15);
+        DESIRED_BARRACK = of(15, 15);
         sendToDesiredBarrackPosition = of(19, 19);
 
 //        sendToCenterWorkerNumbers = Set.of(15, 16, 17, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
@@ -306,6 +312,8 @@ public class StrategyParams {
 
         cleanBaseRangeTreshhold = 12;
         workerScoutFrequency = 1000; //no w scout
+
+        useWorkerDefendingTurrets = true;
 
     }
 

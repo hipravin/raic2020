@@ -190,7 +190,9 @@ public class SpawnRangersStrategy implements SubStrategy {
 
             if (closestSpawn != null) {
                 DebugOut.println("Build ranger defending: " + vragUvorot);
-                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
+                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, vragUvorot);
+
+//                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
                 return true;
             }
         }
@@ -221,7 +223,8 @@ public class SpawnRangersStrategy implements SubStrategy {
 
             if (closestSpawn != null) {
                 DebugOut.println("Build ranger defending: " + vragUvorot);
-                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
+//                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
+                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, vragUvorot);
 
                 return true;
             }
@@ -364,13 +367,12 @@ public class SpawnRangersStrategy implements SubStrategy {
 
         Command buildRangerCommand = new BuildRangerCommand(spawnPos, pgs, 1);
 
-
-        Position2d retreatPosition = Optional.ofNullable(pgs.getMyRangerBase())
-                .map(b -> of(b.getPosition()).shift(2, 2)).orElse(of(40, 40));
-
         if (attackPosition == null) {
             attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
         }
+        Position2d retreatPosition = Optional.ofNullable(pgs.getMyRangerBase())
+                .map(b -> of(b.getPosition()).shift(2, 2)).orElse(of(40, 40))
+                .halfWayTo(attackPosition);
 
         if (strategyParams.useOldRangerMicro) {
             RangerAttackHoldRetreatCommand rahrc = new RangerAttackHoldRetreatCommand(null, attackPosition, retreatPosition, false);

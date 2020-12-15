@@ -167,6 +167,33 @@ public abstract class GameStateParser {
                 }
             }
         }
+
+        for (Entity entity : pgs.getPlayerView().getEntities()) {
+            if(entity.getEntityType() == EntityType.TURRET && entity.getPlayerId() != pgs.getPlayerView().getMyId()
+               && entity.isActive() && entity.getHealth() > 10) {
+                Position2d corner = of(entity.getPosition());
+                Position2d[] turretPoss = new Position2d[]{
+                        corner, corner.shift(1,0), corner.shift(0,1), corner.shift(1,1)};
+                for (Position2d tp : turretPoss) {
+                    for (int r = 6; r <= 8; r++) {
+                        int rr = r;
+                        Position2dUtil.iterAllPositionsInExactRange(tp, r, ap -> {
+                            int count = pgs.at(ap).getAttackerCount(rr);
+                            pgs.at(ap).setTurretAttackerCount(rr, count + 1);
+                        });
+
+                    }
+                    int range5orless = 5;
+                    for (int r = 1; r <= 5; r++) {
+                        Position2dUtil.iterAllPositionsInExactRange(tp, r, ap -> {
+                            int count = pgs.at(ap).getAttackerCount(range5orless);
+                            pgs.at(ap).setTurretAttackerCount(range5orless, count + 1);
+                        });
+
+                    }
+                }
+            }
+        }
     }
 
     public static void calculateEnemies12(ParsedGameState pgs) {

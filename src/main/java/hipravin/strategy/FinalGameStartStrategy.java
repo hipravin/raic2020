@@ -404,6 +404,7 @@ public class FinalGameStartStrategy implements SubStrategy {
         Comparator<Position2d> byPathLenThenxy = byPathLenNearest.thenComparing(p -> p.x + p.y);
 
         List<Position2d> sorted = ccOuterEdge.stream()
+                .filter(p -> pgs.at(p).getNearestMineralField() != null)
                 .sorted(byPathLenThenxy)
                 .collect(Collectors.toList());
         if (sorted.size() >= workersRequred) {

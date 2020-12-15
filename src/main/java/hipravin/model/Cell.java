@@ -60,6 +60,11 @@ public class Cell implements Cloneable {
     int range7attackersCount = 0;
     int range8attackersCount = 0;
 
+    int range5turretCount = 0;//5 or less
+    int range6turretCount = 0;
+    int range7turretCount = 0;
+    int range8turretCount = 0;
+
 
     public void setAttackerCount(int range, int count) {
         switch (range) {
@@ -79,6 +84,39 @@ public class Cell implements Cloneable {
     }
 
     public int getAttackerCount(int range) {
+
+        switch(range) {
+            case 5:
+                return range5attackersCount;
+            case 6:
+                return range6attackersCount;
+            case 7:
+                return range7attackersCount;
+            case 8:
+                return range8attackersCount;
+        }
+
+        return -1;
+    }
+
+    public void setTurretAttackerCount(int range, int count) {
+        switch (range) {
+            case 5:
+                range5turretCount = count;
+                break;
+            case 6:
+                range6turretCount = count;
+                break;
+            case 7:
+                range7turretCount = count;
+                break;
+            case 8:
+                range8turretCount = count;
+                break;
+        }
+    }
+
+    public int getTurretAttackerCount(int range) {
 
         switch(range) {
             case 5:
