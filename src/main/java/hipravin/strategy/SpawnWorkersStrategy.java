@@ -23,7 +23,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
     boolean shouldSpawnMoreWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
-        if (pgs.getEnemyArmy() != null && !pgs.isRound1()) {
+        if (pgs.getEnemyArmy() != null) {
             Position2d vragUvorot = pgs.getDefendingAreaEnemies()
                     .stream()
                     .min(Comparator.comparingInt(e -> of(e.getPosition()).lenShiftSum(pgs.getMyCc().getPosition())))

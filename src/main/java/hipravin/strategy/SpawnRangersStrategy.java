@@ -9,7 +9,6 @@ import model.Entity;
 import model.EntityType;
 
 import java.util.*;
-import java.util.function.Function;
 
 import static hipravin.model.Position2d.of;
 
@@ -48,8 +47,16 @@ public class SpawnRangersStrategy implements SubStrategy {
             of(76, 76)
     ));
 
-    void round2redefineAttackPoints(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                                    StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+    List<Position2d> retreatPointsOrdered = new ArrayList<>(Arrays.asList(
+            of(76, 7),
+            of(7, 46),
+            of(7, 76),
+            of(45, 45),
+            of(76, 76)
+    ));
+
+    void round12redefineAttackPoints(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                     StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
         Position2d mainAttackPoint = attackPointsOrdered.get(0);
         Position2d rangBasePos = of(pgs.getMyRangerBase().getPosition());
@@ -64,15 +71,17 @@ public class SpawnRangersStrategy implements SubStrategy {
             if (attackPointsOrdered.isEmpty() || attackPointsOrdered.size() == 1) {
 
                 if (armyCloseToRangeBase.isPresent()) {
-                    setRedefinedAttackPoint(armyCloseToRangeBase.get(), gameHistoryState, strategyParams);
+                    setRedefinedAttackPoint(armyCloseToRangeBase.get(), rangBasePos.halfWayTo(armyCloseToRangeBase.get()), gameHistoryState, strategyParams);
                 } else if (entityCloseToRangeBase.isPresent()) {
-                    setRedefinedAttackPoint(entityCloseToRangeBase.get(), gameHistoryState, strategyParams);
+                    setRedefinedAttackPoint(entityCloseToRangeBase.get(), rangBasePos.halfWayTo(entityCloseToRangeBase.get()), gameHistoryState, strategyParams);
                 } else {
-                    setRedefinedAttackPoint(Position2dUtil.randomMapPosition(), gameHistoryState, strategyParams);
+                    Position2d p = Position2dUtil.randomMapPosition();
+                    setRedefinedAttackPoint(p, rangBasePos.halfWayTo(p), gameHistoryState, strategyParams);
                 }
             } else {
                 attackPointsOrdered.remove(0);
-                setRedefinedAttackPoint(attackPointsOrdered.get(0), gameHistoryState, strategyParams);
+                setRedefinedAttackPoint(attackPointsOrdered.get(0), rangBasePos.halfWayTo(attackPointsOrdered.get(0)),
+                        gameHistoryState, strategyParams);
                 DebugOut.println("Attack point redefined to " + attackPointsOrdered.get(0));
             }
         }
@@ -92,16 +101,18 @@ public class SpawnRangersStrategy implements SubStrategy {
             //nothing left on base
 
             if (armyCloseToRangeBase.isPresent()) {
-                setRedefinedAttackPoint(armyCloseToRangeBase.get(), gameHistoryState, strategyParams);
+                setRedefinedAttackPoint(armyCloseToRangeBase.get(), rangBasePos.halfWayTo(armyCloseToRangeBase.get()), gameHistoryState, strategyParams);
             } else if (entityCloseToRangeBase.isPresent()) {
-                setRedefinedAttackPoint(entityCloseToRangeBase.get(), gameHistoryState, strategyParams);
+                setRedefinedAttackPoint(entityCloseToRangeBase.get(), rangBasePos.halfWayTo(entityCloseToRangeBase.get()), gameHistoryState, strategyParams);
             } else {
-                setRedefinedAttackPoint(Position2dUtil.randomMapPosition(), gameHistoryState, strategyParams);
+                Position2d p = Position2dUtil.randomMapPosition();
+                setRedefinedAttackPoint(p, rangBasePos.halfWayTo(p), gameHistoryState, strategyParams);
             }
         }
     }
 
-    void setRedefinedAttackPoint(Position2d position, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+    void setRedefinedAttackPoint(Position2d position, Position2d retreatPosition,
+                                 GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
         strategyParams.attackPoints = new ArrayList<>(strategyParams.attackPoints);
         strategyParams.attackPointRates = new ArrayList<>(strategyParams.attackPointRates);
 
@@ -111,6 +122,7 @@ public class SpawnRangersStrategy implements SubStrategy {
         gameHistoryAndSharedState.ongoingCommands.forEach(c -> {
             if (c instanceof RangerAttackHoldRetreatMicroCommand) {
                 ((RangerAttackHoldRetreatMicroCommand) c).setAttackPosition(position);
+                ((RangerAttackHoldRetreatMicroCommand) c).setRetreatPosition(retreatPosition);
             }
         });
 
@@ -134,7 +146,7 @@ public class SpawnRangersStrategy implements SubStrategy {
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
         if (pgs.isRound2() || pgs.isRound1()) {
-            round2redefineAttackPoints(gameHistoryState, pgs, strategyParams, assignedActions);
+            round12redefineAttackPoints(gameHistoryState, pgs, strategyParams, assignedActions);
         } else {
             redefineAttackPoints(gameHistoryState, pgs, strategyParams, assignedActions);
         }

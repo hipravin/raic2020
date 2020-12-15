@@ -35,17 +35,28 @@ public abstract class GameStateParser {
 
         for (Entity entity : playerView.getEntities()) {
             switch (entity.getEntityType()) {
-                case WALL, HOUSE, BUILDER_BASE, RANGED_BASE, MELEE_BASE, TURRET -> {
+                case WALL:
+                case HOUSE:
+                case BUILDER_BASE:
+                case RANGED_BASE:
+                case MELEE_BASE:
+                case TURRET:  {
                     setCells(parsedGameState.cells, Cell.ofBuilding(entity, playerView));
                     addBuilding(parsedGameState, entity);
+                    break;
                 }
-                case BUILDER_UNIT, MELEE_UNIT, RANGED_UNIT -> {
+                case BUILDER_UNIT:
+                case MELEE_UNIT:
+                case RANGED_UNIT: {
                     setCell(parsedGameState.cells,
                             Cell.ofUnit(entity, playerView));
+                    break;
                 }
-                case RESOURCE -> {
+                case RESOURCE : {
                     setCell(parsedGameState.cells,
                             Cell.ofMineral(entity, playerView));
+                    break;
+
                 }
             }
         }

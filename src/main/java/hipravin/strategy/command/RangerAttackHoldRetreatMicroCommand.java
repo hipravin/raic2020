@@ -20,7 +20,7 @@ import static hipravin.strategy.StrategyParams.MAX_VAL;
 public class RangerAttackHoldRetreatMicroCommand extends Command {
     Integer rangerEntityId;
     Position2d attackPosition;
-    final Position2d retreatPosition;
+    Position2d retreatPosition;
     boolean workerHunter;
 
     public RangerAttackHoldRetreatMicroCommand(Integer rangerEntityId, Position2d attackPosition, Position2d retreatPosition) {
@@ -219,5 +219,9 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
     public Position2d getAttackPosition() {
         return attackPosition;
+    }
+
+    public void setRetreatPosition(Position2d retreatPosition) {
+        this.retreatPosition = retreatPosition;
     }
 }

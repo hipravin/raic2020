@@ -34,15 +34,19 @@ public final class Position2d {
         return shift(-1, 0);
     }
 
+    public Position2d halfWayTo(Position2d other) {
+        return of((x + other.x) /2 , (y + other.y) /2 );
+    }
+
 
     public Position2d diag(int n) {
-        return switch (n % 4 ) {
-            case 1 -> diag1();
-            case 2 -> diag2();
-            case 3 -> diag3();
-            case 0 -> diag4();
-            default -> throw new IllegalStateException("Unexpected value: " + n % 4);
-        };
+        switch (n % 4 ) {
+            case 1 : return diag1();
+            case 2 : return diag2();
+            case 3 : return diag3();
+            case 0 : return diag4();
+            default: throw new IllegalStateException("Unexpected value: " + n % 4);
+        }
     }
 
     public Position2d diag1() {

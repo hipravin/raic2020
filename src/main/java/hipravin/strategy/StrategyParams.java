@@ -291,12 +291,13 @@ public class StrategyParams {
     }
 
     public void activateRound2() {
-        populationOfWorkersToBuildBeforeRangers = 35;
+        populationOfWorkersToBuildBeforeRangers = 25;
 
         DESIRED_BARRACK = of(30, 15);
         sendToDesiredBarrackPosition = of(19, 19);
 
-        sendToCenterWorkerNumbers = Set.of(15, 16, 17, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
+//        sendToCenterWorkerNumbers = Set.of(15, 16, 17, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
+        sendToCenterWorkerNumbers = Set.of(17, 18, 19, 20, 21, 22, 23, 24, 25);
         minHouseDistanceToCenter = 3;
         useWorkerFollow = false;
 
