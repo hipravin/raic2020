@@ -40,7 +40,7 @@ public abstract class GameStateParser {
                 case BUILDER_BASE:
                 case RANGED_BASE:
                 case MELEE_BASE:
-                case TURRET:  {
+                case TURRET: {
                     setCells(parsedGameState.cells, Cell.ofBuilding(entity, playerView));
                     addBuilding(parsedGameState, entity);
                     break;
@@ -52,7 +52,7 @@ public abstract class GameStateParser {
                             Cell.ofUnit(entity, playerView));
                     break;
                 }
-                case RESOURCE : {
+                case RESOURCE: {
                     setCell(parsedGameState.cells,
                             Cell.ofMineral(entity, playerView));
                     break;
@@ -116,8 +116,32 @@ public abstract class GameStateParser {
         }
 
         calculateEnemyAttackRanges(parsedGameState);
+        calculateAttackerCounts(parsedGameState);
 
         return parsedGameState;
+    }
+
+    static void calculateAttackerCounts(ParsedGameState pgs) {
+        pgs.allCellsAsStream().forEach(c -> {
+            c.totalNearAttackerCount += c.getAttackerCount(5);
+            c.totalNearAttackerCount += c.getAttackerCount(6);
+            c.totalNearAttackerCount += c.getAttackerCount(7);
+            c.totalNearAttackerCount += c.getAttackerCount(8);
+            c.totalNearAttackerCount += c.getAttackerCount(9);
+            c.totalNearAttackerCount += c.getAttackerCount(10);
+
+            c.totalNearAttackerCount += c.getTurretAttackerCount(5);
+            c.totalNearAttackerCount += c.getTurretAttackerCount(6);
+            c.totalNearAttackerCount += c.getTurretAttackerCount(7);
+            c.totalNearAttackerCount += c.getTurretAttackerCount(8);
+        });
+
+        pgs.getBuildingsByEntityId().forEach((id, b) -> {
+            b.setMyBuildingAttackersCount(
+                    b.buildingInnerEdge.stream()
+                            .map(e -> pgs.at(e))
+                            .mapToInt(c -> c.totalNearAttackerCount).sum());
+        });
     }
 
     public static void trackRangeBaseBuildTicks(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
@@ -149,7 +173,7 @@ public abstract class GameStateParser {
             Entity unit = entry.getValue().getEntity();
 
             if (unit.getEntityType() == EntityType.RANGED_UNIT || unit.getEntityType() == EntityType.MELEE_UNIT) {
-                for (int r = 6; r <= 8; r++) {
+                for (int r = 6; r <= 10; r++) {
                     int rr = r;
                     Position2dUtil.iterAllPositionsInExactRange(up, r, ap -> {
                         int count = pgs.at(ap).getAttackerCount(rr);
@@ -169,11 +193,11 @@ public abstract class GameStateParser {
         }
 
         for (Entity entity : pgs.getPlayerView().getEntities()) {
-            if(entity.getEntityType() == EntityType.TURRET && entity.getPlayerId() != pgs.getPlayerView().getMyId()
-               && entity.isActive() && entity.getHealth() > 10) {
+            if (entity.getEntityType() == EntityType.TURRET && entity.getPlayerId() != pgs.getPlayerView().getMyId()
+                    && entity.isActive() && entity.getHealth() > 10) {
                 Position2d corner = of(entity.getPosition());
                 Position2d[] turretPoss = new Position2d[]{
-                        corner, corner.shift(1,0), corner.shift(0,1), corner.shift(1,1)};
+                        corner, corner.shift(1, 0), corner.shift(0, 1), corner.shift(1, 1)};
                 for (Position2d tp : turretPoss) {
                     for (int r = 6; r <= 8; r++) {
                         int rr = r;

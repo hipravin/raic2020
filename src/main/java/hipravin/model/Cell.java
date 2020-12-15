@@ -59,11 +59,15 @@ public class Cell implements Cloneable {
     int range6attackersCount = 0;
     int range7attackersCount = 0;
     int range8attackersCount = 0;
+    int range9attackersCount = 0;
+    int range10attackersCount = 0;
 
     int range5turretCount = 0;//5 or less
     int range6turretCount = 0;
     int range7turretCount = 0;
     int range8turretCount = 0;
+
+    int totalNearAttackerCount = 0;
 
 
     public void setAttackerCount(int range, int count) {
@@ -80,6 +84,12 @@ public class Cell implements Cloneable {
             case 8:
                 range8attackersCount = count;
                 break;
+            case 9:
+                range9attackersCount = count;
+                break;
+            case 10:
+                range10attackersCount = count;
+                break;
         }
     }
 
@@ -94,6 +104,10 @@ public class Cell implements Cloneable {
                 return range7attackersCount;
             case 8:
                 return range8attackersCount;
+            case 9:
+                return range9attackersCount;
+            case 10:
+                return range10attackersCount;
         }
 
         return -1;
@@ -433,6 +447,14 @@ public class Cell implements Cloneable {
 
     public Position2d getRangerSwitchedAttackPositionTo() {
         return rangerSwitchedAttackPositionTo;
+    }
+
+    public int getTotalNearAttackerCount() {
+        return totalNearAttackerCount;
+    }
+
+    public void setTotalNearAttackerCount(int totalNearAttackerCount) {
+        this.totalNearAttackerCount = totalNearAttackerCount;
     }
 }
 

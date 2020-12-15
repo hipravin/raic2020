@@ -170,7 +170,7 @@
 
 89 workers under attack, buildings under attack
 90 enemy workers visible
-
+91 harras rate - visible enemy vorkers
 
 на что похоже сражение (ГП)
 

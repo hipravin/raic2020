@@ -265,8 +265,6 @@ public class StrategyParams {
 
         useWorkerPush = true;
 
-        useOldRangerMicro = false;
-
         useWorkerFollow = false;
 
         useWorkerDefendingTurrets = false;
@@ -308,7 +306,7 @@ public class StrategyParams {
         useWorkerFollow = false;
 
         attackPoints = List.of(of(76, 7), of(7, 46), of(76, 76));
-        attackPointRates = List.of(0.7, 0.9);
+        attackPointRates = List.of(0.9, 0.9);
 
         cleanBaseRangeTreshhold = 12;
         workerScoutFrequency = 1000; //no w scout

@@ -183,10 +183,16 @@ public abstract class Position2dUtil {
 
     public static Position2d randomMapPosition() {
         //but not in center
+        int genEdge = Position2dUtil.MAP_SIZE / 5;
 
-        return of(GameHistoryAndSharedState.random.nextInt(Position2dUtil.MAP_SIZE - 10) + 5,
-                GameHistoryAndSharedState.random.nextInt(Position2dUtil.MAP_SIZE - 10) + 5);
+        int x = GameHistoryAndSharedState.random.nextInt(2) % 2 == 0
+                ? GameHistoryAndSharedState.random.nextInt(genEdge)
+                : Position2dUtil.MAP_SIZE - 1 - GameHistoryAndSharedState.random.nextInt(genEdge);
+        int y = GameHistoryAndSharedState.random.nextInt(2) % 2 == 0
+                ? GameHistoryAndSharedState.random.nextInt(genEdge)
+                : Position2dUtil.MAP_SIZE - 1 - GameHistoryAndSharedState.random.nextInt(genEdge);
 
+        return of(x, y);
     }
 
     public static boolean withingMapBorderAndPassesFilter(Position2d p, Predicate<? super Position2d> filter) {
