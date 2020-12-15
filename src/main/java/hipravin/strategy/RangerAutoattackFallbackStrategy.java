@@ -4,12 +4,15 @@ import hipravin.model.Cell;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
+import hipravin.strategy.command.RangerAttackHoldRetreatMicroCommand;
 import model.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static hipravin.model.Position2d.of;
 
 
 public class RangerAutoattackFallbackStrategy implements SubStrategy {
@@ -32,7 +35,7 @@ public class RangerAutoattackFallbackStrategy implements SubStrategy {
 
 
         Vec2Int toPosition = currentParsedGameState.isRound1()
-                ? new Vec2Int(25,25)
+                ? new Vec2Int(15,15)
                 : new Vec2Int(79,79);
 
         notBusyRangers.forEach(w -> {

@@ -168,6 +168,9 @@
 
 88 rang base placement empty cells
 
+89 workers under attack, buildings under attack
+90 enemy workers visible
+
 
 на что похоже сражение (ГП)
 

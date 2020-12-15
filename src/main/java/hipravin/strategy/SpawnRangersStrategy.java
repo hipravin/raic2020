@@ -147,6 +147,11 @@ public class SpawnRangersStrategy implements SubStrategy {
             return;
         }
 
+        if ((pgs.isRound1() || pgs.isRound2())
+                && defendMyTerritoryRound12(gameHistoryState, pgs, strategyParams, assignedActions)) {
+            return;
+        }
+
         if (!shouldSpawnMoreRangers(gameHistoryState, pgs, strategyParams)) {
             return;
         }
@@ -156,6 +161,29 @@ public class SpawnRangersStrategy implements SubStrategy {
         } else {
             findBestSpawnPosRound1(gameHistoryState, pgs, strategyParams);
         }
+    }
+
+    boolean defendMyTerritoryRound12(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+
+        Position2d vragUvorot = pgs.getDefendingAreaEnemies()
+                .stream()
+                .min(Comparator.comparingInt(e -> of(15,15).lenShiftSum(e.getPosition())))
+                .map(e -> of(e.getPosition()))
+                .orElse(null);
+
+        if (vragUvorot != null) {
+            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
+            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUvorot))).orElse(null);
+
+            if (closestSpawn != null) {
+                DebugOut.println("Build ranger defending: " + vragUvorot);
+                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     boolean defendMyTerritory(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -182,6 +210,8 @@ public class SpawnRangersStrategy implements SubStrategy {
             if (closestSpawn != null) {
                 DebugOut.println("Build ranger defending: " + vragUvorot);
                 buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
+
+                return true;
             }
         }
 

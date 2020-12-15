@@ -66,10 +66,10 @@ public class Round1Strategy implements SubStrategy {
             if (sword.getPlayerId() != null && sword.getPlayerId() == pgs.getPlayerView().getMyId()
                     && sword.getEntityType() == EntityType.MELEE_UNIT) {
 
-                Position2d attackPos = pgs.findClosesEnemyArmyInDefArea(of(sword.getPosition())).orElse(of(25, 25));
+                Position2d attackPos = pgs.findClosesEnemyArmyInDefArea(of(sword.getPosition())).orElse(of(20, 20));
 
                 EntityAction autoAttack = new EntityAction();
-                AttackAction attackAction = new AttackAction(null, new AutoAttack(10,
+                AttackAction attackAction = new AttackAction(null, new AutoAttack(15,
                         strategyParams.rangerDefaultAttackTargets));
                 autoAttack.setAttackAction(attackAction);
 

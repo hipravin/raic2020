@@ -92,7 +92,7 @@ public class StrategyParams {
     public double worstMineralSpawnProb = 0.2;
     public int switchToAutoMineRange = 4;
 
-    public int dontSpawnWorkersVragUVorotPathLen = 15;
+    public int dontSpawnWorkersVragUVorotPathLen = 25;
 
     //    public int populationOfWorkersToBuildBeforeRangers = 60;
 

@@ -10,8 +10,8 @@ import hipravin.strategy.ValuedEntityAction;
 import model.*;
 
 import java.util.Map;
-import java.util.Optional;
 
+import static hipravin.model.Position2d.of;
 import static hipravin.strategy.StrategyParams.MAX_VAL;
 
 public class DefenderRangerCommand extends SingleEntityCommand {
@@ -41,7 +41,12 @@ public class DefenderRangerCommand extends SingleEntityCommand {
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
         tryResolveEntityId(pgs);
 
-        return  pgs.getDefendingAreaEnemies().isEmpty();
+        boolean noEnemies =  pgs.getDefendingAreaEnemies().isEmpty();
+        if(noEnemies && entityId != null) {
+            this.getNextCommands().add(new RangerAttackHoldRetreatMicroCommand(entityId, strategyParams.attackPoints.get(0), of(40,40)));
+        }
+
+        return  noEnemies;
     }
 
     @Override

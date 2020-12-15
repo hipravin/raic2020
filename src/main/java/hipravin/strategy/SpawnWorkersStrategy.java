@@ -30,9 +30,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
                     .map(e -> of(e.getPosition()))
                     .orElse(null);
 
-
             if (vragUvorot != null
-                    && vragUvorot.lenShiftSum(pgs.getMyCc().getPosition()) < strategyParams.dontSpawnWorkersVragUVorotPathLen) {
+                    && vragUvorot.lenShiftSum(of(pgs.getMyCc().getPosition()).shift(5,5)) < strategyParams.dontSpawnWorkersVragUVorotPathLen) {
                 return false;
             }
         }
