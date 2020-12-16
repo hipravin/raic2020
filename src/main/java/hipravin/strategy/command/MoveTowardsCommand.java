@@ -95,10 +95,10 @@ public class MoveTowardsCommand extends SingleEntityCommand {
                     && targetPosition.lenShiftSum(currentPosition) > targetPosition.lenShiftSum(followEntityIdPosition)) {
 
                 if(followLooksRight(followEntityIdPosition, gameHistoryState, currentParsedGameState, strategyParams)) {
-
+                    toPosition = followEntityIdPosition;
                 } else {
                     //follow unit
-                    toPosition = followEntityIdPosition;
+                    toPosition = targetPosition;
                     followEntityId = null;
                 }
             }
