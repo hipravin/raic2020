@@ -1,13 +1,10 @@
 package hipravin.strategy;
 
-import hipravin.DebugOut;
 import hipravin.model.*;
 import hipravin.strategy.command.*;
 import model.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static hipravin.model.Position2d.of;
@@ -122,8 +119,24 @@ public class AutomineFallbackStrategy implements SubStrategy {
                                  StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         Entity rangBase = pgs.getMyRangerBase();
 
+
+
         if (!pgs.getEnemyArmy().isEmpty()) {
             if (pgs.at(w.getPosition()).test(c -> c.getAttackerCount(8) > 0 || c.getAttackerCount(7) > 0 || c.getAttackerCount(6) > 0 || c.getAttackerCount(5) > 0)) {
+
+                Position2d wp = of(w.getPosition());
+                Position2d nearestEnemy = nearestEnemyUnitToPosition(of(w.getPosition()), pgs).orElse(null);
+
+                if(nearestEnemy != null) {
+                    Position2d runTo = Position2dUtil.runAwayDoubleDistance(wp, nearestEnemy);
+                    Command retreatToRangBase = new MoveTowardsCommand(pgs, w.getId(),
+                            runTo, 12, 5);
+                    gameHistoryState.addOngoingCommand(retreatToRangBase, false);
+
+                    return true;
+                }
+
+
                 if (rangBase != null) {
                     Command retreatToRangBase = new MoveTowardsCommand(pgs, w.getId(),
                             of(rangBase.getPosition()).shift(-5, -5), 10, 5);
@@ -135,6 +148,14 @@ public class AutomineFallbackStrategy implements SubStrategy {
         }
 
         return false;
+    }
+
+
+    Optional<Position2d> nearestEnemyUnitToPosition(Position2d toPosition, ParsedGameState pgs) {
+        return pgs.getEnemyArmy().keySet()
+                .stream()
+                .min(Comparator.comparingInt(p -> p.lenShiftSum(toPosition)));
+
     }
 
     public void justMine(Entity w, GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,

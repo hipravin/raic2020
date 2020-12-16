@@ -121,6 +121,20 @@ public abstract class GameStateParser {
         return parsedGameState;
     }
 
+    public static void trackEnemyBarracks(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryState) {
+        Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getPlayerId() != null && e.getPlayerId() != pgs.getPlayerView().getMyId())
+                .filter(e -> pgs.at(of(e.getPosition())).isBuilding)
+                .forEach(e -> {
+                    gameHistoryState.getEnemyBuildings().add(of(e.getPosition()));
+                });
+
+        gameHistoryState.getEnemyBuildings().removeIf(b ->
+            pgs.at(b).test(c -> !c.isFog() && (!c.isBuilding() || c.isMyEntity()))
+        );
+
+    }
+
     static void calculateAttackerCounts(ParsedGameState pgs) {
         pgs.allCellsAsStream().forEach(c -> {
             c.totalNearAttackerCount += c.getAttackerCount(5);
@@ -724,4 +738,6 @@ public abstract class GameStateParser {
 
     private GameStateParser() {
     }
+
+
 }

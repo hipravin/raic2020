@@ -139,7 +139,10 @@ public class RootStrategy extends MyStrategy {
         GameStateParser.calculateNewEntityIds(currentParsedGameState, gameHistoryState.getPreviousParsedGameState(), gameHistoryState);
         GameStateParser.calculateWorkersMovedSinceLastTurn(currentParsedGameState, gameHistoryState.getPreviousParsedGameState());
         GameStateParser.trackRangeBaseBuildTicks(currentParsedGameState, gameHistoryState);
+        GameStateParser.trackEnemyBarracks(currentParsedGameState, gameHistoryState);
     }
+
+
 
     void removeCompletedOrStaleCommands() {
 //        gameHistoryState.getOngoingBuildCommands()

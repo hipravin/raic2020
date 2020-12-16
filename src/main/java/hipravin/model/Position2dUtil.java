@@ -45,6 +45,27 @@ public abstract class Position2dUtil {
         }
     }
 
+    public static Position2d runAwayDoubleDistance(Position2d unit, Position2d runFrom) {
+        int dx = runFrom.x - unit.x;
+        int dy = runFrom.y - unit.y;
+
+        Position2d runTo = unit.shift(-2* dx, - 2* dy);
+
+        return crop(runTo);
+    }
+
+    public static Position2d crop(Position2d p) {
+
+        int x = Math.max(0, p.x);
+        x = Math.min(x, MAP_SIZE - 1);
+        int y = Math.max(0, p.y);
+        y = Math.min(y, MAP_SIZE - 1);
+
+        return of(x, y);
+
+    }
+
+
     public static void iterAllPositionsInRangeInclusive(Position2d dotPosition, int range, Consumer<Position2d> positionConsumer) {
         positionConsumer.accept(dotPosition);
         iterAllPositionsInRangeExclusive(dotPosition, range, positionConsumer);

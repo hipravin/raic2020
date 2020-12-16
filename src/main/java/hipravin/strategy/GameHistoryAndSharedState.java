@@ -20,6 +20,7 @@ public class GameHistoryAndSharedState {
     public static Random random = new Random(0);
     public static SplittableRandom splittableRandom = new SplittableRandom(0);
     public List<Entity> entityAppearenceList = new ArrayList<>();
+    public Set<Position2d> enemyBuildings = new HashSet<>();
 
     public List<Integer> sentToBarrackEntityIds = new ArrayList<>();
     public Map<Integer, Integer> sentToBarrackTicks = new HashMap<>();
@@ -230,5 +231,9 @@ public class GameHistoryAndSharedState {
 
     public void setMyRangBaseCompletedTick(Integer myRangBaseCompletedTick) {
         this.myRangBaseCompletedTick = myRangBaseCompletedTick;
+    }
+
+    public Set<Position2d> getEnemyBuildings() {
+        return enemyBuildings;
     }
 }

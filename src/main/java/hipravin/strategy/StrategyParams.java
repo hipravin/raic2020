@@ -28,7 +28,7 @@ public class StrategyParams {
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public static Position2d DESIRED_BARRACK = of(27, 27);
+    public static Position2d DESIRED_BARRACK = of(30, 30);
     public static Position2d sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
     public static final int MAP_CORNER_SIZE = 10;
@@ -148,7 +148,7 @@ public class StrategyParams {
             EntityType.WALL, 1
     );
 
-    public int populationOfWorkersToBuildBeforeRangers = 35;// is optimal rush?
+    public int populationOfWorkersToBuildBeforeRangers = 30;// is optimal rush?
     public int populationOfWorkersToBuildBeforeRangersIfSurrounded = 35;//35 is optimal rush?
     public int populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded = 45;//35 is optimal rush?
     public int populationOfWorkersToBuildAfterRangers = 60;
@@ -157,9 +157,9 @@ public class StrategyParams {
 
     public boolean sendToCenter = true;
 
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 17, 20, 23, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
+    //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 17, 20, 23, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
 //    DESIRED_BARRACK = of(33, 33);
-//public Set<Integer> sendToCenterWorkerNumbers = Set.of(14, 17, 18, 19, 20, 21, 22, 23, 24, 25); // before 'fix'
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(11, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29); // before 'fix'
 
 
 //    public int populationOfWorkersToBuildBeforeRangers = 25;//35 is optimal rush?

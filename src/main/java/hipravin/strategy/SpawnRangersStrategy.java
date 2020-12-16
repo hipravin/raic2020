@@ -90,8 +90,13 @@ public class SpawnRangersStrategy implements SubStrategy {
         if (!pgs.at(mainAttackPoint).isFog()
                 && entityCloseToAttackPoint.map(p -> p.lenShiftSum(mainAttackPoint) > strategyParams.cleanBaseRangeTreshhold).orElse(true)) {
             //nothing left on base
+            Position2d enemyBarrack = gameHistoryState.getEnemyBuildings()                    .stream()
+                    .filter(b -> pgs.at(b).test(c -> c.getEntityType() == EntityType.MELEE_BASE || c.getEntityType() == EntityType.RANGED_BASE))
+                            .findFirst().orElse(null);
 
-            if (armyCloseToRangeBase.isPresent()) {
+            if(enemyBarrack!= null) {
+                setRedefinedAttackPoint(enemyBarrack, rangBasePos.halfWayTo(armyCloseToRangeBase.get()), gameHistoryState, strategyParams);
+            } else if (armyCloseToRangeBase.isPresent()) {
                 setRedefinedAttackPoint(armyCloseToRangeBase.get(), rangBasePos.halfWayTo(armyCloseToRangeBase.get()), gameHistoryState, strategyParams);
             } else if (entityCloseToRangeBase.isPresent()) {
                 setRedefinedAttackPoint(entityCloseToRangeBase.get(), rangBasePos.halfWayTo(entityCloseToRangeBase.get()), gameHistoryState, strategyParams);

@@ -12,6 +12,7 @@ public final class Position2d {
         return new Position2d(x, y);
     }
 
+
     public static Position2d of(Vec2Int vec2Int) {
         return of(vec2Int.getX(), vec2Int.getY());
     }

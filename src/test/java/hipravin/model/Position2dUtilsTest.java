@@ -15,6 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class Position2dUtilsTest {
 
     @Test
+    void testRuinAway() {
+
+        assertEquals(of(15,0), Position2dUtil.runAwayDoubleDistance(of(5,0), of(0,0)));
+        assertEquals(of(7,7), Position2dUtil.runAwayDoubleDistance(of(3,3), of(1,1)));
+    }
+
+    @Test
     void testRandomInMap() {
         for (int i = 0; i < 10000; i++) {
              assertTrue(Position2dUtil.isPositionWithinMapBorder(Position2dUtil.randomMapPosition()));
