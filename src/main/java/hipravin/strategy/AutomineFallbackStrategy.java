@@ -63,6 +63,8 @@ public class AutomineFallbackStrategy implements SubStrategy {
         notBusyWorkers.forEach(w -> {
             if (!handleRunAway(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions)
                     && !handleNoCloseMinerals(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
+
+
                 justMine(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
             }
         });
@@ -77,7 +79,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
             return false;
         }
         if (nearestMineral != null) {
-            Command moveTo = new MoveTowardsCommand(pgs, w.getId(), nearestMineral.getSourceCell().getPosition(), nearestMineral.getPathLenEmptyCellsToThisCell(), strategyParams.moveTowardsMineralsDistanceTreshold);
+            Command moveTo = new MoveTowardsCommand(pgs, w.getId(), nearestMineral.getSourceCell().getPosition(), nearestMineral.getPathLenEmptyCellsToThisCell() - 2, strategyParams.moveTowardsMineralsDistanceTreshold);
 
             gameHistoryState.addOngoingCommand(moveTo, false);
 

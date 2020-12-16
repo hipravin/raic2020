@@ -313,6 +313,8 @@ public class RootStrategy extends MyStrategy {
         action.getEntityActions().entrySet().removeIf(e-> !entityIds.contains(e.getKey()));
 
         action.getEntityActions().forEach((id, ea) -> {
+//            DebugOut.println(id + " " + ea.getMoveAction());
+
             if(ea.getMoveAction() != null) {
                 ensurePosition(ea.getMoveAction().getTarget());
             }

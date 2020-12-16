@@ -26,7 +26,8 @@ public class BuildHousesStrategy implements SubStrategy {
             return false; //hold houses, collect resources for ranger baase
         }
 
-        boolean willHaveResources = willHaveResourcesIn2Ticks(pgs, gameHistoryAndSharedState, strategyParams);//have money - > build house, the fastest strateg
+        boolean willHaveResources = willHaveResourcesIn1Tick(pgs, gameHistoryAndSharedState, strategyParams);//have money - > build house, the fastest strateg
+//        boolean willHaveResources = willHaveResourcesIn2Ticks(pgs, gameHistoryAndSharedState, strategyParams);//have money - > build house, the fastest strateg
 
         //TODO: check houses already in progress, other stuff
         boolean populationAheadRequired = populationAheadRequired(pgs, gameHistoryAndSharedState, strategyParams);
@@ -55,6 +56,21 @@ public class BuildHousesStrategy implements SubStrategy {
                 : 0;
 
         return pgs.getEstimatedResourceAfterTicks(2) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                + rangCost
+                ;
+    }
+
+    boolean willHaveResourcesIn1Tick(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+        if (pgs.getMyRangerBase() != null && !pgs.getMyRangerBase().isActive() && pgs.getMyRangerBase().getHealth() > strategyParams.barrackHealthToHoldResources) {
+            return pgs.getEstimatedResourceAfterTicks(1) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                    + strategyParams.resourcesToHold;
+        }
+
+        int rangCost = pgs.getMyRangerBase() != null && pgs.getMyRangerBase().isActive()
+                ? pgs.getNextRangerCost()
+                : 0;
+
+        return pgs.getEstimatedResourceAfterTicks(1) >= pgs.getHouseCost() + gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
                 + rangCost
                 ;
     }

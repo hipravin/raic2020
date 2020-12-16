@@ -29,7 +29,12 @@ public class ParsedGameState {
     Set<Position2d> fogEdgePositionsSet = new HashSet<>();
 
     Set<Integer> newEntityIds = new HashSet<>();
+
+    //old to new
     Map<Position2d, Position2d> workersMovedSinceLastTick = new HashMap<>();
+
+    //new to old
+    Map<Position2d, Position2d> workersMovedSinceLastTickReversed = new HashMap<>();
 
     int workersAtMiningPositions;
 
@@ -374,6 +379,10 @@ public class ParsedGameState {
 
     public Map<Position2d, Cell> getMyArmyMid() {
         return myArmyMid;
+    }
+
+    public Map<Position2d, Position2d> getWorkersMovedSinceLastTickReversed() {
+        return workersMovedSinceLastTickReversed;
     }
 }
 

@@ -143,7 +143,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
             });
         }
 
-        if (rp.lenShiftSum(attackPosition) < 9 || countSwitched.get() > 0) {
+        if (rp.lenShiftSum(attackPosition) < 7 || countSwitched.get() > 0) {
             DebugOut.println("Reach attackPosition: " + attackPosition + ", nbs: " + countSwitched.get());
 
             Position2d currentAttackPosition = attackPosition;

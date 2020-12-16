@@ -46,6 +46,8 @@ public class WayOutWorkersBlockingDetectingStrategy implements SubStrategy {
                 .map(c -> c.getThisCell().getPosition())
                 .collect(Collectors.toSet());
 
+        Set<Position2d> movedFromLastTick = new HashSet<>(pgs.getWorkersMovedSinceLastTick().values());
+
         if (workersFromFogIgnoreUnits.size() - workersFromFog.size() >= strategyParams.wayOutWorkerCountDiff) {
             workersFromFog.retainAll(workersFromFogIgnoreUnits);//now they all are candidates
             DebugOut.println("Way is blocked detected, possible blockers: " + workersFromFog);
@@ -61,6 +63,7 @@ public class WayOutWorkersBlockingDetectingStrategy implements SubStrategy {
             workersFromFog.retainAll(notBusyWorkers);
 
             List<Position2d> blockerCandidates = new ArrayList<>(workersFromFog);
+            blockerCandidates.removeIf(p -> !movedFromLastTick.contains(p));
 
             if (blockerCandidates.size() > strategyParams.wayOutWorkerMaxPullCount) {
                 blockerCandidates.sort(Comparator.comparing(w -> nes.get(w).getPathLenEmptyCellsToThisCell(), Comparator.reverseOrder()));
@@ -82,7 +85,7 @@ public class WayOutWorkersBlockingDetectingStrategy implements SubStrategy {
                                      StrategyParams strategyParams) {
 
         Command moveTowards = new MoveTowardsCommand(pgs, pgs.at(worker).getEntityId(), nes.get(worker).getSourceCell().getPosition(),
-                nes.get(worker).getPathLenEmptyCellsToThisCell(), 3);
+                nes.get(worker).getPathLenEmptyCellsToThisCell() - 5, 6);
 
         gameHistoryState.addOngoingCommand(moveTowards, false);
     }

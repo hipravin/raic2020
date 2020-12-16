@@ -1,5 +1,6 @@
 package hipravin.strategy.command;
 
+import hipravin.DebugOut;
 import hipravin.model.Cell;
 import hipravin.model.ParsedGameState;
 import hipravin.model.Position2d;
@@ -45,6 +46,7 @@ public class MoveTowardsCommand extends SingleEntityCommand {
 
         if (onStartIdTickConsumer != null) {
             onStartIdTickConsumer.accept(entityId, currentParsedGameState.curTick());
+            onStartIdTickConsumer = null;
         }
 
         Cell c = currentParsedGameState.getEntityIdToCell().get(entityId);
@@ -91,8 +93,14 @@ public class MoveTowardsCommand extends SingleEntityCommand {
                     && followEntityIdPosition != null
 //                    && ccPosition.lenShiftSum(currentPosition) > strategyParams.useWorkerFollowMinRange
                     && targetPosition.lenShiftSum(currentPosition) > targetPosition.lenShiftSum(followEntityIdPosition)) {
-                //follow unit
-                toPosition = followEntityIdPosition;
+
+                if(followLooksRight(followEntityIdPosition, gameHistoryState, currentParsedGameState, strategyParams)) {
+
+                } else {
+                    //follow unit
+                    toPosition = followEntityIdPosition;
+                    followEntityId = null;
+                }
             }
         }
 
@@ -104,6 +112,24 @@ public class MoveTowardsCommand extends SingleEntityCommand {
 
         action.setMoveAction(moveAction);
         assignedActions.put(entityId, new ValuedEntityAction(0.5, entityId, action));
+    }
+
+    public boolean followLooksRight(Position2d followEntityIdPosition, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                    StrategyParams strategyParams) {
+        Position2d oldFollowPosition = pgs.getWorkersMovedSinceLastTickReversed().get(followEntityIdPosition);
+        Position2d myCurrPosition = pgs.getEntityIdToCell().get(entityId).getPosition();
+
+        if(oldFollowPosition == null || myCurrPosition == null || followEntityIdPosition == null) {
+            return false;
+        }
+        if(followEntityIdPosition.lenShiftSum(targetPosition) >= oldFollowPosition.lenShiftSum(targetPosition)
+           || followEntityIdPosition.lenShiftSum(targetPosition) >= myCurrPosition.lenShiftSum(targetPosition)) {
+            DebugOut.println("Cancel follow: " + myCurrPosition + " -> " + followEntityIdPosition);
+
+            return  false;
+        }
+
+        return true;
     }
 
     @Override

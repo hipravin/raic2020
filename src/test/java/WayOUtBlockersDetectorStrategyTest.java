@@ -8,20 +8,30 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 
 import static hipravin.model.Position2d.of;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class WayOUtBlockersDetectorStrategyTest {
-//    @Test
-//    void testFalseBlock() {
-//        RootStrategy strategy = new RootStrategy();
-//        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 17, 200);
-//
-//        Action action = strategy.getAction(get0.getPlayerView(), null);
-//        WayOutWorkersBlockingDetectingStrategy wstrategy = new WayOutWorkersBlockingDetectingStrategy();
-//
-//        assertTrue(wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>()));
-//    }
+    @Test
+    void testFalseNotBlock() {
+        RootStrategy strategy = new RootStrategy();
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 17, 91);
+
+        Action action = strategy.getAction(get0.getPlayerView(), null);
+        WayOutWorkersBlockingDetectingStrategy wstrategy = new WayOutWorkersBlockingDetectingStrategy();
+        //true
+        wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>());
+    }
+
+    @Test
+    void testFalseBlock() {
+        RootStrategy strategy = new RootStrategy();
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 17, 164);
+
+        Action action = strategy.getAction(get0.getPlayerView(), null);
+        WayOutWorkersBlockingDetectingStrategy wstrategy = new WayOutWorkersBlockingDetectingStrategy();
+        //false
+        assertFalse(wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>()));
+    }
 
     @Test
     void testDetect3() {
@@ -31,7 +41,8 @@ public class WayOUtBlockersDetectorStrategyTest {
         Action action = strategy.getAction(get0.getPlayerView(), null);
         WayOutWorkersBlockingDetectingStrategy wstrategy = new WayOutWorkersBlockingDetectingStrategy();
 
-        assertTrue(wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>()));
+//        assertTrue(wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>()));
+        wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>());
     }
 
     @Test
@@ -42,7 +53,7 @@ public class WayOUtBlockersDetectorStrategyTest {
         Action action = strategy.getAction(get0.getPlayerView(), null);
         WayOutWorkersBlockingDetectingStrategy wstrategy = new WayOutWorkersBlockingDetectingStrategy();
 
-        assertTrue(wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>()));
+//        assertTrue(wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>()));
     }
 
     @Test
@@ -53,6 +64,7 @@ public class WayOUtBlockersDetectorStrategyTest {
         Action action = strategy.getAction(get0.getPlayerView(), null);
         WayOutWorkersBlockingDetectingStrategy wstrategy = new WayOutWorkersBlockingDetectingStrategy();
 
-        assertTrue(wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>()));
+        wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>());
+//        assertTrue(wstrategy.findWayBlockers(strategy.gameHistoryState, strategy.currentParsedGameState, strategy.strategyParams, new HashMap<>()));
     }
 }

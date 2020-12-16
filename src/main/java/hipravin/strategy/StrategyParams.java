@@ -46,8 +46,8 @@ public class StrategyParams {
     public double wayOutDiffDetectTreshholdMul = 0.2;
     public int wayOutBlockFindMaxPopulation = 60;
     public int wayOutBlockFindMinPopulation = 10;
-    public int wayOutWorkerCountDiff = 5;
-    public int wayOutWorkerMaxPullCount = 3;
+    public int wayOutWorkerCountDiff = 8;
+    public int wayOutWorkerMaxPullCount = 2;
 
     public int rangerCountToAddSomeWorkers = 10;
 
@@ -58,7 +58,7 @@ public class StrategyParams {
     public int workerScoutToBarrackCloseMinRange = 15;
 
     public int turretsForCleanupRange = 25;
-    public int turretsForCleanupMaxCount = 5;
+    public int turretsForCleanupMaxCount = 10;
     public int turretsForCleanupEdgeShift = 2; //turret should atttack edge + X to be able to clear X lines of mineral guaranteed
 
     public int buildCommandMaxWaitTicks = 5;
@@ -147,7 +147,7 @@ public class StrategyParams {
     public int populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded = 45;//35 is optimal rush?
     public int populationOfWorkersToBuildAfterRangers = 60;
     public int populationOfWorkersToIfExtraResources = 80;
-    public boolean useWorkerFollow = false;
+    public boolean useWorkerFollow = true;
 
     public boolean sendToCenter = true;
     //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 18, 19, 20, 21, 22, 23, 24, 25);
@@ -265,7 +265,7 @@ public class StrategyParams {
 
         useWorkerPush = true;
 
-        useWorkerFollow = false;
+        useWorkerFollow = true;
 
         useWorkerDefendingTurrets = false;
 

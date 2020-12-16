@@ -367,6 +367,11 @@ public abstract class GameStateParser {
                 currentPgs.workersMovedSinceLastTick.put(previousPosition, currentPosition);
             }
         }
+
+        currentPgs.workersMovedSinceLastTick.forEach((o, c) -> {
+            currentPgs.workersMovedSinceLastTickReversed.put(c, o);
+        });
+
     }
 
     public static void calculateNewEntityIds(ParsedGameState currentPgs, ParsedGameState previousPgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
