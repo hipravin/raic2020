@@ -11,6 +11,11 @@ import java.util.stream.Collectors;
 public class WayOutWorkersBlockingDetectingStrategy implements SubStrategy {
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+
+        if(pgs.getMyCc() == null) {
+            return  false;
+        }
+
         return pgs.getPopulation().getPopulationUse() < strategyParams.wayOutBlockFindMaxPopulation
                 && pgs.getPopulation().getPopulationUse() > strategyParams.wayOutBlockFindMinPopulation
                 && (!pgs.getNewEntityIds().isEmpty() || !pgs.getWorkersMovedSinceLastTick().isEmpty());

@@ -10,6 +10,7 @@ import hipravin.strategy.StrategyParams;
 import hipravin.strategy.ValuedEntityAction;
 import model.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -18,6 +19,8 @@ import java.util.function.BiConsumer;
 public class MoveTowardsCommand extends SingleEntityCommand {
     Position2d targetPosition;
     Integer followEntityId;
+    Map<Integer, Position2d> lastPositions = new HashMap<>();
+
 
     final int distanceCancelTreshhold;
 
@@ -53,7 +56,40 @@ public class MoveTowardsCommand extends SingleEntityCommand {
         if (c == null) {
             return false;
         }
+
+        Position2d currentPosition = currentParsedGameState.getEntityIdToCell().get(entityId).getPosition();
+
+        lastPositions.put(currentParsedGameState.curTick(), currentPosition);
+        lastPositions.entrySet().removeIf(e -> e.getKey().equals(currentParsedGameState.curTick() - StrategyParams.MOVE_TOWARDS_MAX_HIST));
+
+        if(isStuck(currentPosition, gameHistoryState, currentParsedGameState, strategyParams)) {
+            return false;
+        }
+
         return true;
+    }
+
+    boolean isStuck(Position2d currentPosition, GameHistoryAndSharedState gameHistoryState,
+                    ParsedGameState pgs, StrategyParams strategyParams) {
+
+        if(lastPositions.size() < 3) {
+            return false;
+        }
+        int curTick = pgs.curTick();
+
+        Position2d pr = lastPositions.get(curTick - 1);
+        Position2d prpr = lastPositions.get(curTick - 2);
+
+        if(pr == null || prpr == null) {
+            return false;
+        }
+
+        if(currentPosition.equals(prpr) && !currentPosition.equals(pr)) {
+            DebugOut.println("Move stuck: " + currentPosition);
+            return true;
+        }
+
+        return false;
     }
 
     @Override

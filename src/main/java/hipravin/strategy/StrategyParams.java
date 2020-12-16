@@ -11,6 +11,8 @@ import java.util.Set;
 import static hipravin.model.Position2d.of;
 
 public class StrategyParams {
+    public static int MOVE_TOWARDS_MAX_HIST = 10;
+
     public static int MAX_VAL = Integer.MAX_VALUE >> 1;
 
     public static int NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 20;
@@ -26,7 +28,7 @@ public class StrategyParams {
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public static Position2d DESIRED_BARRACK = of(33, 33);
+    public static Position2d DESIRED_BARRACK = of(27, 27);
     public static Position2d sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
     public static final int MAP_CORNER_SIZE = 10;
@@ -56,6 +58,10 @@ public class StrategyParams {
     public int workerScoutFrequency = 10; //pull 1 worker every n ticks
     public int workerScoutMaxRange = 11;
     public int workerScoutToBarrackCloseMinRange = 15;
+
+    public int minCountOfRangersBeforeScouts = 15;
+    public int maxNumberOfScouts = 5;
+    public double scoutProb = 0.1;
 
     public int turretsForCleanupRange = 25;
     public int turretsForCleanupMaxCount = 10;
@@ -142,7 +148,7 @@ public class StrategyParams {
             EntityType.WALL, 1
     );
 
-    public int populationOfWorkersToBuildBeforeRangers = 25;//35 is optimal rush?
+    public int populationOfWorkersToBuildBeforeRangers = 35;// is optimal rush?
     public int populationOfWorkersToBuildBeforeRangersIfSurrounded = 35;//35 is optimal rush?
     public int populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded = 45;//35 is optimal rush?
     public int populationOfWorkersToBuildAfterRangers = 60;
@@ -150,10 +156,14 @@ public class StrategyParams {
     public boolean useWorkerFollow = true;
 
     public boolean sendToCenter = true;
-    //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 18, 19, 20, 21, 22, 23, 24, 25);
-//    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30);
-//    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(14, 17, 18, 19, 20, 21, 22, 23, 24, 25);
+
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 17, 20, 23, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
+//    DESIRED_BARRACK = of(33, 33);
+//public Set<Integer> sendToCenterWorkerNumbers = Set.of(14, 17, 18, 19, 20, 21, 22, 23, 24, 25); // before 'fix'
+
+
+//    public int populationOfWorkersToBuildBeforeRangers = 25;//35 is optimal rush?
+
 
     public Set<Integer> surroundedSendToCenterWorkerNumbers = Set.of(13, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40);
     public Set<Integer> doubleSurroundedSendToCenterWorkerNumbers = Set.of(13, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50);

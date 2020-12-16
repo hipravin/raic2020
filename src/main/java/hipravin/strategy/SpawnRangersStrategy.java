@@ -164,20 +164,45 @@ public class SpawnRangersStrategy implements SubStrategy {
         if (!shouldSpawnMoreRangers(gameHistoryState, pgs, strategyParams)) {
             return;
         }
+        if (rangerScouting(gameHistoryState, pgs, strategyParams, assignedActions)) {
+            return;
+        }
 
-        if(!pgs.isRound1()) {
+        if (!pgs.isRound1()) {
             findBestSpawnPos(gameHistoryState, pgs, strategyParams);
         } else {
             findBestSpawnPosRound1(gameHistoryState, pgs, strategyParams);
         }
     }
 
+    public boolean rangerScouting(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                  StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+
+        int numberOfScouts = (int) gameHistoryState.getOngoingCommands().stream()
+                .filter(c -> c instanceof RangerNewScoutCommand).count();
+
+        if (pgs.getMyRangers().size() < strategyParams.minCountOfRangersBeforeScouts || numberOfScouts > strategyParams.maxNumberOfScouts) {
+            return false;
+        }
+
+        if (StrategyParams.ifRandom(strategyParams.scoutProb)) {
+            DebugOut.println("Requesting scout");
+            buildRangerScout(gameHistoryState, pgs, strategyParams);
+
+            return true;
+        }
+
+
+        return false;
+
+    }
+
     boolean defendMyTerritoryRound12(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+                                     StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
         Position2d vragUvorot = pgs.getDefendingAreaEnemies()
                 .stream()
-                .min(Comparator.comparingInt(e -> of(15,15).lenShiftSum(e.getPosition())))
+                .min(Comparator.comparingInt(e -> of(15, 15).lenShiftSum(e.getPosition())))
                 .map(e -> of(e.getPosition()))
                 .orElse(null);
 
@@ -235,11 +260,11 @@ public class SpawnRangersStrategy implements SubStrategy {
         Position2d rangBaseCenter = of(pgs.getMyRangerBase().getPosition()).shift(2, 2);
 
         List<Building> toDefend = pgs.getBuildingsByEntityId().values()
-                .stream().filter(b->b.getCornerCell().isMyBuilding())
+                .stream().filter(b -> b.getCornerCell().isMyBuilding())
                 .filter(b -> b.getMyBuildingAttackersCount() > 0)
                 .collect(Collectors.toList());
 
-        if(toDefend.isEmpty()) {
+        if (toDefend.isEmpty()) {
             return false;
         }
         //selct random
@@ -265,7 +290,7 @@ public class SpawnRangersStrategy implements SubStrategy {
     }
 
     boolean defendMyWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+                            StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         Position2d rangBaseCenter = of(pgs.getMyRangerBase().getPosition()).shift(2, 2);
 
         List<Position2d> toDefend = pgs.getMyWorkers().values()
@@ -273,7 +298,7 @@ public class SpawnRangersStrategy implements SubStrategy {
                 .map(Cell::getPosition)
                 .collect(Collectors.toList());
 
-        if(toDefend.isEmpty()) {
+        if (toDefend.isEmpty()) {
             return false;
         }
         //selct random
@@ -375,7 +400,7 @@ public class SpawnRangersStrategy implements SubStrategy {
         int attackLine = 45;
         int attackWidth = 30;
         int retreatShift = -10;
-        if(pgs.getEnemyArmyRight().size() < 5 && pgs.getEnemyArmyTop().size() < 5) {
+        if (pgs.getEnemyArmyRight().size() < 5 && pgs.getEnemyArmyTop().size() < 5) {
             Position2d attackPoint = of(75, 75);
             Position2d retreatPoint = of(35, 35);
 
@@ -414,10 +439,7 @@ public class SpawnRangersStrategy implements SubStrategy {
         }
 
 
-
-
     }
-
 
 
     void buildRangerDefending(Position2d spawnPos, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -458,6 +480,23 @@ public class SpawnRangersStrategy implements SubStrategy {
         gameHistoryState.addOngoingCommand(buildRangerCommand, false);
     }
 
+    void buildRangerScout(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                          StrategyParams strategyParams) {
+
+        Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
+        Position2d spawnPosition = spawnPositions.stream().max(Comparator.comparingInt(sp -> sp.lenShiftSum(strategyParams.attackPoints.get(0))))
+                .orElse(null);//try to go from behind
+
+        if(spawnPosition != null) {
+
+            Command buildRangerCommand = new BuildRangerCommand(spawnPosition, pgs, 1);
+            RangerNewScoutCommand scout = new RangerNewScoutCommand(EntityType.RANGED_UNIT);
+            CommandUtil.chainCommands(buildRangerCommand, scout);
+
+            gameHistoryState.addOngoingCommand(buildRangerCommand, false);
+        }
+    }
+
 
     void createBuildRangerCommand(Position2d spawnPos, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                   StrategyParams strategyParams) {
@@ -484,7 +523,7 @@ public class SpawnRangersStrategy implements SubStrategy {
 
     void createBuildRangerCommandRound1(Position2d spawnPos, Position2d attackPosition, Position2d retreatPosition,
                                         GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
-                                  StrategyParams strategyParams) {
+                                        StrategyParams strategyParams) {
 
         Command buildRangerCommand = new BuildRangerCommand(spawnPos, pgs, 1);
 

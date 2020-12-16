@@ -9,6 +9,7 @@ import model.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,19 +35,30 @@ public class RangerAutoattackFallbackStrategy implements SubStrategy {
                 .collect(Collectors.toList());
 
 
-        Vec2Int toPosition = currentParsedGameState.isRound1()
-                ? new Vec2Int(15,15)
-                : new Vec2Int(79,79);
+        if (currentParsedGameState.isRound1()) {
+            Vec2Int toPosition = currentParsedGameState.isRound1()
+                    ? new Vec2Int(15, 15)
+                    : new Vec2Int(79, 79);
 
-        notBusyRangers.forEach(w -> {
-            EntityAction autoAttack = new EntityAction();
-            AttackAction attackAction = new AttackAction(null, new AutoAttack(10,
-                    strategyParams.rangerDefaultAttackTargets));
-            autoAttack.setAttackAction(attackAction);
+            notBusyRangers.forEach(w -> {
+                EntityAction autoAttack = new EntityAction();
+                AttackAction attackAction = new AttackAction(null, new AutoAttack(10,
+                        strategyParams.rangerDefaultAttackTargets));
+                autoAttack.setAttackAction(attackAction);
 
-            autoAttack.setMoveAction(new MoveAction(toPosition, true, true));
+                autoAttack.setMoveAction(new MoveAction(toPosition, true, true));
 
-            assignedActions.put(w.getId(), new ValuedEntityAction(0.5, w.getId(), autoAttack));
-        });
+                assignedActions.put(w.getId(), new ValuedEntityAction(0.5, w.getId(), autoAttack));
+            });
+        } else {
+            Position2d myRangBase = Optional.ofNullable(currentParsedGameState.getMyRangerBase()).map(b -> of(b.getPosition()))
+                    .orElse(of(40, 40));
+            notBusyRangers.forEach(w -> {
+                gameHistoryState.addOngoingCommand(
+                        new RangerAttackHoldRetreatMicroCommand(
+                                w.getId(), strategyParams.attackPoints.get(0), myRangBase.shift(2, 2)),
+                        false);
+            });
+        }
     }
 }
