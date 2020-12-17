@@ -107,6 +107,7 @@ public abstract class GameStateParser {
         computeBuildingEdgeFreeCells(parsedGameState);
 
         calculateWorkersAtMiningPositions(parsedGameState);
+        calculateMineralsLowHp(parsedGameState);
         //fighting zone
 
         if (!parsedGameState.isRound1() && !parsedGameState.isRound2()) {
@@ -119,6 +120,28 @@ public abstract class GameStateParser {
         calculateAttackerCounts(parsedGameState);
 
         return parsedGameState;
+    }
+
+
+    private static void calculateMineralsLowHp(ParsedGameState pgs) {
+        Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getEntityType() == EntityType.RESOURCE)
+                .filter(e -> e.getHealth() < 10)
+                .forEach(e -> {
+                    pgs.getLowHpMinerals().add(of(e.getPosition()));
+                });
+    }
+
+    public static void trackCollectedMinerals(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryState) {
+        if(gameHistoryState.getPreviousParsedGameState() != null) {
+            gameHistoryState.getPreviousParsedGameState().getLowHpMinerals().forEach(mp -> {
+                if(!pgs.at(mp).isEmpty) {
+                    pgs.getMieralsCollectedPreviousTick().add(mp);
+                }
+            });
+        }
+
+        DebugOut.println("Minerals collected prev tick: " + pgs.getMieralsCollectedPreviousTick());
     }
 
     public static void trackEnemyBarracks(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryState) {

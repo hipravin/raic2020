@@ -21,6 +21,9 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
     Integer rangerEntityId;
     Position2d attackPosition;
     Position2d retreatPosition;
+    int xshift = 0;
+    int yshift = 0;
+
     boolean workerHunter;
 
     public RangerAttackHoldRetreatMicroCommand(Integer rangerEntityId, Position2d attackPosition, Position2d retreatPosition) {
@@ -36,6 +39,12 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         this.attackPosition = attackPosition;
         this.retreatPosition = retreatPosition;
         this.workerHunter = workerHunter;
+        if(StrategyParams.randomAttackPositionShift > 0) {
+            int shift = StrategyParams.randomAttackPositionShift;
+            this.xshift = -shift + GameHistoryAndSharedState.random.nextInt(2 * shift);
+            this.yshift = -shift + GameHistoryAndSharedState.random.nextInt(2 * shift);
+        }
+
     }
 
 
@@ -205,7 +214,9 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
         autoAttack.setAttackAction(attackAction);
 
-        autoAttack.setMoveAction(new MoveAction(attackPosition.toVec2dInt(), true, true));
+        Position2d attackShifted = Position2dUtil.crop(attackPosition.shift(xshift, yshift));
+
+        autoAttack.setMoveAction(new MoveAction(attackShifted.toVec2dInt(), true, true));
 
         assignedActions.put(rangerEntityId, new ValuedEntityAction(0.5, rangerEntityId, autoAttack));
     }

@@ -92,8 +92,14 @@ public class RootStrategy extends MyStrategy {
                 System.out.println("round2");
             }
 
-            if(System.getProperty("OPTION2") != null) {
-                strategyParams.activateOption2();
+            if(System.getProperty("OPTION2") != null ) {
+                if(playerView.getPlayers().length == 2) {
+                    strategyParams.activateOption2();
+                }
+
+                if(playerView.getMyId() == 1) {
+                    strategyParams.activateOptionId1();
+                }
             }
         }
     }
@@ -140,6 +146,7 @@ public class RootStrategy extends MyStrategy {
         GameStateParser.calculateWorkersMovedSinceLastTurn(currentParsedGameState, gameHistoryState.getPreviousParsedGameState());
         GameStateParser.trackRangeBaseBuildTicks(currentParsedGameState, gameHistoryState);
         GameStateParser.trackEnemyBarracks(currentParsedGameState, gameHistoryState);
+        GameStateParser.trackCollectedMinerals(currentParsedGameState, gameHistoryState);
     }
 
 

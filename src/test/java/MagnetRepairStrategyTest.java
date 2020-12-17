@@ -9,6 +9,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class MagnetRepairStrategyTest {
 
     @Test
+    void testMagnetComplications() {
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 18, 195);
+        RootStrategy rstrategy = new RootStrategy();
+        Action action = rstrategy.getAction(get0.getPlayerView(), null);
+
+        System.out.println();
+
+//        assertEquals(3, spawnStrategy.getLastMineralPositions().size());
+    }
+
+    @Test
     void testMagnetTudaSuda4NoRepairNoFogSend() {
         ServerMessage.GetAction get0 = TestServerUtil.readGet(3, 11, 135);
         RootStrategy rstrategy = new RootStrategy();

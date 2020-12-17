@@ -75,6 +75,43 @@ public class MagnetRepairStrategy implements SubStrategy {
         }
     }
 
+    Map<Position2d, Integer> countMineralsBlockingways(Set<Position2d> requiredRepairPositions, ParsedGameState pgs) {
+        Map<Position2d, Integer> result = new HashMap<>();
+        requiredRepairPositions.forEach(rp -> result.put(rp, 0));
+
+        for (Position2d rp : requiredRepairPositions) {
+            int count = 0;
+
+            count = checkPositionsForBlock(pgs, rp.up(), rp.right(), rp.left(), rp.down(), rp.diag1(), rp.diag2(), rp.diag3(), rp.diag4());
+
+            result.put(rp, count);
+
+        }
+
+        return result;
+    }
+
+    int checkPositionsForBlock(ParsedGameState pgs, Position2d... wayPoss) {
+        int count = 0;
+        for (Position2d wp : wayPoss) {
+            count += checkPositionForBlock(pgs, wp);
+        }
+
+        return count;
+    }
+
+    int checkPositionForBlock(ParsedGameState pgs, Position2d wayPos) {
+        if(!Position2dUtil.isPositionWithinMapBorder(wayPos)) {
+            return 1;
+        }
+        if(pgs.at(wayPos).isMineral()) {
+            return 1;
+        }
+
+        return 0;
+
+    }
+
     @Override
     public boolean isApplicableAtThisTick(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         //not apply before first house

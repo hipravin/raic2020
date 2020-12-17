@@ -54,6 +54,17 @@ public abstract class Position2dUtil {
         return crop(runTo);
     }
 
+    public static Position2d randomShift(Position2d p, int shift) {
+        if(shift == 0) {
+            return p;
+        }
+
+        int xshift = -shift + GameHistoryAndSharedState.random.nextInt(2 * shift);
+        int yshift = -shift + GameHistoryAndSharedState.random.nextInt(2 * shift);
+
+        return crop(p.shift(xshift, yshift));
+    }
+
     public static Position2d crop(Position2d p) {
 
         int x = Math.max(0, p.x);

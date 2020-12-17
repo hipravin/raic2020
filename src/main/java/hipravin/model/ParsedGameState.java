@@ -60,6 +60,9 @@ public class ParsedGameState {
 
     Entity enemyArmyBase = null;
 
+    Set<Position2d> lowHpMinerals = new HashSet<>();
+    Set<Position2d> mieralsCollectedPreviousTick = new HashSet<>();
+
     public boolean isRound1() {
         return !getPlayerView().isFogOfWar();
     }
@@ -383,6 +386,14 @@ public class ParsedGameState {
 
     public Map<Position2d, Position2d> getWorkersMovedSinceLastTickReversed() {
         return workersMovedSinceLastTickReversed;
+    }
+
+    public Set<Position2d> getLowHpMinerals() {
+        return lowHpMinerals;
+    }
+
+    public Set<Position2d> getMieralsCollectedPreviousTick() {
+        return mieralsCollectedPreviousTick;
     }
 }
 
