@@ -34,7 +34,7 @@ public class StrategyParams {
 
     public static final int MAP_CORNER_SIZE = 10;
 
-    public static int randomAttackPositionShift = 0;
+    public static int randomAttackPositionShift = 5;
 
 
     public int moveTowardsBarracksDistanceTreshold = 10;
@@ -292,7 +292,7 @@ public class StrategyParams {
         useWorkerFollow = true;
 
         useWorkerDefendingTurrets = false;
-//        randomAttackPositionShift = 10;
+        randomAttackPositionShift = 0;
 //        useWorkerDefendingTurrets = true;
     }
 

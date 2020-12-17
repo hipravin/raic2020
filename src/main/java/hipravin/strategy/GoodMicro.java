@@ -24,8 +24,7 @@ public class GoodMicro {
                                                             Set<Position2d> reservedMoveToPositions) {
 
         List<Position2d> moveOptions = Position2dUtil.upRightLeftDownFiltered(rangerPosition,
-                Arrays.asList(
-                        p -> pgs.at(p).isEmpty())
+                        p -> pgs.at(p).isEmpty()
         );
 
         for (MicroScript microScript : microScripts) {

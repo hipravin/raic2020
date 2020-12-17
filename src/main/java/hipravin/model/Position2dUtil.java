@@ -189,18 +189,18 @@ public abstract class Position2dUtil {
         return result;
     }
 
-    public static List<Position2d> upRightLeftDownFiltered(Position2d p, Collection<Predicate<? super Position2d>> filters) {
+    public static List<Position2d> upRightLeftDownFiltered(Position2d p, Predicate<? super Position2d>... filters) {
         List<Position2d> pfiltered = new ArrayList<>(4);
 
-        withingMapBorderAndPassesAllFilters(p.shift(0, 1), filters, pfiltered);
-        withingMapBorderAndPassesAllFilters(p.shift(1, 0), filters, pfiltered);
-        withingMapBorderAndPassesAllFilters(p.shift(-1, 0), filters, pfiltered);
-        withingMapBorderAndPassesAllFilters(p.shift(0, -1), filters, pfiltered);
+        withingMapBorderAndPassesAllFilters(p.shift(0, 1), pfiltered  ,filters );
+        withingMapBorderAndPassesAllFilters(p.shift(1, 0), pfiltered  ,filters );
+        withingMapBorderAndPassesAllFilters(p.shift(-1, 0), pfiltered , filters);
+        withingMapBorderAndPassesAllFilters(p.shift(0, -1), pfiltered , filters);
 
         return pfiltered;
     }
 
-    public static void withingMapBorderAndPassesAllFilters(Position2d p, Collection<Predicate<? super Position2d>> filters, List<Position2d> toAdd) {
+    public static void withingMapBorderAndPassesAllFilters(Position2d p, List<Position2d> toAdd, Predicate<? super Position2d>... filters) {
         if (!Position2dUtil.isPositionWithinMapBorder(p)) {
             return;
         }

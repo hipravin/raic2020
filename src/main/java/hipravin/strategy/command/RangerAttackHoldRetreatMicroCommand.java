@@ -152,15 +152,16 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
             });
         }
 
-        if (rp.lenShiftSum(attackPosition) < 7 || countSwitched.get() > 0) {
-            DebugOut.println("Reach attackPosition: " + attackPosition + ", nbs: " + countSwitched.get());
+        if (pgs.at(rp).getTotalNearAttackerCount() == 0 && (rp.lenShiftSum(attackPosition) < 7 || countSwitched.get() > 0)) {
+            DebugOut.println("Reach attackPosition and cleared: " + attackPosition + ", nbs: " + countSwitched.get());
 
             Position2d currentAttackPosition = attackPosition;
 
             if (attackPosition.equals(strategyParams.attackPoints.get(0))) {
                 attackPosition = pgs.findClosesEnemyArmy(rp).orElse(Position2dUtil.randomMapPosition());
             } else {
-                attackPosition = strategyParams.attackPoints.get(0);
+                attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
+//                attackPosition = strategyParams.attackPoints.get(0);
             }
 
             gameHistoryState.getOngoingCommands().forEach(c -> {
