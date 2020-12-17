@@ -386,7 +386,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
     public void sendWorkerToCenter(Set<Position2d> ccOuterEdge, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
-        Position2d centerOrBarrackPosition = fixedToCenterPosition();
+//        Position2d centerOrBarrackPosition = fixedToCenterPosition();
+        Position2d centerOrBarrackPosition = randomSendToCenterPosition();
         Position2d spawnPos = sendToCenterSpawnPos(ccOuterEdge, centerOrBarrackPosition, gameHistoryState, pgs, strategyParams);
 
         CommandPredicate barrackStartedToBuild = new CommandPredicate() {

@@ -286,7 +286,7 @@ public class StrategyParams {
         StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 7;
         StrategyParams.NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 15;
 
-        populationOfWorkersToBuildAfterRangers = 40;
+        populationOfWorkersToBuildAfterRangers = 60;
         populationOfWorkersToBuildBeforeRangers = 15;
 
         DESIRED_BARRACK = of(15, 15);
@@ -295,15 +295,22 @@ public class StrategyParams {
         sendToCenterWorkerNumbers = Set.of();
         minHouseDistanceToCenter = 3;
 
-        attackPoints = List.of(of(76, 10), of(10, 76), of(76, 76));
-        attackPointRates = List.of(0.9, 0.9);
+
+
+        attackPoints = List.of(of(76, 7), of(7, 76), of(76, 76));
+        attackPointRates = List.of(0.5, 0.9);
+        scoutProb = 0;
         useWorkerFollow = false;
         cleanBaseRangeTreshhold = 12;
         workerScoutFrequency = 1000; //no w scout
         useWorkerDefendingTurrets = true;
+
+        turretsFrequency = 5;
     }
 
     public void activateRound2() {
+        scoutProb = 0;
+
         populationOfWorkersToBuildBeforeRangers = 25;
         populationOfWorkersToBuildAfterRangers = 60;
 
@@ -315,14 +322,14 @@ public class StrategyParams {
         minHouseDistanceToCenter = 3;
         useWorkerFollow = false;
 
-        attackPoints = List.of(of(76, 7), of(7, 46), of(76, 76));
-        attackPointRates = List.of(0.9, 0.9);
+        attackPoints = List.of(of(76, 7), of(7, 76), of(76, 76));
+        attackPointRates = List.of(0.5, 0.9);
 
         cleanBaseRangeTreshhold = 12;
         workerScoutFrequency = 1000; //no w scout
 
         useWorkerDefendingTurrets = true;
-
+        turretsFrequency = 5;
     }
 
 

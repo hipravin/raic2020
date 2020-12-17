@@ -22,6 +22,8 @@ public class RangerNewScoutCommand extends SingleEntityCommand {
 
     boolean scoutCompleted = false;
 
+    Position2d currentTarget = null;
+
     protected RangerNewScoutCommand(int entityId) {
         super(MAX_VAL, entityId);
     }
@@ -50,14 +52,14 @@ public class RangerNewScoutCommand extends SingleEntityCommand {
     public boolean isCompleted(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
         tryResolveEntityId(pgs);
 
-        if(entityId != null && pgs.getEntityIdToCell().containsKey(entityId)) {
+        if (entityId != null && pgs.getEntityIdToCell().containsKey(entityId)) {
             int attacker = pgs.getEntityIdToCell().get(entityId).getTotalNearAttackerCount();
 
-            if(attacker > 0) {
+            if (attacker > 0) {
                 return true;
             }
 
-            if(scoutCompleted) {
+            if (scoutCompleted) {
                 return true;
             }
         }
@@ -68,11 +70,17 @@ public class RangerNewScoutCommand extends SingleEntityCommand {
     @Override
     public void updateAssignedActions(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
-        Position2d moveTo = nearestFog(gameHistoryState, currentParsedGameState, strategyParams);
-
+        Position2d currentPos = currentParsedGameState.getEntityIdToCell().get(entityId).getPosition();
+        Position2d moveTo;
+        if (currentTarget == null || currentTarget.lenShiftSum(currentPos) < Position2dUtil.RANGER_RANGE) {
+            moveTo = nearestFog(gameHistoryState, currentParsedGameState, strategyParams);
+            currentTarget = moveTo;
+        } else {
+            moveTo = currentTarget;
+        }
 
         EntityAction autoAttack = new EntityAction();
-        AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.MAP_SIZE,
+        AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.RANGER_RANGE,
                 strategyParams.rangerDefaultAttackTargets));
         autoAttack.setAttackAction(attackAction);
 
@@ -85,17 +93,17 @@ public class RangerNewScoutCommand extends SingleEntityCommand {
         List<Position2d> fogEdges = pgs.getFogEdgePositions();
         Position2d currentPos = pgs.getEntityIdToCell().get(entityId).getPosition();
         Position2d mainAttackPoint = strategyParams.attackPoints.get(0);
-        Position2d barrackPos = Optional.ofNullable(pgs.getMyRangerBase()).map(e -> of(e.getPosition())).orElse(of(40,40));
+        Position2d barrackPos = Optional.ofNullable(pgs.getMyRangerBase()).map(e -> of(e.getPosition())).orElse(of(40, 40));
 
         Position2d nearestFogCloserToOpp = fogEdges.stream()
                 .filter(fe -> mainAttackPoint.lenShiftSum(fe) < mainAttackPoint.lenShiftSum(currentPos)) //closer than me to opp
                 .filter(fe -> barrackPos.lenShiftSum(fe) > currentPos.lenShiftSum(fe)) //closer than me to opp
                 .min(Comparator.comparingInt(fe -> fe.lenShiftSum(currentPos))).orElse(null);
 
-        if(nearestFogCloserToOpp == null) {
+        if (nearestFogCloserToOpp == null) {
             scoutCompleted = true;
             DebugOut.println("Nowhere to scout ranger: " + currentPos);
-            return Position2d.of(40,40);
+            return strategyParams.attackPoints.get(0);
         } else {
             DebugOut.println("Scout decided to move: " + currentPos + " -> " + nearestFogCloserToOpp);
 

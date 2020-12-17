@@ -90,11 +90,11 @@ public class SpawnRangersStrategy implements SubStrategy {
         if (!pgs.at(mainAttackPoint).isFog()
                 && entityCloseToAttackPoint.map(p -> p.lenShiftSum(mainAttackPoint) > strategyParams.cleanBaseRangeTreshhold).orElse(true)) {
             //nothing left on base
-            Position2d enemyBarrack = gameHistoryState.getEnemyBuildings()                    .stream()
+            Position2d enemyBarrack = gameHistoryState.getEnemyBuildings().stream()
                     .filter(b -> pgs.at(b).test(c -> c.getEntityType() == EntityType.MELEE_BASE || c.getEntityType() == EntityType.RANGED_BASE))
-                            .findFirst().orElse(null);
+                    .findFirst().orElse(null);
 
-            if(enemyBarrack!= null) {
+            if (enemyBarrack != null) {
                 setRedefinedAttackPoint(enemyBarrack, rangBasePos.halfWayTo(armyCloseToRangeBase.get()), gameHistoryState, strategyParams);
             } else if (armyCloseToRangeBase.isPresent()) {
                 setRedefinedAttackPoint(armyCloseToRangeBase.get(), rangBasePos.halfWayTo(armyCloseToRangeBase.get()), gameHistoryState, strategyParams);
@@ -173,11 +173,11 @@ public class SpawnRangersStrategy implements SubStrategy {
             return;
         }
 
-        if (!pgs.isRound1()) {
+//        if (!pgs.isRound1()) {
             findBestSpawnPos(gameHistoryState, pgs, strategyParams);
-        } else {
-            findBestSpawnPosRound1(gameHistoryState, pgs, strategyParams);
-        }
+//        } else {
+//            findBestSpawnPosRound1(gameHistoryState, pgs, strategyParams);
+//        }
     }
 
     public boolean rangerScouting(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -492,7 +492,7 @@ public class SpawnRangersStrategy implements SubStrategy {
         Position2d spawnPosition = spawnPositions.stream().max(Comparator.comparingInt(sp -> sp.lenShiftSum(strategyParams.attackPoints.get(0))))
                 .orElse(null);//try to go from behind
 
-        if(spawnPosition != null) {
+        if (spawnPosition != null) {
 
             Command buildRangerCommand = new BuildRangerCommand(spawnPosition, pgs, 1);
             RangerNewScoutCommand scout = new RangerNewScoutCommand(EntityType.RANGED_UNIT);
