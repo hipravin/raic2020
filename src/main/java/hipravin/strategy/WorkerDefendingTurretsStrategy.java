@@ -26,6 +26,38 @@ public class WorkerDefendingTurretsStrategy implements SubStrategy {
     public void decide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                        StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
 
+        if(pgs.isRound1() || pgs.isRound2()) {
+            Position2d enemy1 = of(0, 79);
+
+            Cell closestYWorker = pgs.getMyWorkers().values().stream()
+                    .min(Comparator.comparingInt(c -> c.getPosition().lenShiftSum(enemy1)))
+                    .orElse(null);
+
+            if (closestYWorker != null && !alreadyHaveTurret(closestYWorker.getPosition(), pgs, strategyParams)) {
+                if (haveResources(pgs, gameHistoryState, strategyParams)) {
+                    DebugOut.println("Turret requested: " + closestYWorker.getPosition());
+                    gameHistoryState.turretRequests.add(closestYWorker.getPosition().shift(2, 0));
+                }
+            }
+
+            Position2d enemy2 = of(0, 79);
+
+
+            Cell closestXWorker = pgs.getMyWorkers().values().stream()
+                    .min(Comparator.comparingInt(c -> c.getPosition().lenShiftSum(enemy2)))
+                    .orElse(null);
+
+            if (closestXWorker != null && !alreadyHaveTurret(closestXWorker.getPosition(), pgs, strategyParams)) {
+                if (haveResources(pgs, gameHistoryState, strategyParams)) {
+                    DebugOut.println("Turret requested: " + closestXWorker.getPosition());
+                    gameHistoryState.turretRequests.add(closestXWorker.getPosition().shift(2, 0));
+                }
+            }
+
+
+            return;
+        }
+
         Position2d emenyCenterPos = of(70, 70);
 
         Cell closestYWorker = pgs.getMyWorkers().values().stream()

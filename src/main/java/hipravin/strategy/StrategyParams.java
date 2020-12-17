@@ -265,10 +265,11 @@ public class StrategyParams {
     public void activateOptionId1() {
         DebugOut.println("Option id 1 activated");
 
-        randomAttackPositionShift = 10;
-        DESIRED_BARRACK = of(12, 12);
-        populationOfWorkersToBuildBeforeRangers = 40;
-        sendToCenterWorkerNumbers = Set.of(13, 15, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39);
+        useWorkerDefendingTurrets = true;
+//        randomAttackPositionShift = 10;
+//        DESIRED_BARRACK = of(12, 12);
+//        populationOfWorkersToBuildBeforeRangers = 40;
+//        sendToCenterWorkerNumbers = Set.of(13, 15, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39);
 
     }
 
@@ -317,7 +318,7 @@ public class StrategyParams {
         useWorkerFollow = false;
         cleanBaseRangeTreshhold = 12;
         workerScoutFrequency = 1000; //no w scout
-        useWorkerDefendingTurrets = true;
+        useWorkerDefendingTurrets = false;
 
         turretsFrequency = 5;
     }
@@ -344,7 +345,7 @@ public class StrategyParams {
         cleanBaseRangeTreshhold = 12;
         workerScoutFrequency = 1000; //no w scout
 
-        useWorkerDefendingTurrets = true;
+        useWorkerDefendingTurrets = false;
         turretsFrequency = 5;
 
     }

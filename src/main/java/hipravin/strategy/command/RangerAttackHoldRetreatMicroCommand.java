@@ -39,7 +39,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         this.attackPosition = attackPosition;
         this.retreatPosition = retreatPosition;
         this.workerHunter = workerHunter;
-        if(StrategyParams.randomAttackPositionShift > 0) {
+        if (StrategyParams.randomAttackPositionShift > 0) {
             int shift = StrategyParams.randomAttackPositionShift;
             this.xshift = -shift + GameHistoryAndSharedState.random.nextInt(2 * shift);
             this.yshift = -shift + GameHistoryAndSharedState.random.nextInt(2 * shift);
@@ -72,8 +72,9 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
         return counter.get();
     }
+
     public int countEnemySwordmansNearby(Position2d rangerPosition, int range,
-                                       GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+                                         GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
         AtomicInteger counter = new AtomicInteger(0);
         Position2dUtil.iterAllPositionsInRangeExclusive(rangerPosition, range, p -> {
             if (pgs.at(p).test(c -> c.isUnit() && !c.isMyEntity() && c.getEntityType() == EntityType.MELEE_UNIT)) {
@@ -83,6 +84,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
         return counter.get();
     }
+
     public int countEnemyTurretsNearby(Position2d rangerPosition, int range,
                                        GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
         AtomicInteger healthCounter = new AtomicInteger(0);
@@ -146,7 +148,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
         if (rp.lenShiftSum(attackPosition) < 15) {
             Position2dUtil.iterAllPositionsInExactRange(rp, 3, p -> {
-                if(pgs.at(p).test(c -> c.isMyRanger() && c.getRangerSwitchedAttackPositionTo() != null)) {
+                if (pgs.at(p).test(c -> c.isMyRanger() && c.getRangerSwitchedAttackPositionTo() != null)) {
                     countSwitched.incrementAndGet();
                 }
             });
@@ -165,9 +167,9 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
             }
 
             gameHistoryState.getOngoingCommands().forEach(c -> {
-                if(c instanceof RangerAttackHoldRetreatMicroCommand) {
+                if (c instanceof RangerAttackHoldRetreatMicroCommand) {
                     RangerAttackHoldRetreatMicroCommand mc = (RangerAttackHoldRetreatMicroCommand) c;
-                    if(mc.getAttackPosition().equals(currentAttackPosition)) {
+                    if (mc.getAttackPosition().equals(currentAttackPosition)) {
                         mc.setAttackPosition(attackPosition);
                     }
                 }
@@ -177,16 +179,15 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         Cell rc = pgs.at(rp);
 
         int enemyCount = countEnemyRangersNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams)
-                + countEnemySwordmansNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams)
-                ;
+                + countEnemySwordmansNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
         int myCount = countMyRangersNearby(rp, strategyParams.attackHoldMyRange, gameHistoryState, pgs, strategyParams);
 
         int turretHealth18 = countEnemyTurretsNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
         enemyCount += turretHealth18;
 
-        if((pgs.isRound1() || pgs.isRound2()) && enemyCount > myCount) {
+        if ((pgs.isRound1() || pgs.isRound2()) && enemyCount > myCount) {
             updateRetreat(gameHistoryState, pgs, strategyParams, assignedActions);
-        } else if(pgs.isRound1() && myCount < 5 && enemyCount > 0) {
+        } else if (pgs.isRound1() && myCount < 5 && enemyCount > 0) {
             updateHold(gameHistoryState, pgs, strategyParams, assignedActions);
         } else {
 
@@ -197,7 +198,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
             } else if ((rc.getAttackerCount(6) == 1
                     || rc.getAttackerCount(7) == 1)
 
-                    && (enemyCount > 1 || 2 * enemyCount > 3 *  myCount)) {
+                    && (enemyCount > 1 || 2 * enemyCount > 3 * myCount)) {
                 DebugOut.println("Ranger hold: " + rp);
 
                 updateHold(gameHistoryState, pgs, strategyParams, assignedActions);
