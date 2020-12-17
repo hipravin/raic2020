@@ -46,11 +46,14 @@ public class RootStrategy extends MyStrategy {
         WorkerScoutStrategy workerScoutStrategy = new WorkerScoutStrategy();
         AutomineFallbackStrategy autoMine = new AutomineFallbackStrategy();
         RangerAutoattackFallbackStrategy rangerAutoAttack = new RangerAutoattackFallbackStrategy();
+        PullToCenterStrategy pullToCenterStrategy = new PullToCenterStrategy();
+
 
         subStrategies.add(buildFirstHouseFinalStrategy);
         subStrategies.add(pushMinersStrategy);
         subStrategies.add(spawnWorkersStrategy);
         subStrategies.add(spawnRangersStrategy);
+        subStrategies.add(pullToCenterStrategy);
         subStrategies.add(magnetRepairStrategy);
         subStrategies.add(buildHousesStrategy);
         subStrategies.add(workerDefendingTurretsStrategy);

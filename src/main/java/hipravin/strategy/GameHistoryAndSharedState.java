@@ -31,6 +31,8 @@ public class GameHistoryAndSharedState {
     public Integer myRangBaseStartedBuildTick = null;
     public Integer myRangBaseCompletedTick = null;
 
+    public int workerPullToCenterRequests = 0;
+
 
     //    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
     List<Command> ongoingCommands = new ArrayList<>();
@@ -235,5 +237,21 @@ public class GameHistoryAndSharedState {
 
     public Set<Position2d> getEnemyBuildings() {
         return enemyBuildings;
+    }
+
+    public int getWorkerPullToCenterRequests() {
+        return workerPullToCenterRequests;
+    }
+
+    public void incrementWorkerPullToCenterRequests() {
+        workerPullToCenterRequests++;
+    }
+
+    public void setWorkerPullToCenterRequests(int workerPullToCenterRequests) {
+        this.workerPullToCenterRequests = workerPullToCenterRequests;
+    }
+
+    public List<Integer> getSentToBarrackEntityIds() {
+        return sentToBarrackEntityIds;
     }
 }

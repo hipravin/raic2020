@@ -24,6 +24,7 @@ public class StrategyParams {
     public static final int TURRET_WORKERS_NEARBY_MAX_PATH = 10;
     public static final int BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER = 15;
     public static final int RESP_SURROUNDED_DETECT_RANGE = 25;
+    public static final int PULL_TO_CENTER_WS_RANGE = 25;
     public static final int SEND_TO_CENTER_WS_RANGE = 20;
 
     public static final int MAX_COMBINATIONS_BF = 2000;

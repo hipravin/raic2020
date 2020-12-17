@@ -86,6 +86,12 @@ public class MoveTowardsCommand extends SingleEntityCommand {
 
         if(currentPosition.equals(prpr) && !currentPosition.equals(pr)) {
             DebugOut.println("Move stuck: " + currentPosition);
+
+            if(gameHistoryState.getSentToBarrackEntityIds().contains(entityId)) {
+                DebugOut.println("Requesting pull to center");
+                gameHistoryState.incrementWorkerPullToCenterRequests();
+            }
+
             return true;
         }
 
