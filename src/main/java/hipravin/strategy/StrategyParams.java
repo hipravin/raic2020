@@ -13,6 +13,7 @@ import static hipravin.model.Position2d.of;
 
 public class StrategyParams {
     public static int MOVE_TOWARDS_MAX_HIST = 10;
+    public static int RANGER_POS_HIST = 6;
 
     public static int MAX_VAL = Integer.MAX_VALUE >> 1;
 
@@ -35,8 +36,9 @@ public class StrategyParams {
 
     public static final int MAP_CORNER_SIZE = 10;
 
-    public static int randomAttackPositionShift = 5;
+    public static int randomAttackPositionShift = 0;
 
+    public boolean useRangerFollow = true;
 
     public int moveTowardsBarracksDistanceTreshold = 10;
     public int moveTowardsMineralsDistanceTreshold = 6;
@@ -69,7 +71,7 @@ public class StrategyParams {
     public double scoutProb = 0.1;
 
     public int turretsForCleanupRange = 25;
-    public int turretsForCleanupMaxCount = 10;
+    public int turretsForCleanupMaxCount = 3;
     public int turretsForCleanupEdgeShift = 2; //turret should atttack edge + X to be able to clear X lines of mineral guaranteed
 
     public int buildCommandMaxWaitTicks = 5;
@@ -92,7 +94,7 @@ public class StrategyParams {
     public double defendArmyOvercomeRatio = 1.5;
 
     public boolean useWorkerDefendingTurrets = false;//worker nearest to enemy cc or rang base requets turret
-    public int turretsFrequency = 6;
+    public int turretsFrequency = 7;
     public int turretsMinRangers = 15;
 
     public int turretMinMinerals = 50;
@@ -196,6 +198,8 @@ public class StrategyParams {
 //    public List<Double> attackPointRates = List.of(0.9, 0.5);
     public List<Position2d> attackPoints = List.of(of(76, 76), of(40, 76), of(76, 40));
     public List<Double> attackPointRates = List.of(0.4, 0.5);
+    public double preserveAttackPointProb = 0.85;
+
 
     public int cleanBaseRangeTreshhold = 15;
     public int useWorkerFollowMinRange = 13;//close to cc follow can stuck workers
@@ -266,6 +270,11 @@ public class StrategyParams {
         DebugOut.println("Option id 1 activated");
 
         useWorkerDefendingTurrets = true;
+
+        useRangerFollow = true;
+
+        preserveAttackPointProb = 0.85;
+
 //        randomAttackPositionShift = 10;
 //        DESIRED_BARRACK = of(12, 12);
 //        populationOfWorkersToBuildBeforeRangers = 40;
@@ -318,9 +327,9 @@ public class StrategyParams {
         useWorkerFollow = false;
         cleanBaseRangeTreshhold = 12;
         workerScoutFrequency = 1000; //no w scout
-        useWorkerDefendingTurrets = false;
+        useWorkerDefendingTurrets = true;
 
-        turretsFrequency = 5;
+//        turretsFrequency = 7;
     }
 
     public void activateRound2() {
@@ -345,8 +354,8 @@ public class StrategyParams {
         cleanBaseRangeTreshhold = 12;
         workerScoutFrequency = 1000; //no w scout
 
-        useWorkerDefendingTurrets = false;
-        turretsFrequency = 5;
+        useWorkerDefendingTurrets = true;
+//        turretsFrequency = 7;
 
     }
 

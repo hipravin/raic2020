@@ -40,7 +40,7 @@ public class WorkerDefendingTurretsStrategy implements SubStrategy {
                 }
             }
 
-            Position2d enemy2 = of(0, 79);
+            Position2d enemy2 = of(79, 0);
 
 
             Cell closestXWorker = pgs.getMyWorkers().values().stream()

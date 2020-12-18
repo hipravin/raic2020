@@ -9,6 +9,7 @@ import hipravin.strategy.StrategyParams;
 import hipravin.strategy.ValuedEntityAction;
 import model.*;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -185,4 +186,5 @@ public class RangerAttackHoldRetreatCommand extends Command {
                 ", retreatPosition=" + retreatPosition +
                 '}';
     }
+
 }

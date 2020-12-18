@@ -408,6 +408,16 @@ public abstract class GameStateParser {
         currentPgs.workersMovedSinceLastTick.forEach((o, c) -> {
             currentPgs.workersMovedSinceLastTickReversed.put(c, o);
         });
+        //and rangers
+
+        for (Map.Entry<Integer, Cell> currentEntry : currentPgs.getMyRangers().entrySet()) {
+            Position2d currentPosition = currentEntry.getValue().getPosition();
+            Position2d previousPosition = Optional.ofNullable(previousPgs.getMyRangers().get(currentEntry.getKey())).map(Cell::getPosition).orElse(null);
+
+            if (previousPosition != null && !currentPosition.equals(previousPosition)) {
+                currentPgs.rangersMovedSinceLastTickReversed.put(currentPosition, previousPosition);
+            }
+        }
 
     }
 

@@ -32,6 +32,8 @@ public class ParsedGameState {
 
     //old to new
     Map<Position2d, Position2d> workersMovedSinceLastTick = new HashMap<>();
+    //new to old
+    Map<Position2d, Position2d> rangersMovedSinceLastTickReversed = new HashMap<>();
 
     //new to old
     Map<Position2d, Position2d> workersMovedSinceLastTickReversed = new HashMap<>();
@@ -394,6 +396,10 @@ public class ParsedGameState {
 
     public Set<Position2d> getMieralsCollectedPreviousTick() {
         return mieralsCollectedPreviousTick;
+    }
+
+    public Map<Position2d, Position2d> getRangersMovedSinceLastTickReversed() {
+        return rangersMovedSinceLastTickReversed;
     }
 }
 

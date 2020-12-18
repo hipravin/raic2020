@@ -10,8 +10,7 @@ import hipravin.strategy.StrategyParams;
 import hipravin.strategy.ValuedEntityAction;
 import model.*;
 
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static hipravin.model.Position2d.of;
@@ -23,6 +22,10 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
     Position2d retreatPosition;
     int xshift = 0;
     int yshift = 0;
+
+    boolean decidedToAttackThisTurn = false;
+    Map<Integer, Position2d> lastPositions = new HashMap<>();
+
 
     boolean workerHunter;
 
@@ -50,6 +53,8 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
     @Override
     public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+        decidedToAttackThisTurn = false;
+
         if (rangerEntityId == null) {
             rangerEntityId = pgs.getMyUnitSpawned(EntityType.RANGED_UNIT).orElse(null);
             this.getRelatedEntityIds().add(rangerEntityId);
@@ -58,7 +63,15 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
             }
         }
 
-        return pgs.getEntityIdToCell().containsKey(rangerEntityId);
+        Cell c = pgs.getEntityIdToCell().get(rangerEntityId);
+        if (c == null) {
+            return false;
+        }
+
+        lastPositions.put(pgs.curTick(), c.getPosition());
+        lastPositions.entrySet().removeIf(e -> e.getKey().equals(pgs.curTick() - StrategyParams.RANGER_POS_HIST));
+
+        return true;
     }
 
     public int countEnemyRangersNearby(Position2d rangerPosition, int range,
@@ -185,31 +198,24 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         int turretHealth18 = countEnemyTurretsNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
         enemyCount += turretHealth18;
 
-        if ((pgs.isRound1() || pgs.isRound2()) && enemyCount > myCount) {
-            updateRetreat(gameHistoryState, pgs, strategyParams, assignedActions);
-        } else if (pgs.isRound1() && myCount < 5 && enemyCount > 0) {
+
+        if ((rc.getAttackerCount(6) == 1
+                || rc.getAttackerCount(7) == 1)
+
+                && (enemyCount > 1 || 3 * enemyCount > 4 * myCount)) {
+            DebugOut.println("Ranger hold: " + rp);
+
             updateHold(gameHistoryState, pgs, strategyParams, assignedActions);
         } else {
-
-            if (rc.getAttackerCount(6) > 1 && rc.getPosition().lenShiftSum(retreatPosition) >= strategyParams.retreatStopRange) {
-                DebugOut.println("Ranger retreat: " + rp);
-
-                updateRetreat(gameHistoryState, pgs, strategyParams, assignedActions);
-            } else if ((rc.getAttackerCount(6) == 1
-                    || rc.getAttackerCount(7) == 1)
-
-                    && (enemyCount > 1 || 2 * enemyCount > 3 * myCount)) {
-                DebugOut.println("Ranger hold: " + rp);
-
-                updateHold(gameHistoryState, pgs, strategyParams, assignedActions);
-            } else {
-                updateAttack(gameHistoryState, pgs, strategyParams, assignedActions);
-            }
+            updateAttack(gameHistoryState, pgs, strategyParams, assignedActions);
         }
+
     }
 
     public void updateAttack(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+        decidedToAttackThisTurn = true;
+
         EntityAction autoAttack = new EntityAction();
         AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.RANGER_RANGE,
                 strategyParams.rangerDefaultAttackTargets));
@@ -217,6 +223,8 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         autoAttack.setAttackAction(attackAction);
 
         Position2d attackShifted = Position2dUtil.crop(attackPosition.shift(xshift, yshift));
+
+        attackShifted = findBetterMoveTo(currentParsedGameState, attackShifted, gameHistoryState, strategyParams);
 
         autoAttack.setMoveAction(new MoveAction(attackShifted.toVec2dInt(), true, true));
 
@@ -245,6 +253,52 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         assignedActions.put(rangerEntityId, new ValuedEntityAction(0.5, rangerEntityId, autoAttack));
     }
 
+    public Position2d findBetterMoveTo(ParsedGameState pgs, Position2d attackPosition, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+
+        if (!strategyParams.useRangerFollow) {
+            return attackPosition;
+        }
+        Position2d cur = pgs.getEntityIdToCell().get(rangerEntityId).getPosition();
+
+        RangerAttackHoldRetreatMicroCommand prevToSameTarget = null;
+        for (Command ongoingCommand : gameHistoryAndSharedState.getOngoingCommands()) {
+            if (ongoingCommand == this) {
+                break;
+            }
+
+            if (ongoingCommand instanceof RangerAttackHoldRetreatMicroCommand) {
+                RangerAttackHoldRetreatMicroCommand rahmc = (RangerAttackHoldRetreatMicroCommand) ongoingCommand;
+
+                if (attackPosition.lenShiftSum(rahmc.getAttackPosition()) < 5) {
+                    prevToSameTarget = rahmc;
+                }
+            }
+        }
+
+
+        if (prevToSameTarget != null) {
+            Position2d prevToSameTargetPos = pgs.getEntityIdToCell().get(prevToSameTarget.rangerEntityId).getPosition();
+            if (prevToSameTargetPos.lenShiftSum(attackPosition) < cur.lenShiftSum(attackPosition)
+                    && prevToSameTarget.decidedToAttackThisTurn
+                    && pgs.at(cur).getTotalNearAttackerCount() == 0
+                    && pgs.getRangersMovedSinceLastTickReversed().containsKey(prevToSameTargetPos)
+                    && pgs.getRangersMovedSinceLastTickReversed().get(prevToSameTargetPos).lenShiftSum(attackPosition) > prevToSameTargetPos.lenShiftSum(attackPosition)
+                    && prevToSameTargetPos.lenShiftSum(cur) < 5
+                    && !isStuck(cur, gameHistoryAndSharedState, pgs, strategyParams)
+            ) {
+                return prevToSameTargetPos;
+            }
+        }
+
+        return attackPosition;
+    }
+
+    @Override
+    public void computeLenToTarget(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
+        Position2d cur = pgs.getEntityIdToCell().get(rangerEntityId).getPosition();
+        setLenToTarget(cur.lenShiftSum(attackPosition));
+    }
+
     public void setAttackPosition(Position2d attackPosition) {
         this.attackPosition = attackPosition;
     }
@@ -264,5 +318,20 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
     public void setRetreatPosition(Position2d retreatPosition) {
         this.retreatPosition = retreatPosition;
+    }
+
+    boolean isStuck(Position2d currentPosition, GameHistoryAndSharedState gameHistoryState,
+                    ParsedGameState pgs, StrategyParams strategyParams) {
+
+        if (lastPositions.size() < StrategyParams.RANGER_POS_HIST) {
+            return false;
+        }
+
+        int countSame = (int) lastPositions.values().stream()
+                .filter(lp -> lp.equals(currentPosition))
+                .count();
+
+
+        return countSame > 1;
     }
 }

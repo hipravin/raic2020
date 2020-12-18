@@ -130,7 +130,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
                 if(nearestEnemy != null) {
                     Position2d runTo = Position2dUtil.runAwayDoubleDistance(wp, nearestEnemy);
                     Command retreatToRangBase = new MoveTowardsCommand(pgs, w.getId(),
-                            runTo, 12, 5);
+                            runTo, 6, 5);
                     gameHistoryState.addOngoingCommand(retreatToRangBase, false);
 
                     return true;

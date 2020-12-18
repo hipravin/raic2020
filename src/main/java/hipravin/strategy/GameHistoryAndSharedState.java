@@ -46,6 +46,11 @@ public class GameHistoryAndSharedState {
 
     Action previousTickAction;
 
+    public void sortRangerAttacks() {
+
+
+    }
+
     public Action getPreviousTickAction() {
         return previousTickAction;
     }

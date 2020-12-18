@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import static hipravin.model.Position2d.of;
 
 public class SpawnRangersStrategy implements SubStrategy {
+    Position2d prevAttackPoint = null;
+
     boolean shouldSpawnMoreRangers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
         if (pgs.isRound1() && pgs.getMyWorkers().size() < strategyParams.round1WorkersFirst && pgs.curTick() < 200) {
@@ -468,7 +470,13 @@ public class SpawnRangersStrategy implements SubStrategy {
         Command buildRangerCommand = new BuildRangerCommand(spawnPos, pgs, 1);
 
         if (attackPosition == null) {
-            attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
+            if(prevAttackPoint != null && StrategyParams.ifRandom(strategyParams.preserveAttackPointProb)) {
+                attackPosition = prevAttackPoint;
+            } else {
+                attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
+            }
+
+            prevAttackPoint = attackPosition;
         }
         Position2d retreatPosition = Optional.ofNullable(pgs.getMyRangerBase())
                 .map(b -> of(b.getPosition()).shift(2, 2)).orElse(of(40, 40))

@@ -141,6 +141,8 @@ public class RootStrategy extends MyStrategy {
         currentParsedGameState = GameStateParser.parse(playerView);
         trackChanges();
         removeCompletedOrStaleCommands();
+
+
     }
 
     void trackChanges() {
@@ -270,7 +272,11 @@ public class RootStrategy extends MyStrategy {
             gameHistoryState.turretRequests = new ArrayList<>();
             gameHistoryState.thisTickUsedTargetPositions = new HashSet<>();
 
+            sortCommands(currentParsedGameState, gameHistoryState);
+
             afterParse = Instant.now();
+
+
 
             Action decision = combineDecisions();
             updateGameHistoryState(decision);
@@ -296,6 +302,12 @@ public class RootStrategy extends MyStrategy {
                         + " / avg: " + totalTimeConsumed.dividedBy(playerView.getCurrentTick() + 1) + " / afterParse: " + Duration.between(afterParse, Instant.now()));
             }
         }
+    }
+
+    private void sortCommands(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryState) {
+        gameHistoryState.getOngoingCommands().forEach(c -> c.computeLenToTarget(pgs, gameHistoryState));
+
+        gameHistoryState.getOngoingCommands().sort(Comparator.comparingInt(Command::getLenToTarget));
     }
 
     public void ensurePosition(Vec2Int position) {

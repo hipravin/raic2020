@@ -74,4 +74,18 @@ public abstract class Command {
         this.replacer = replacer;
         this.commandPredicate = commandPredicate;
     }
+
+    int lenToTarget = 0;
+
+    public int getLenToTarget() {
+        return lenToTarget;
+    }
+
+    public void setLenToTarget(int lenToTarget) {
+        this.lenToTarget = lenToTarget;
+    }
+
+    public void computeLenToTarget(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState) {
+        //
+    }
 }
