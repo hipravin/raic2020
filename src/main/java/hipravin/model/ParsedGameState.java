@@ -12,6 +12,7 @@ import static hipravin.model.GameStateParser.forEachPosition;
 import static hipravin.model.Position2d.of;
 import static hipravin.model.Position2dUtil.MAP_SIZE;
 import static hipravin.model.Position2dUtil.isSquareWithinMapBorder;
+import static hipravin.strategy.StrategyParams.MAX_VAL;
 
 public class ParsedGameState {
     PlayerView playerView;
@@ -29,6 +30,7 @@ public class ParsedGameState {
     Set<Position2d> fogEdgePositionsSet = new HashSet<>();
 
     Set<Integer> newEntityIds = new HashSet<>();
+    List<Entity> deadEntities = new ArrayList<>();
 
     //old to new
     Map<Position2d, Position2d> workersMovedSinceLastTick = new HashMap<>();

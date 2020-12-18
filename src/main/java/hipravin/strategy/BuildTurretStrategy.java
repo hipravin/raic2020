@@ -117,6 +117,7 @@ public class BuildTurretStrategy implements SubStrategy {
 
         List<Position2d> acceptableTurretPositions = new ArrayList<>(tpUniqueBestWorkers.keySet());
         acceptableTurretPositions.sort(toEnemy);
+        acceptableTurretPositions.removeIf(tp -> pgs.at(tp).getTotalNearAttackerCount() > 0);
 
         if (!acceptableTurretPositions.isEmpty()) {
             Position2d bp = acceptableTurretPositions.get(0);

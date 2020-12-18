@@ -109,8 +109,22 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
             }
         });
 
-        return healthCounter.get() / 18;
+        return healthCounter.get() / 30;
     }
+    public int countEnemyTurretsInRange6(Position2d rangerPosition,
+                                       GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+        AtomicInteger counter = new AtomicInteger(0);
+
+        Position2dUtil.iterAllPositionsInRangeExclusive(rangerPosition, 6, p -> {
+            if (pgs.at(p).test(c -> c.isBuilding()
+                    && c.getEntityType() == EntityType.TURRET && c.getEntity().isActive() && !c.isMyEntity())) {
+                counter.incrementAndGet();
+            }
+        });
+
+        return counter.get();
+    }
+
 
     public int countMyRangersNearby(Position2d rangerPosition, int range,
                                     GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
@@ -195,22 +209,26 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
                 + countEnemySwordmansNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
         int myCount = countMyRangersNearby(rp, strategyParams.attackHoldMyRange, gameHistoryState, pgs, strategyParams);
 
-        int turretHealth18 = countEnemyTurretsNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
-        enemyCount += turretHealth18;
+//        int turretHealthDivided = countEnemyTurretsNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
+        int turretsRange6 = countEnemyTurretsInRange6(rp, gameHistoryState, pgs, strategyParams);
+        enemyCount += turretsRange6 * 4;
 
-
-        if ((rc.getAttackerCount(6) == 1
+        if (((rc.getAttackerCount(6) >= 1
                 || rc.getAttackerCount(7) == 1)
-
-                && (enemyCount > 1 || 3 * enemyCount > 4 * myCount)) {
+                && (3 * enemyCount > 4 * myCount))
+                || (turretsRange6 > 0 &&  enemyCount > myCount)
+        ) {
             DebugOut.println("Ranger hold: " + rp);
 
             updateHold(gameHistoryState, pgs, strategyParams, assignedActions);
         } else {
             updateAttack(gameHistoryState, pgs, strategyParams, assignedActions);
         }
-
     }
+
+
+
+
 
     public void updateAttack(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {

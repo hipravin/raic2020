@@ -99,6 +99,15 @@
 
 102 достраивать рабочих в конце игры???
 
+103 round1 - don't attack use visibility somehow
+
+104. defence . if decided to defend then switch all commands that are closer than rang base to defend position
+workers and rangers co;;isions
+
+105 push mineral line?
+
+106 detect fights...
+
 ограничить кол-во войска?
 
    count attack retreat and defend that are near attack position

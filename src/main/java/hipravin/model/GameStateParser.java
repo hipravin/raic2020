@@ -428,6 +428,21 @@ public abstract class GameStateParser {
             current.removeAll(previousPgs.getEntityIdToCell().keySet());
 
             currentPgs.newEntityIds = current;
+
+            Set<Integer> deadEntityIds = new HashSet<>(previousPgs.getEntityIdToCell().keySet());
+            deadEntityIds.removeAll(currentPgs.getEntityIdToCell().keySet());
+
+            currentPgs.deadEntities = deadEntityIds.stream().map(id -> previousPgs.getEntityIdToCell().get(id).getEntity())
+                    .collect(Collectors.toList());
+
+            int countWorkersDead = (int) currentPgs.deadEntities.stream()
+                    .filter(e ->  e.getEntityType() == EntityType.BUILDER_UNIT
+                            && e.getPlayerId() == currentPgs.getPlayerView().getMyId())
+                    .count();
+
+            if(countWorkersDead > 0) {
+                gameHistoryAndSharedState.setLastWorkerDiedTick(currentPgs.curTick());
+            }
         }
 
         currentPgs.newEntityIds

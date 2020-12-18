@@ -23,12 +23,21 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
     boolean shouldSpawnMoreWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams) {
+
+        if(gameHistoryState.getLastWorkerDiedTick() + strategyParams.workerSpawnDelayIfDead > pgs.curTick()) {
+            DebugOut.println("Don't spawn worker, delayed until: " +
+                    gameHistoryState.getLastWorkerDiedTick() + strategyParams.workerSpawnDelayIfDead);
+            return false;
+        }
+
         if (pgs.getEnemyArmy() != null) {
             Position2d vragUvorot = pgs.getDefendingAreaEnemies()
                     .stream()
                     .min(Comparator.comparingInt(e -> of(e.getPosition()).lenShiftSum(pgs.getMyCc().getPosition())))
                     .map(e -> of(e.getPosition()))
                     .orElse(null);
+
+            DebugOut.println("Don't spawn worker, vrag u vorot: " + vragUvorot);
 
             if (vragUvorot != null
                     && vragUvorot.lenShiftSum(of(pgs.getMyCc().getPosition()).shift(5,5)) < strategyParams.dontSpawnWorkersVragUVorotPathLen) {

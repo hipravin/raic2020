@@ -36,7 +36,7 @@ public class WorkerDefendingTurretsStrategy implements SubStrategy {
             if (closestYWorker != null && !alreadyHaveTurret(closestYWorker.getPosition(), pgs, strategyParams)) {
                 if (haveResources(pgs, gameHistoryState, strategyParams)) {
                     DebugOut.println("Turret requested: " + closestYWorker.getPosition());
-                    gameHistoryState.turretRequests.add(closestYWorker.getPosition().shift(2, 0));
+                    gameHistoryState.turretRequests.add(closestYWorker.getPosition().shift(0, 3));
                 }
             }
 
@@ -50,7 +50,7 @@ public class WorkerDefendingTurretsStrategy implements SubStrategy {
             if (closestXWorker != null && !alreadyHaveTurret(closestXWorker.getPosition(), pgs, strategyParams)) {
                 if (haveResources(pgs, gameHistoryState, strategyParams)) {
                     DebugOut.println("Turret requested: " + closestXWorker.getPosition());
-                    gameHistoryState.turretRequests.add(closestXWorker.getPosition().shift(2, 0));
+                    gameHistoryState.turretRequests.add(closestXWorker.getPosition().shift(3, 0));
                 }
             }
 

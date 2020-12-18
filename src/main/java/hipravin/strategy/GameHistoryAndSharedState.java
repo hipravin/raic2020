@@ -33,6 +33,9 @@ public class GameHistoryAndSharedState {
 
     public int workerPullToCenterRequests = 0;
 
+    int lastWorkerDiedTick = -MAX_VAL;
+
+
 
     //    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
     List<Command> ongoingCommands = new ArrayList<>();
@@ -258,5 +261,13 @@ public class GameHistoryAndSharedState {
 
     public List<Integer> getSentToBarrackEntityIds() {
         return sentToBarrackEntityIds;
+    }
+
+    public void setLastWorkerDiedTick(int lastWorkerDiedTick) {
+        this.lastWorkerDiedTick = lastWorkerDiedTick;
+    }
+
+    public int getLastWorkerDiedTick() {
+        return lastWorkerDiedTick;
     }
 }

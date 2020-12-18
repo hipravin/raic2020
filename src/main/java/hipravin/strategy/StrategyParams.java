@@ -60,6 +60,7 @@ public class StrategyParams {
 
     public int rangerCountToAddSomeWorkers = 10;
 
+    public int workerSpawnDelayIfDead = 10;
 
     public int workerScoutStartTickShiftAfterRangComplete = 10;
     public int workerScoutFrequency = 10; //pull 1 worker every n ticks
@@ -269,11 +270,8 @@ public class StrategyParams {
     public void activateOptionId1() {
         DebugOut.println("Option id 1 activated");
 
-        useWorkerDefendingTurrets = true;
+        workerSpawnDelayIfDead = 10;
 
-        useRangerFollow = true;
-
-        preserveAttackPointProb = 0.85;
 
 //        randomAttackPositionShift = 10;
 //        DESIRED_BARRACK = of(12, 12);
@@ -322,7 +320,7 @@ public class StrategyParams {
 
 
         attackPoints = List.of(of(76, 7), of(7, 76), of(76, 76));
-        attackPointRates = List.of(0.5, 0.9);
+        attackPointRates = List.of(0.5, 0.99);
         scoutProb = 0;
         useWorkerFollow = false;
         cleanBaseRangeTreshhold = 12;
@@ -349,7 +347,7 @@ public class StrategyParams {
         useWorkerFollow = false;
 
         attackPoints = List.of(of(76, 7), of(7, 76), of(76, 76));
-        attackPointRates = List.of(0.5, 0.9);
+        attackPointRates = List.of(0.5, 0.99);
 
         cleanBaseRangeTreshhold = 12;
         workerScoutFrequency = 1000; //no w scout
