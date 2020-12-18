@@ -29,6 +29,7 @@ public class Cell implements Cloneable {
     Position2d rangerSwitchedAttackPositionTo = null;
 
     boolean isMineral = false;
+    boolean isEnemyTerritoryMineral = false;
     boolean isBuilding = false;
     int buildingSize = -1;
 

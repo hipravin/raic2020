@@ -68,7 +68,7 @@ public class StrategyParams {
     public int workerScoutToBarrackCloseMinRange = 15;
 
     public int minCountOfRangersBeforeScouts = 15;
-    public int maxNumberOfScouts = 5;
+    public int maxNumberOfScouts = 2;
     public double scoutProb = 0.1;
 
     public int turretsForCleanupRange = 25;
@@ -156,7 +156,7 @@ public class StrategyParams {
             EntityType.WALL, 1
     );
 
-    public int populationOfWorkersToBuildBeforeRangers = 30;// is optimal rush?
+    public int populationOfWorkersToBuildBeforeRangers = 25;// is optimal rush?
     public int populationOfWorkersToBuildBeforeRangersIfSurrounded = 35;//35 is optimal rush?
     public int populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded = 45;//35 is optimal rush?
     public int populationOfWorkersToBuildAfterRangers = 60;
@@ -167,7 +167,7 @@ public class StrategyParams {
 
     //    public Set<Integer> sendToCenterWorkerNumbers = Set.of(13, 17, 20, 23, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
 //    DESIRED_BARRACK = of(33, 33);
-    public Set<Integer> sendToCenterWorkerNumbers = Set.of(11, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29); // before 'fix'
+    public Set<Integer> sendToCenterWorkerNumbers = Set.of(11, 15, 17, 18, 19, 20, 21, 22, 23, 24 /*, 25, 26, 27, 28, 29*/); // before 'fix'
 
 
 //    public int populationOfWorkersToBuildBeforeRangers = 25;//35 is optimal rush?

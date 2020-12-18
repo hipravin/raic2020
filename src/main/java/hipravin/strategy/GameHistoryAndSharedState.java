@@ -207,6 +207,7 @@ public class GameHistoryAndSharedState {
         return allOngoingCommandRelatedEntitiIds().collect(Collectors.toSet());
     }
 
+
     public List<Command> getOngoingCommands() {
         return ongoingCommands;
     }

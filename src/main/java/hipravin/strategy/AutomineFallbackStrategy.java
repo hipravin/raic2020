@@ -57,14 +57,26 @@ public class AutomineFallbackStrategy implements SubStrategy {
                 .filter(e -> !busyEntities.contains(e.getId()))
                 .collect(Collectors.toList());
 
-        notBusyWorkers.forEach(w -> {
-            if (!handleRunAway(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions)
-                    && !handleNoCloseMinerals(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
-
-
-                justMine(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+        currentParsedGameState.getMyWorkers().forEach((id, wc) -> {
+            if(!handleRunAway(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
+                if(!busyEntities.contains(id)) {
+                    if(!handleNoCloseMinerals(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
+                        justMine(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+                    }
+                }
             }
         });
+
+
+//
+//        notBusyWorkers.forEach(w -> {
+//            if (!handleRunAway(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions)
+//                    && !handleNoCloseMinerals(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
+//
+//
+//                justMine(w, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+//            }
+//        });
 
 //        handleWayBlockers(busyEntities, gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
     }
@@ -131,7 +143,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
                     Position2d runTo = Position2dUtil.runAwayDoubleDistance(wp, nearestEnemy);
                     Command retreatToRangBase = new MoveTowardsCommand(pgs, w.getId(),
                             runTo, 6, 5);
-                    gameHistoryState.addOngoingCommand(retreatToRangBase, false);
+                    gameHistoryState.addOngoingCommand(retreatToRangBase, true);
 
                     return true;
                 }
@@ -140,7 +152,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
                 if (rangBase != null) {
                     Command retreatToRangBase = new MoveTowardsCommand(pgs, w.getId(),
                             of(rangBase.getPosition()).shift(-5, -5), 10, 5);
-                    gameHistoryState.addOngoingCommand(retreatToRangBase, false);
+                    gameHistoryState.addOngoingCommand(retreatToRangBase, true);
 
                     return true;
                 }
