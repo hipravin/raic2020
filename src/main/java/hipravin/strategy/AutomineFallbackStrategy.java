@@ -58,9 +58,9 @@ public class AutomineFallbackStrategy implements SubStrategy {
                 .collect(Collectors.toList());
 
         currentParsedGameState.getMyWorkers().forEach((id, wc) -> {
-            if(!handleRunAway(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
-                if(!busyEntities.contains(id)) {
-                    if(!handleNoCloseMinerals(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
+            if (!handleRunAway(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
+                if (!busyEntities.contains(id)) {
+                    if (!handleNoCloseMinerals(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
                         justMine(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
                     }
                 }
@@ -132,14 +132,18 @@ public class AutomineFallbackStrategy implements SubStrategy {
         Entity rangBase = pgs.getMyRangerBase();
 
 
-
         if (!pgs.getEnemyArmy().isEmpty()) {
-            if (pgs.at(w.getPosition()).test(c -> c.getAttackerCount(8) > 0 || c.getAttackerCount(7) > 0 || c.getAttackerCount(6) > 0 || c.getAttackerCount(5) > 0)) {
+            if (pgs.at(w.getPosition()).test(
+                    c -> c.getAttackerCount(8) > 0
+                            || c.getAttackerCount(7) > 0
+                            || c.getAttackerCount(6) > 0
+                            || c.getAttackerCount(5) > 0
+            )) {
 
                 Position2d wp = of(w.getPosition());
                 Position2d nearestEnemy = nearestEnemyUnitToPosition(of(w.getPosition()), pgs).orElse(null);
 
-                if(nearestEnemy != null) {
+                if (nearestEnemy != null) {
                     Position2d runTo = Position2dUtil.runAwayDoubleDistance(wp, nearestEnemy);
                     Command retreatToRangBase = new MoveTowardsCommand(pgs, w.getId(),
                             runTo, 6, 5);

@@ -26,7 +26,13 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
         if(gameHistoryState.getLastWorkerDiedTick() + strategyParams.workerSpawnDelayIfDead > pgs.curTick()) {
             DebugOut.println("Don't spawn worker, delayed until: " +
-                    gameHistoryState.getLastWorkerDiedTick() + strategyParams.workerSpawnDelayIfDead);
+                    (gameHistoryState.getLastWorkerDiedTick() + strategyParams.workerSpawnDelayIfDead));
+            return false;
+        }
+
+        if(gameHistoryState.getLastDefenceTick() + strategyParams.workerSpawnDelayIfDefence > pgs.curTick()) {
+            DebugOut.println("Don't spawn worker, delayed until (def): " +
+                    (gameHistoryState.getLastDefenceTick() + strategyParams.workerSpawnDelayIfDefence));
             return false;
         }
 
@@ -37,10 +43,10 @@ public class SpawnWorkersStrategy implements SubStrategy {
                     .map(e -> of(e.getPosition()))
                     .orElse(null);
 
-            DebugOut.println("Don't spawn worker, vrag u vorot: " + vragUvorot);
-
             if (vragUvorot != null
                     && vragUvorot.lenShiftSum(of(pgs.getMyCc().getPosition()).shift(5,5)) < strategyParams.dontSpawnWorkersVragUVorotPathLen) {
+                DebugOut.println("Don't spawn worker, vrag u vorot: " + vragUvorot);
+
                 return false;
             }
         }
@@ -525,4 +531,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
     public LinkedHashSet<Position2d> getLastMineralPositions() {
         return lastMineralPositions;
     }
+
+
+
 }

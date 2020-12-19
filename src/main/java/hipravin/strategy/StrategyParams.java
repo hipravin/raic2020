@@ -46,6 +46,12 @@ public class StrategyParams {
     public int attackHoldEnemyRange = 10;
     public int attackHoldMyRange = 10;
     public double attackOverCountTreshhold = 1.2;
+
+
+    public double defenceOverCountRatio = 2;
+
+    public int defenceClosenessRange = 10;
+
     public int rangersCloserHold = 2;
     public int retreatStopRange = 6;
 
@@ -60,7 +66,8 @@ public class StrategyParams {
 
     public int rangerCountToAddSomeWorkers = 10;
 
-    public int workerSpawnDelayIfDead = 10;
+    public int workerSpawnDelayIfDead = 20;
+    public int workerSpawnDelayIfDefence = 10;
 
     public int workerScoutStartTickShiftAfterRangComplete = 10;
     public int workerScoutFrequency = 10; //pull 1 worker every n ticks
@@ -72,7 +79,7 @@ public class StrategyParams {
     public double scoutProb = 0.1;
 
     public int turretsForCleanupRange = 25;
-    public int turretsForCleanupMaxCount = 3;
+    public int turretsForCleanupMaxCount = 6;
     public int turretsForCleanupEdgeShift = 2; //turret should atttack edge + X to be able to clear X lines of mineral guaranteed
 
     public int buildCommandMaxWaitTicks = 5;
@@ -123,6 +130,7 @@ public class StrategyParams {
     public int magnetMaxToSinglePointOthers = 1;
 
     public int numberOfRandomScoutChoices = 20;
+
 
 
     public boolean useWorkerPush = true;

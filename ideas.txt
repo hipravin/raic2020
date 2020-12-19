@@ -116,6 +116,14 @@ yolo turret
 107 mineral harrass from outer side
 tuda suda harrassФгещьшту
 
+if see mining workers without defence - send 1 nearest ranger
+
+кол - во рабочиъ?
+
+108 path breaker
+
+109 hunt minerals on late...
+
 worker perimerter control
 
 ограничить кол-во войска?

@@ -50,7 +50,6 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
     }
 
-
     @Override
     public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
         decidedToAttackThisTurn = false;
@@ -72,6 +71,10 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         lastPositions.entrySet().removeIf(e -> e.getKey().equals(pgs.curTick() - StrategyParams.RANGER_POS_HIST));
 
         return true;
+    }
+
+    public boolean isAttackPosition() {
+        return  attackPosition.x > 50 || attackPosition.y > 50;
     }
 
     public int countEnemyRangersNearby(Position2d rangerPosition, int range,
@@ -309,6 +312,10 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         }
 
         return attackPosition;
+    }
+
+    public Position2d currentPosition(ParsedGameState pgs) {
+        return pgs.getEntityIdToCell().get(rangerEntityId).getPosition();
     }
 
     @Override

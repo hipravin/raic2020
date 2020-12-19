@@ -28,12 +28,17 @@ public class GameHistoryAndSharedState {
 
     public Set<Position2d> thisTickUsedTargetPositions = new HashSet<>();//not ask for conflicting moves while micro
 
+
+    //[ranger position -> command]
+    Map<Position2d, RangerAttackHoldRetreatMicroCommand> rangerCommands = new HashMap<>();
+
     public Integer myRangBaseStartedBuildTick = null;
     public Integer myRangBaseCompletedTick = null;
 
     public int workerPullToCenterRequests = 0;
 
     int lastWorkerDiedTick = -MAX_VAL;
+    int lastDefenceTick = -MAX_VAL;
 
 
 
@@ -49,10 +54,6 @@ public class GameHistoryAndSharedState {
 
     Action previousTickAction;
 
-    public void sortRangerAttacks() {
-
-
-    }
 
     public Action getPreviousTickAction() {
         return previousTickAction;
@@ -270,5 +271,17 @@ public class GameHistoryAndSharedState {
 
     public int getLastWorkerDiedTick() {
         return lastWorkerDiedTick;
+    }
+
+    public int getLastDefenceTick() {
+        return lastDefenceTick;
+    }
+
+    public void setLastDefenceTick(int lastDefenceTick) {
+        this.lastDefenceTick = lastDefenceTick;
+    }
+
+    public Map<Position2d, RangerAttackHoldRetreatMicroCommand> getRangerCommands() {
+        return rangerCommands;
     }
 }

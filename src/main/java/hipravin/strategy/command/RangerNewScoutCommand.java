@@ -10,10 +10,7 @@ import hipravin.strategy.StrategyParams;
 import hipravin.strategy.ValuedEntityAction;
 import model.*;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static hipravin.model.Position2d.of;
 import static hipravin.strategy.StrategyParams.MAX_VAL;
@@ -23,6 +20,7 @@ public class RangerNewScoutCommand extends SingleEntityCommand {
     boolean scoutCompleted = false;
 
     Position2d currentTarget = null;
+    Map<Integer, Position2d> lastPositions = new HashMap<>();
 
     protected RangerNewScoutCommand(int entityId) {
         super(MAX_VAL, entityId);
@@ -33,17 +31,21 @@ public class RangerNewScoutCommand extends SingleEntityCommand {
     }
 
     @Override
-    public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState, StrategyParams strategyParams) {
-        tryResolveEntityId(currentParsedGameState);
+    public boolean isValid(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+        tryResolveEntityId(pgs);
 
         if (entityId == null) {
             return false;
         }
 
-        Cell c = currentParsedGameState.getEntityIdToCell().get(entityId);
+        Cell c = pgs.getEntityIdToCell().get(entityId);
         if (c == null) {
             return false;
         }
+
+        lastPositions.put(pgs.curTick(), c.getPosition());
+        lastPositions.entrySet().removeIf(e -> e.getKey().equals(pgs.curTick() - StrategyParams.RANGER_POS_HIST));
+
 
         return true;
     }
@@ -72,7 +74,8 @@ public class RangerNewScoutCommand extends SingleEntityCommand {
 
         Position2d currentPos = currentParsedGameState.getEntityIdToCell().get(entityId).getPosition();
         Position2d moveTo;
-        if (currentTarget == null || currentTarget.lenShiftSum(currentPos) < Position2dUtil.RANGER_RANGE) {
+        if (currentTarget == null || currentTarget.lenShiftSum(currentPos) < Position2dUtil.RANGER_RANGE
+             || isStuck(currentPos, gameHistoryState, currentParsedGameState, strategyParams)) {
             moveTo = nearestFog(gameHistoryState, currentParsedGameState, strategyParams);
             currentTarget = moveTo;
         } else {
@@ -109,5 +112,20 @@ public class RangerNewScoutCommand extends SingleEntityCommand {
 
             return nearestFogCloserToOpp;
         }
+    }
+
+    boolean isStuck(Position2d currentPosition, GameHistoryAndSharedState gameHistoryState,
+                    ParsedGameState pgs, StrategyParams strategyParams) {
+
+        if (lastPositions.size() < StrategyParams.RANGER_POS_HIST) {
+            return false;
+        }
+
+        int countSame = (int) lastPositions.values().stream()
+                .filter(lp -> lp.equals(currentPosition))
+                .count();
+
+
+        return countSame > 1;
     }
 }

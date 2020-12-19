@@ -7,6 +7,7 @@ import model.Entity;
 import model.EntityType;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static hipravin.model.Position2d.of;
@@ -176,10 +177,110 @@ public class SpawnRangersStrategy implements SubStrategy {
         }
 
 //        if (!pgs.isRound1()) {
-            findBestSpawnPos(gameHistoryState, pgs, strategyParams);
+        findBestSpawnPos(gameHistoryState, pgs, strategyParams);
 //        } else {
 //            findBestSpawnPosRound1(gameHistoryState, pgs, strategyParams);
 //        }
+    }
+
+    boolean spawnDefenceOrSwitch(Position2d defendPosition,
+                          GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                          StrategyParams strategyParams) {
+        return buildRangerAttackingDefenceOrSwich(defendPosition, defenceCountRequired(defendPosition, gameHistoryState, pgs, strategyParams),
+                gameHistoryState, pgs, strategyParams);
+    }
+
+    int defenceCountRequired(Position2d defendPosition, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                             StrategyParams strategyParams) {
+        int enemies = countEnemyArmyNearby(defendPosition, strategyParams.defenceClosenessRange, gameHistoryState, pgs, strategyParams);
+
+        return (int) (enemies * strategyParams.defenceOverCountRatio);
+    }
+
+    /**
+     * returns true if requested to spawn a new ranger
+     */
+    boolean buildRangerAttackingDefenceOrSwich(Position2d defendPosition,
+                                               int defenceRequiredCount,
+                                               GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                               StrategyParams strategyParams) {
+        if (defendPosition == null) {
+            return false;
+        }
+
+        List<Map.Entry<Position2d, RangerAttackHoldRetreatMicroCommand>> rangersThatAlreadyDefendingNearby =
+                rangersThatAlreadyDefendingNearby(defendPosition, pgs, gameHistoryState, strategyParams);
+
+        if (rangersThatAlreadyDefendingNearby.size() >= defenceRequiredCount) {
+            return false;
+        }
+        List<Map.Entry<Position2d, RangerAttackHoldRetreatMicroCommand>> rangersThatCanDefendBetterThanSpawn =
+                rangersThatCanDefendBetterThanSpawn(defendPosition, pgs, gameHistoryState, strategyParams);
+
+        switchToDefendPosition(defendPosition, rangersThatCanDefendBetterThanSpawn, defenceRequiredCount - rangersThatAlreadyDefendingNearby.size(),
+                pgs, gameHistoryState, strategyParams);
+
+
+        DebugOut.println("Defend pos: " + defendPosition + " already: " + rangersThatAlreadyDefendingNearby.size()
+                + " switched: " + rangersThatCanDefendBetterThanSpawn);
+
+        if (rangersThatAlreadyDefendingNearby.size() + rangersThatCanDefendBetterThanSpawn.size() < defenceRequiredCount) {
+            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
+            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(defendPosition))).orElse(null);
+
+            if (closestSpawn != null) {
+                DebugOut.println("Build ranger defending: " + defendPosition);
+//                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
+                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, defendPosition); //worker can move, so use micro
+
+                gameHistoryState.setLastDefenceTick(pgs.curTick());
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    public void switchToDefendPosition(Position2d defendPostiion,
+                                       List<Map.Entry<Position2d, RangerAttackHoldRetreatMicroCommand>> rangers, int required,
+                                       ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState,
+                                       StrategyParams strategyParams) {
+
+
+        if (rangers.size() > required) {
+            rangers.sort(Comparator.comparingInt(rce -> rce.getKey().lenShiftSum(defendPostiion)));
+            rangers = rangers.subList(0, required);
+        }
+
+        for (Map.Entry<Position2d, RangerAttackHoldRetreatMicroCommand> ranger : rangers) {
+            DebugOut.println("Ranger switched to defence: " + ranger.getKey() + ": " + ranger.getValue().getAttackPosition() + " -> " + defendPostiion);
+
+            ranger.getValue().setAttackPosition(defendPostiion);
+        }
+    }
+
+
+    public List<Map.Entry<Position2d, RangerAttackHoldRetreatMicroCommand>> rangersThatCanDefendBetterThanSpawn(Position2d defendPosition, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState,
+                                                                                                                StrategyParams strategyParams) {
+        if (pgs.getMyRangerBase() == null) {
+            return Collections.emptyList();
+        }
+        Position2d rangBaseCenter = of(pgs.getMyRangerBase().getPosition()).shift(2, 2);
+
+        return gameHistoryAndSharedState.getRangerCommands().entrySet().stream()
+                .filter(rce -> rce.getKey().lenShiftSum(defendPosition) <= rangBaseCenter.lenShiftSum(defendPosition) - 2) //closer that new spawn
+                .filter(rce -> rce.getValue().isAttackPosition()) //finish what is started
+                .filter(rce -> rce.getValue().getLenToTarget() > rce.getValue().getAttackPosition().lenShiftSum(defendPosition)) //closer than ranger own attack target
+                .collect(Collectors.toList());
+    }
+
+    public List<Map.Entry<Position2d, RangerAttackHoldRetreatMicroCommand>> rangersThatAlreadyDefendingNearby(Position2d defendPosition, ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState,
+                                                                                                              StrategyParams strategyParams) {
+        return gameHistoryAndSharedState.getRangerCommands().entrySet().stream()
+                .filter(rce -> rce.getValue().getAttackPosition().lenShiftSum(defendPosition) < strategyParams.defenceClosenessRange)
+                .collect(Collectors.toList());
     }
 
     public boolean rangerScouting(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
@@ -247,16 +348,18 @@ public class SpawnRangersStrategy implements SubStrategy {
                 .orElse(null);
 
         if (vragUvorot != null) {
-            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
-            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUvorot))).orElse(null);
+            return  spawnDefenceOrSwitch(vragUvorot, gameHistoryState, pgs, strategyParams);
 
-            if (closestSpawn != null) {
-                DebugOut.println("Build ranger defending territory: " + vragUvorot);
-//                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
-                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, vragUvorot);
-
-                return true;
-            }
+//            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
+//            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUvorot))).orElse(null);
+//
+//            if (closestSpawn != null) {
+//                DebugOut.println("Build ranger defending territory: " + vragUvorot);
+////                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
+//                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, vragUvorot);
+//
+//                return true;
+//            }
         }
 
         return false;
@@ -281,16 +384,18 @@ public class SpawnRangersStrategy implements SubStrategy {
         Position2d vragUvorot = b.getCornerCell().getPosition();
 
         if (vragUvorot != null) {
-            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
-            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUvorot))).orElse(null);
 
-            if (closestSpawn != null) {
-                DebugOut.println("Build ranger defending building: " + vragUvorot);
-                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
+            return spawnDefenceOrSwitch(vragUvorot, gameHistoryState, pgs, strategyParams);
+//            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
+//            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUvorot))).orElse(null);
+//
+//            if (closestSpawn != null) {
+//                DebugOut.println("Build ranger defending building: " + vragUvorot);
+////                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
 //                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, vragUvorot);
-
-                return true;
-            }
+//
+//                return true;
+//            }
         }
 
         return false;
@@ -298,7 +403,6 @@ public class SpawnRangersStrategy implements SubStrategy {
 
     boolean defendMyWorkers(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                             StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
-        Position2d rangBaseCenter = of(pgs.getMyRangerBase().getPosition()).shift(2, 2);
 
         List<Position2d> toDefend = pgs.getMyWorkers().values()
                 .stream().filter(c -> c.getTotalNearAttackerCount() > 0)
@@ -315,21 +419,35 @@ public class SpawnRangersStrategy implements SubStrategy {
         Position2d vragUvorot = wtod;
 
         if (vragUvorot != null) {
-            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
-            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUvorot))).orElse(null);
+            return  spawnDefenceOrSwitch(vragUvorot, gameHistoryState, pgs, strategyParams);
 
-            if (closestSpawn != null) {
-                DebugOut.println("Build ranger defending worker: " + vragUvorot);
-//                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
-                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, vragUvorot); //worker can move, so use micro
-
-                return true;
-            }
+//            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
+//            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUvorot))).orElse(null);
+//
+//            if (closestSpawn != null) {
+//                DebugOut.println("Build ranger defending worker: " + vragUvorot);
+////                buildRangerDefending(closestSpawn, gameHistoryState, pgs, strategyParams);
+//                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, vragUvorot); //worker can move, so use micro
+//
+//                return true;
+//            }
         }
 
         return false;
     }
 
+
+    public int countEnemyArmyNearby(Position2d rangerPosition, int range,
+                                    GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+        AtomicInteger counter = new AtomicInteger(0);
+        Position2dUtil.iterAllPositionsInRangeExclusive(rangerPosition, range, p -> {
+            if (pgs.at(p).test(c -> c.isEnemySwordman() || c.isEnemyRanger())) {
+                counter.incrementAndGet();
+            }
+        });
+
+        return counter.get();
+    }
 
     int countOppArmyValueInDefArea(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                    StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
@@ -356,15 +474,18 @@ public class SpawnRangersStrategy implements SubStrategy {
         if (vragUVorot == null) {
             return false;
         } else {
+
             DebugOut.println("Vrag u vorot detected: " + vragUVorot);
-            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
+            spawnDefenceOrSwitch(vragUVorot, gameHistoryState, pgs, strategyParams);
 
-            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUVorot))).orElse(null);
-
-            if (closestSpawn != null) {
-                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, vragUVorot);
-                return true;
-            }
+//            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
+//
+//            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUVorot))).orElse(null);
+//
+//            if (closestSpawn != null) {
+//                buildRangerAttacking(closestSpawn, gameHistoryState, pgs, strategyParams, vragUVorot);
+//                return true;
+//            }
 
         }
         return false;
@@ -464,13 +585,14 @@ public class SpawnRangersStrategy implements SubStrategy {
         gameHistoryState.addOngoingCommand(buildRangerCommand, false);
     }
 
+
     void buildRangerAttacking(Position2d spawnPos, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                               StrategyParams strategyParams, Position2d attackPosition) {
 
         Command buildRangerCommand = new BuildRangerCommand(spawnPos, pgs, 1);
 
         if (attackPosition == null) {
-            if(prevAttackPoint != null && StrategyParams.ifRandom(strategyParams.preserveAttackPointProb)) {
+            if (prevAttackPoint != null && StrategyParams.ifRandom(strategyParams.preserveAttackPointProb)) {
                 attackPosition = prevAttackPoint;
             } else {
                 attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);

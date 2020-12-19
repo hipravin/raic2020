@@ -5,6 +5,7 @@ import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
 import hipravin.strategy.*;
 import hipravin.strategy.command.Command;
+import hipravin.strategy.command.RangerAttackHoldRetreatMicroCommand;
 import model.*;
 
 import java.io.PrintWriter;
@@ -272,7 +273,7 @@ public class RootStrategy extends MyStrategy {
             gameHistoryState.turretRequests = new ArrayList<>();
             gameHistoryState.thisTickUsedTargetPositions = new HashSet<>();
 
-            sortCommands(currentParsedGameState, gameHistoryState);
+            sortAndProcessCommands(currentParsedGameState, gameHistoryState);
 
             afterParse = Instant.now();
 
@@ -304,10 +305,19 @@ public class RootStrategy extends MyStrategy {
         }
     }
 
-    private void sortCommands(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryState) {
+    private void sortAndProcessCommands(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryState) {
         gameHistoryState.getOngoingCommands().forEach(c -> c.computeLenToTarget(pgs, gameHistoryState));
 
         gameHistoryState.getOngoingCommands().sort(Comparator.comparingInt(Command::getLenToTarget));
+
+
+        gameHistoryState.getRangerCommands().clear();
+        gameHistoryState.getOngoingCommands().forEach(c -> {
+            if(c instanceof RangerAttackHoldRetreatMicroCommand) {
+                RangerAttackHoldRetreatMicroCommand comm = (RangerAttackHoldRetreatMicroCommand) c;
+                gameHistoryState.getRangerCommands().put(comm.currentPosition(pgs), comm);
+            }
+        });
     }
 
     public void ensurePosition(Vec2Int position) {
