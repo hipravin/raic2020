@@ -336,6 +336,9 @@ public class Cell implements Cloneable {
     public boolean isMyEntity() {
         return isMyEntity;
     }
+    public boolean isOppEntity() {
+        return (isBuilding || isUnit) && !isMyEntity;
+    }
 
     public void setMyEntity(boolean myEntity) {
         isMyEntity = myEntity;
@@ -460,6 +463,14 @@ public class Cell implements Cloneable {
 
     public void setTotalNearAttackerCount(int totalNearAttackerCount) {
         this.totalNearAttackerCount = totalNearAttackerCount;
+    }
+
+    public boolean isEnemyTerritoryMineral() {
+        return isEnemyTerritoryMineral;
+    }
+
+    public void setEnemyTerritoryMineral(boolean enemyTerritoryMineral) {
+        isEnemyTerritoryMineral = enemyTerritoryMineral;
     }
 }
 

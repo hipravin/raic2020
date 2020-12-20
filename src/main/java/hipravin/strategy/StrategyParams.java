@@ -5,6 +5,7 @@ import hipravin.model.Position2d;
 import hipravin.model.Position2dUtil;
 import model.EntityType;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,12 +32,36 @@ public class StrategyParams {
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public static Position2d DESIRED_BARRACK = of(30, 30);
+
+    public static Position2d DESIRED_BARRACK = of(31, 31);
     public static Position2d sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(9, 9);
 
     public static final int MAP_CORNER_SIZE = 10;
 
     public static int randomAttackPositionShift = 0;
+
+    public EntityType[] attackPriorities = new EntityType[] {
+            EntityType.RANGED_UNIT,
+            EntityType.MELEE_UNIT,
+            EntityType.TURRET,
+            EntityType.BUILDER_UNIT,
+            EntityType.RANGED_BASE,
+            EntityType.MELEE_BASE,
+            EntityType.HOUSE,
+            EntityType.WALL,
+            EntityType.BUILDER_BASE,
+            EntityType.RESOURCE
+    };
+
+    public EntityType[] selectBestTargetTypesAccordingPriorities(EnumSet<EntityType> available) {
+        for (EntityType entityType : attackPriorities) {
+            if(available.contains(entityType)) {
+                return new EntityType[]{entityType};
+            }
+        }
+
+        return rangerDefaultAttackTargets;
+    }
 
     public boolean useRangerFollow = true;
 
@@ -75,7 +100,7 @@ public class StrategyParams {
     public int workerScoutToBarrackCloseMinRange = 15;
 
     public int minCountOfRangersBeforeScouts = 15;
-    public int maxNumberOfScouts = 2;
+    public int maxNumberOfScouts = 3;
     public double scoutProb = 0.1;
 
     public int turretsForCleanupRange = 25;
@@ -92,6 +117,8 @@ public class StrategyParams {
     public int maxHousesBeforeMandatorySpacing = 5;
 
     public int vragUVorotRange = 13;
+
+    public boolean attackEnemyMineralsOnHold = true;
 
     public Map<EntityType, Integer> armyValues = Map.of(
             EntityType.RANGED_UNIT, 1,
@@ -141,6 +168,8 @@ public class StrategyParams {
     public int maxWorkerRespCountBeforeSendToFog = 12;
 
     public EntityType[] rangerDefaultAttackTargets = new EntityType[]{EntityType.RANGED_UNIT, EntityType.MELEE_UNIT, EntityType.BUILDER_UNIT, EntityType.TURRET, EntityType.HOUSE, EntityType.RANGED_BASE,
+            EntityType.MELEE_BASE, EntityType.BUILDER_BASE, EntityType.WALL};
+    public EntityType[] rangerDefaultAndMineralsAttackTargets = new EntityType[]{EntityType.RESOURCE, EntityType.RANGED_UNIT, EntityType.MELEE_UNIT, EntityType.BUILDER_UNIT, EntityType.TURRET, EntityType.HOUSE, EntityType.RANGED_BASE,
             EntityType.MELEE_BASE, EntityType.BUILDER_BASE, EntityType.WALL};
 
     public EntityType[] rangerWorkHuntAttackTargets = new EntityType[]{EntityType.BUILDER_UNIT};
@@ -304,11 +333,8 @@ public class StrategyParams {
 //        attackPoints = List.of(of(70, 70), of(35, 70), of(70, 35));
 //        attackPointRates = List.of(1.0, 0.0);
 
-        useWorkerPush = true;
+        attackEnemyMineralsOnHold = false;
 
-        useWorkerFollow = true;
-
-        useWorkerDefendingTurrets = false;
         randomAttackPositionShift = 0;
 //        useWorkerDefendingTurrets = true;
     }

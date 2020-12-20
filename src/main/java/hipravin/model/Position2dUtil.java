@@ -33,6 +33,15 @@ public abstract class Position2dUtil {
     public static int TURRET_SIZE = 2;
     public static int WALL_SIZE = 1;
 
+    public static Position2d midPoint(Position2d p1, Position2d p2) {
+        if(p1 == null || p2 == null) {
+            return null;
+        }
+        return crop(of((p1.x + p2.x) / 2, (p1.y + p2.y) / 2)) ;
+    }
+
+
+
     public static void iterAllPositionsBuildingSightRange(Position2d corner, int buildingSize, int buildingSightRange,
                                                           Consumer<Position2d> positionConsumer) {
 

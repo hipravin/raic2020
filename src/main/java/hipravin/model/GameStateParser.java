@@ -118,8 +118,38 @@ public abstract class GameStateParser {
 
         calculateEnemyAttackRanges(parsedGameState);
         calculateAttackerCounts(parsedGameState);
+        calculateEnemyMinerals(parsedGameState);
+        calculateEnemyBuildingRepairers(parsedGameState);
 
         return parsedGameState;
+    }
+
+    static void calculateEnemyBuildingRepairers(ParsedGameState pgs) {
+
+        pgs.getBuildingsByEntityId().values().stream()
+                .filter(b -> !b.isMyBuilding())
+                .forEach(b -> {
+
+                    int repCount = 0;
+                    for (Position2d buildingEmptyOuterEdgeWithoutCorner : b.getBuildingEmptyOuterEdgeWithoutCorners()) {
+                        if (pgs.at(buildingEmptyOuterEdgeWithoutCorner).test(c -> c.isOppEntity() && c.getEntityType() == EntityType.BUILDER_UNIT)) {
+                            repCount++;
+                        }
+                    }
+
+                    b.setEnemyRepairersCount(repCount);
+                });
+    }
+
+    static void calculateEnemyMinerals(ParsedGameState pgs) {
+        int line = 40;
+        if (!pgs.isRound1() && !pgs.isRound2()) {
+            pgs.allCellsAsStream().forEach(c -> {
+                if (c.getPosition().x >= line && c.getPosition().y >= line && c.isMineral) {
+                    c.setEnemyTerritoryMineral(true);
+                }
+            });
+        }
     }
 
 
@@ -133,9 +163,9 @@ public abstract class GameStateParser {
     }
 
     public static void trackCollectedMinerals(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryState) {
-        if(gameHistoryState.getPreviousParsedGameState() != null) {
+        if (gameHistoryState.getPreviousParsedGameState() != null) {
             gameHistoryState.getPreviousParsedGameState().getLowHpMinerals().forEach(mp -> {
-                if(!pgs.at(mp).isEmpty) {
+                if (!pgs.at(mp).isEmpty) {
                     pgs.getMieralsCollectedPreviousTick().add(mp);
                 }
             });
@@ -153,7 +183,7 @@ public abstract class GameStateParser {
                 });
 
         gameHistoryState.getEnemyBuildings().removeIf(b ->
-            pgs.at(b).test(c -> !c.isFog() && (!c.isBuilding() || c.isMyEntity()))
+                pgs.at(b).test(c -> !c.isFog() && (!c.isBuilding() || c.isMyEntity()))
         );
 
     }
@@ -436,11 +466,11 @@ public abstract class GameStateParser {
                     .collect(Collectors.toList());
 
             int countWorkersDead = (int) currentPgs.deadEntities.stream()
-                    .filter(e ->  e.getEntityType() == EntityType.BUILDER_UNIT
+                    .filter(e -> e.getEntityType() == EntityType.BUILDER_UNIT
                             && e.getPlayerId() == currentPgs.getPlayerView().getMyId())
                     .count();
 
-            if(countWorkersDead > 0) {
+            if (countWorkersDead > 0) {
                 gameHistoryAndSharedState.setLastWorkerDiedTick(currentPgs.curTick());
             }
         }

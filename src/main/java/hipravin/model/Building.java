@@ -20,6 +20,8 @@ public class Building {
     Set<Position2d> buildingOuterEdgeWithCorners = new HashSet<>();
     Set<Position2d> buildingEmptyOuterEdgeWithoutCorners;
 
+    int enemyRepairersCount = 0;
+
     int myBuildingAttackersCount = 0;
 
     public static Building of(Entity entity, PlayerView playerView, Cell cornerBuildingCell) {
@@ -75,5 +77,13 @@ public class Building {
 
     public void setMyBuildingAttackersCount(int myBuildingAttackersCount) {
         this.myBuildingAttackersCount = myBuildingAttackersCount;
+    }
+
+    public int getEnemyRepairersCount() {
+        return enemyRepairersCount;
+    }
+
+    public void setEnemyRepairersCount(int enemyRepairersCount) {
+        this.enemyRepairersCount = enemyRepairersCount;
     }
 }

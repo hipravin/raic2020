@@ -1,10 +1,7 @@
 package hipravin.strategy.command;
 
 import hipravin.DebugOut;
-import hipravin.model.Cell;
-import hipravin.model.ParsedGameState;
-import hipravin.model.Position2d;
-import hipravin.model.Position2dUtil;
+import hipravin.model.*;
 import hipravin.strategy.GameHistoryAndSharedState;
 import hipravin.strategy.StrategyParams;
 import hipravin.strategy.ValuedEntityAction;
@@ -74,7 +71,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
     }
 
     public boolean isAttackPosition() {
-        return  attackPosition.x > 50 || attackPosition.y > 50;
+        return attackPosition.x > 50 || attackPosition.y > 50;
     }
 
     public int countEnemyRangersNearby(Position2d rangerPosition, int range,
@@ -114,8 +111,9 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
         return healthCounter.get() / 30;
     }
+
     public int countEnemyTurretsInRange6(Position2d rangerPosition,
-                                       GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+                                         GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
         AtomicInteger counter = new AtomicInteger(0);
 
         Position2dUtil.iterAllPositionsInRangeExclusive(rangerPosition, 6, p -> {
@@ -219,7 +217,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         if (((rc.getAttackerCount(6) >= 1
                 || rc.getAttackerCount(7) == 1)
                 && (3 * enemyCount > 4 * myCount))
-                || (turretsRange6 > 0 &&  enemyCount > myCount)
+                || (turretsRange6 > 0 && enemyCount > myCount)
         ) {
             DebugOut.println("Ranger hold: " + rp);
 
@@ -229,17 +227,73 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         }
     }
 
+    public EnumSet<EntityType> repairingActiveBuildings(Position2d position, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                                        StrategyParams strategyParams) {
+
+        EnumSet<EntityType> repairingBuildings = EnumSet.noneOf(EntityType.class);
+
+        Position2dUtil.iterAllPositionsInRangeInclusive(position, Position2dUtil.RANGER_RANGE, p -> {
+            if (pgs.at(p).test(
+                    c -> c.isOppEntity()
+                            && c.isBuilding()
+                            && c.getEntity().isActive()
+                            && pgs.getBuildingsByEntityId().get(c.getEntityId()).getEnemyRepairersCount() > 0
+            )) {
+                repairingBuildings.add(pgs.at(p).getEntityType());
+            }
+        });
+
+        return repairingBuildings;
+    }
+
+    EntityType[] bestHoldTargets(Position2d position, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                   StrategyParams strategyParams) {
+        return strategyParams.selectBestTargetTypesAccordingPriorities(attackRangeEnemyEntityType(position, gameHistoryState, pgs, strategyParams));
 
 
+    }
 
+    EntityType[] bestAttackTargets(Position2d position, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                   StrategyParams strategyParams) {
+
+
+        EnumSet<EntityType> attackTypes = attackRangeEnemyEntityType(position, gameHistoryState, pgs, strategyParams);
+
+        EnumSet<EntityType> repairing = repairingActiveBuildings(position, gameHistoryState, pgs,
+                strategyParams);
+
+        if(!repairing.isEmpty()) {
+            DebugOut.println("Repairing enemy buildings: " + repairing);
+            attackTypes.removeAll(repairing);
+            attackTypes.add(EntityType.BUILDER_UNIT);
+        }
+
+        return strategyParams.selectBestTargetTypesAccordingPriorities(attackTypes);
+    }
+
+    EnumSet<EntityType> attackRangeEnemyEntityType(Position2d position, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                                   StrategyParams strategyParams) {
+        EnumSet<EntityType> entityTypes = EnumSet.noneOf(EntityType.class);
+
+        Position2dUtil.iterAllPositionsInRangeInclusive(position, Position2dUtil.RANGER_RANGE, p -> {
+            if (pgs.at(p).isOppEntity()) {
+                entityTypes.add(pgs.at(p).getEntityType());
+            }
+        });
+
+        return entityTypes;
+    }
 
     public void updateAttack(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                              StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         decidedToAttackThisTurn = true;
 
         EntityAction autoAttack = new EntityAction();
+        EntityType[] prioritizedAttackTypes = bestAttackTargets(
+                currentParsedGameState.getEntityIdToCell().get(rangerEntityId).getPosition(), gameHistoryState, currentParsedGameState, strategyParams);
+
         AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.RANGER_RANGE,
-                strategyParams.rangerDefaultAttackTargets));
+                prioritizedAttackTypes));
 
         autoAttack.setAttackAction(attackAction);
 
@@ -252,14 +306,51 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         assignedActions.put(rangerEntityId, new ValuedEntityAction(0.5, rangerEntityId, autoAttack));
     }
 
-    public void updateHold(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
+    public void updateHold(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                            StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+
+
         EntityAction autoAttack = new EntityAction();
+
+        EntityType[] prioritizedAttackTypes = bestHoldTargets(
+                pgs.getEntityIdToCell().get(rangerEntityId).getPosition(), gameHistoryState, pgs, strategyParams);
+
         AttackAction attackAction = new AttackAction(null, new AutoAttack(0,
-                strategyParams.rangerDefaultAttackTargets));
+                prioritizedAttackTypes));
+        Position2d rp = pgs.getEntityIdToCell().get(rangerEntityId).getPosition();
+
+        if (strategyParams.attackEnemyMineralsOnHold && pgs.getEntityIdToCell().get(rangerEntityId).getAttackerCount(5) == 0
+                && attackRangeEnemyEntityType(rp, gameHistoryState, pgs, strategyParams).isEmpty()) {
+            Integer mineralId = nearestMineralToOpponent(rp, gameHistoryState, pgs, strategyParams);
+
+            if (mineralId != null) {
+                attackAction = new AttackAction(mineralId, new AutoAttack(0,
+                        strategyParams.rangerDefaultAndMineralsAttackTargets));
+
+                DebugOut.println("Attack mineral on hold, rp: " + rp);
+            }
+
+        }
+
         autoAttack.setAttackAction(attackAction);
 
         assignedActions.put(rangerEntityId, new ValuedEntityAction(0.5, rangerEntityId, autoAttack));
+    }
+
+    public Integer nearestMineralToOpponent(Position2d rangerPosition, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                            StrategyParams strategyParams) {
+        List<Position2d> enemyMinerals = new ArrayList<>();
+
+        Position2dUtil.iterAllPositionsInRangeInclusive(rangerPosition, Position2dUtil.RANGER_RANGE, p -> {
+            if (pgs.at(p).isEnemyTerritoryMineral()) {
+                enemyMinerals.add(p);
+            }
+        });
+
+        return enemyMinerals.stream()
+                .min(Comparator.comparingInt(p -> p.lenShiftSum(Position2dUtil.ENEMY_CORNER)))
+                .map(p -> pgs.at(p).getEntityId())
+                .orElse(null);
     }
 
     public void updateRetreat(GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,

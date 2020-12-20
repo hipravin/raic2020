@@ -123,6 +123,16 @@ if see mining workers without defence - send 1 nearest ranger
 108 path breaker
 
 109 hunt minerals on late...
+зачем рабочие едут на базу
+
+110 не аатковать дом, если его чинят
+
+
+111 вправо и вверх от баррака?
+
+112 stuck rangers
+
+right walker left walker
 
 worker perimerter control
 
@@ -144,7 +154,7 @@ worker perimerter control
 
   кждые три кансела берем трех рабочих достижимых их тумана и отправляем в центр. предпостение - ближайшим к цц
 
-
+ worker spread technique
 
 на что похоже сражение (ГП)
 
@@ -152,16 +162,4 @@ worker perimerter control
 мапхак!
 
 
-Билд:
-
-37 52, первый дом
-56 53 второй дом
-
-500 ресурсов
-<= tick 124, 40/40 (место кончилось)
-
-~130 тик - ресурсы начинают копиться, 61
-
-
-на первый и второй дом не хватает ресурсов. Тртетий уже надо строить заранее
 

@@ -416,10 +416,10 @@ public class SpawnRangersStrategy implements SubStrategy {
         Collections.shuffle(toDefend);
         Position2d wtod = toDefend.get(0);
 
-        Position2d vragUvorot = wtod;
+        Position2d defPoint = Position2dUtil.midPoint(wtod, nearestEnemyEntityToPosition(wtod, pgs).orElse(wtod));
 
-        if (vragUvorot != null) {
-            return  spawnDefenceOrSwitch(vragUvorot, gameHistoryState, pgs, strategyParams);
+        if (defPoint != null) {
+            return  spawnDefenceOrSwitch(defPoint, gameHistoryState, pgs, strategyParams);
 
 //            Set<Position2d> spawnPositions = pgs.getBuildingsByEntityId().get(pgs.getMyRangerBase().getId()).getBuildingEmptyOuterEdgeWithoutCorners();
 //            Position2d closestSpawn = spawnPositions.stream().min(Comparator.comparingInt(sp -> sp.lenShiftSum(vragUvorot))).orElse(null);
