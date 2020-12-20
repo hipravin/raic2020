@@ -64,6 +64,8 @@ public class StrategyParams {
     }
 
     public boolean useRangerFollow = true;
+    public boolean useRangerManualTargeting = true;
+
 
     public int moveTowardsBarracksDistanceTreshold = 10;
     public int moveTowardsMineralsDistanceTreshold = 6;

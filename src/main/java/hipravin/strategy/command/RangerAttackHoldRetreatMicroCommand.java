@@ -182,7 +182,9 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
             });
         }
 
-        if (pgs.at(rp).getTotalNearAttackerCount() == 0 && (rp.lenShiftSum(attackPosition) < 7 || countSwitched.get() > 0)) {
+        if (pgs.at(rp).getTotalNearAttackerCount() == 0
+                && pgs.at(attackPosition).getTotalNearAttackerCount() == 0
+                && (rp.lenShiftSum(attackPosition) < 6 || countSwitched.get() > 0)) {
             DebugOut.println("Reach attackPosition and cleared: " + attackPosition + ", nbs: " + countSwitched.get());
 
             Position2d currentAttackPosition = attackPosition;
@@ -292,7 +294,8 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         EntityType[] prioritizedAttackTypes = bestAttackTargets(
                 currentParsedGameState.getEntityIdToCell().get(rangerEntityId).getPosition(), gameHistoryState, currentParsedGameState, strategyParams);
 
-        AttackAction attackAction = new AttackAction(null, new AutoAttack(Position2dUtil.RANGER_RANGE,
+        AttackAction attackAction = new AttackAction(gameHistoryState.getAssignedAttackTargets().get(rangerEntityId),
+                new AutoAttack(Position2dUtil.RANGER_RANGE,
                 prioritizedAttackTypes));
 
         autoAttack.setAttackAction(attackAction);
@@ -315,7 +318,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         EntityType[] prioritizedAttackTypes = bestHoldTargets(
                 pgs.getEntityIdToCell().get(rangerEntityId).getPosition(), gameHistoryState, pgs, strategyParams);
 
-        AttackAction attackAction = new AttackAction(null, new AutoAttack(0,
+        AttackAction attackAction = new AttackAction(gameHistoryState.getAssignedAttackTargets().get(rangerEntityId), new AutoAttack(0,
                 prioritizedAttackTypes));
         Position2d rp = pgs.getEntityIdToCell().get(rangerEntityId).getPosition();
 

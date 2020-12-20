@@ -132,6 +132,8 @@ if see mining workers without defence - send 1 nearest ranger
 
 112 stuck rangers
 
+113 таки распределение выстрелов...
+
 right walker left walker
 
 worker perimerter control

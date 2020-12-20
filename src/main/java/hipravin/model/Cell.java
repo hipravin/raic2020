@@ -175,6 +175,10 @@ public class Cell implements Cloneable {
         return isUnit && !isMyUnit() && entityType == EntityType.MELEE_UNIT;
     }
 
+    public boolean isEnemyTurret() {
+        return isBuilding && !isMyEntity && entityType == EntityType.TURRET;
+    }
+
     public static Cell empty(Position2d position) {
         Cell cell = new Cell();
         cell.isEmpty = true;

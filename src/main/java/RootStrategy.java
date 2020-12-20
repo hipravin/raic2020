@@ -1,8 +1,5 @@
 import hipravin.DebugOut;
-import hipravin.model.GameStateParser;
-import hipravin.model.ParsedGameState;
-import hipravin.model.Position2d;
-import hipravin.model.Position2dUtil;
+import hipravin.model.*;
 import hipravin.strategy.*;
 import hipravin.strategy.command.Command;
 import hipravin.strategy.command.RangerAttackHoldRetreatMicroCommand;
@@ -25,7 +22,6 @@ public class RootStrategy extends MyStrategy {
 
     public RootStrategy() {
         strategyParams = new StrategyParams();
-
 
 
         FinalGameStartStrategy buildFirstHouseFinalStrategy = new FinalGameStartStrategy();
@@ -87,21 +83,21 @@ public class RootStrategy extends MyStrategy {
             setMyCorner(playerView);
             setBuildingSizes(playerView);
 
-            if(!playerView.isFogOfWar() && playerView.getPlayers().length > 2) {
+            if (!playerView.isFogOfWar() && playerView.getPlayers().length > 2) {
                 System.out.println("round1");
                 strategyParams.activateRound1();
             }
-            if(playerView.isFogOfWar() && playerView.getPlayers().length > 2) {
+            if (playerView.isFogOfWar() && playerView.getPlayers().length > 2) {
                 strategyParams.activateRound2();
                 System.out.println("round2");
             }
 
-            if(System.getProperty("OPTION2") != null ) {
-                if(playerView.getPlayers().length == 2) {
+            if (System.getProperty("OPTION2") != null) {
+                if (playerView.getPlayers().length == 2) {
                     strategyParams.activateOption2();
                 }
 
-                if(playerView.getMyId() == 1) {
+                if (playerView.getMyId() == 1) {
                     strategyParams.activateOptionId1();
                 }
             }
@@ -156,7 +152,6 @@ public class RootStrategy extends MyStrategy {
     }
 
 
-
     void removeCompletedOrStaleCommands() {
 //        gameHistoryState.getOngoingBuildCommands()
 //                .removeIf(this::isBuildCommandCompletedOrStale);
@@ -164,7 +159,7 @@ public class RootStrategy extends MyStrategy {
         for (ListIterator<Command> iterator = gameHistoryState.getOngoingCommands().listIterator(); iterator.hasNext(); ) {
             Command command = iterator.next();
             Optional<Command> replacer = command.replacer(gameHistoryState, currentParsedGameState, strategyParams);
-            if(replacer.isPresent()) {
+            if (replacer.isPresent()) {
                 if (DebugOut.enabled) {
                     DebugOut.println("_Replaced:" + command.toString());
                 }
@@ -220,7 +215,7 @@ public class RootStrategy extends MyStrategy {
     void updateAssignedActions(Map<Integer, ValuedEntityAction> assignedActions) {
         getGameHistoryState().getOngoingCommands()
                 .forEach(c -> c.updateAssignedActions(gameHistoryState, currentParsedGameState, strategyParams, assignedActions));
-        if(DebugOut.enabled) {
+        if (DebugOut.enabled) {
             DebugOut.println("===================");
             DebugOut.println("ALL current Ongiong commands: ");
             for (Command ongoingCommand : getGameHistoryState().getOngoingCommands()) {
@@ -259,7 +254,7 @@ public class RootStrategy extends MyStrategy {
 
     @Override
     public Action getAction(PlayerView playerView, DebugInterface debugInterface) {
-        if(playerView.getCurrentTick() % 100 == 0 ) {
+        if (playerView.getCurrentTick() % 100 == 0) {
             System.out.println("Tick #" + playerView.getCurrentTick());
         }
 
@@ -278,7 +273,6 @@ public class RootStrategy extends MyStrategy {
             afterParse = Instant.now();
 
 
-
             Action decision = combineDecisions();
             updateGameHistoryState(decision);
 
@@ -295,11 +289,11 @@ public class RootStrategy extends MyStrategy {
             return new Action(Collections.emptyMap());
             //Index -1 out of bounds for length 5 ??????????
         } finally {
-            if(DebugOut.enabled) {
+            if (DebugOut.enabled) {
                 Duration tickSpent = Duration.between(start, Instant.now());
                 totalTimeConsumed = totalTimeConsumed.plus(tickSpent);
 
-                DebugOut.println("Tick: " + playerView.getCurrentTick() +  " dur:  " + tickSpent + ", total: / " + totalTimeConsumed
+                DebugOut.println("Tick: " + playerView.getCurrentTick() + " dur:  " + tickSpent + ", total: / " + totalTimeConsumed
                         + " / avg: " + totalTimeConsumed.dividedBy(playerView.getCurrentTick() + 1) + " / afterParse: " + Duration.between(afterParse, Instant.now()));
             }
         }
@@ -313,50 +307,109 @@ public class RootStrategy extends MyStrategy {
 
         gameHistoryState.getRangerCommands().clear();
         gameHistoryState.getOngoingCommands().forEach(c -> {
-            if(c instanceof RangerAttackHoldRetreatMicroCommand) {
+            if (c instanceof RangerAttackHoldRetreatMicroCommand) {
                 RangerAttackHoldRetreatMicroCommand comm = (RangerAttackHoldRetreatMicroCommand) c;
                 gameHistoryState.getRangerCommands().put(comm.currentPosition(pgs), comm);
             }
         });
+
+        if(strategyParams.useRangerManualTargeting) {
+            computeAssignedAttackTargets();
+        }
+    }
+
+    public void computeAssignedAttackTargets() {
+        gameHistoryState.getAssignedAttackTargets().clear();
+        Set<Position2d> myRangersWhoCanAttack = currentParsedGameState.getMyRangers().values().stream()
+                .filter(c -> c.getAttackerCount(Position2dUtil.RANGER_RANGE) > 0)
+                .map(Cell::getPosition)
+                .collect(Collectors.toSet());
+
+        int damage = 5;
+
+        ParsedGameState pgs = currentParsedGameState;
+
+        //ranger -> entityId
+        Map<Position2d, List<Position2d>> enemiesUnderAttack = new HashMap<>();
+        Map<Position2d, Integer> enemyCurrentHealth = new HashMap<>();
+
+
+        for (Position2d rp : myRangersWhoCanAttack) {
+            Position2dUtil.iterAllPositionsInRangeInclusive(rp, Position2dUtil.RANGER_RANGE, p -> {
+                if (pgs.at(p).test(c -> c.isEnemySwordman() || c.isEnemyRanger())) {
+                    Position2d opp = pgs.at(p).getPosition();
+                    enemiesUnderAttack.merge(rp, new ArrayList<>(List.of(opp)), (l1, l2) -> {
+                        l1.addAll(l2);
+                        return l1;
+                    });
+                    enemyCurrentHealth.put(opp, pgs.at(p).getHealthLeft());
+                }
+            });
+
+            enemiesUnderAttack.get(rp).sort(Comparator.comparingInt(p -> rp.lenShiftSum(p)));
+        }
+
+        List<Position2d> myRangersOrdered = new ArrayList<>(myRangersWhoCanAttack);
+        Comparator<Position2d> byxy = Comparator.comparingInt(p -> p.x + p.y);
+        Comparator<Position2d> byxyThenXThenY = byxy
+                .thenComparingInt(p -> p.x)
+                .thenComparingInt(p -> p.y);
+
+        myRangersOrdered.sort(byxyThenXThenY);
+
+        for (Position2d rang : myRangersOrdered) {
+            List<Position2d> targets = enemiesUnderAttack.get(rang);
+
+            if (targets != null) {
+                for (Position2d target : targets) {
+                    Integer curHealth = enemyCurrentHealth.get(target);
+                    if (curHealth == null || curHealth <= 0) {
+                        continue;
+                    }
+
+                    enemyCurrentHealth.compute(target, (p, h) -> (h == null) ? 0 : h - damage);
+                    gameHistoryState.getAssignedAttackTargets().put(pgs.at(rang).getEntityId(), pgs.at(target).getEntityId());
+                    break;
+                }
+            }
+        }
     }
 
     public void ensurePosition(Vec2Int position) {
-        if(position.getX() < 0) {
+        if (position.getX() < 0) {
             System.err.println("Position x < 0" + position.getX());
             position.setX(0);
         }
-        if(position.getX() > 79) {
+        if (position.getX() > 79) {
             System.err.println("Position x > 79" + position.getX());
             position.setX(79);
         }
-        if(position.getY() < 0) {
+        if (position.getY() < 0) {
             System.err.println("Position y < 0" + position.getY());
             position.setY(0);
         }
-        if(position.getY() > 79) {
+        if (position.getY() > 79) {
             System.err.println("Position x > 79" + position.getY());
             position.setY(79);
         }
     }
 
 
-
-
     void verifyResponse(Action action, PlayerView pw) {
 
         Set<Integer> entityIds = Arrays.stream(pw.getEntities()).map(Entity::getId).collect(Collectors.toSet());
-        action.getEntityActions().entrySet().removeIf(e-> !entityIds.contains(e.getKey()));
+        action.getEntityActions().entrySet().removeIf(e -> !entityIds.contains(e.getKey()));
 
         action.getEntityActions().forEach((id, ea) -> {
 //            DebugOut.println(id + " " + ea.getMoveAction());
 
-            if(ea.getMoveAction() != null) {
+            if (ea.getMoveAction() != null) {
                 ensurePosition(ea.getMoveAction().getTarget());
             }
-            if(ea.getBuildAction()!= null) {
+            if (ea.getBuildAction() != null) {
                 ensurePosition(ea.getBuildAction().getPosition());
             }
-        } );
+        });
 
     }
 

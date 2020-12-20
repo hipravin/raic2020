@@ -40,6 +40,8 @@ public class GameHistoryAndSharedState {
     int lastWorkerDiedTick = -MAX_VAL;
     int lastDefenceTick = -MAX_VAL;
 
+    Map<Integer, Integer> assignedAttackTargets = new HashMap<>();
+
 
 
     //    List<BuildingBuildCommand> ongoingBuildCommands = new ArrayList<>();
@@ -284,4 +286,9 @@ public class GameHistoryAndSharedState {
     public Map<Position2d, RangerAttackHoldRetreatMicroCommand> getRangerCommands() {
         return rangerCommands;
     }
+
+    public Map<Integer, Integer> getAssignedAttackTargets() {
+        return assignedAttackTargets;
+    }
+
 }
