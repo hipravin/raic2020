@@ -113,7 +113,7 @@ public class StrategyParams {
     public double scoutProb = 0.1;
 
     public int turretsForCleanupRange = 25;
-    public int turretsForCleanupMaxCount = 6;
+    public int turretsForCleanupMaxCount = 4;
     public int turretsForCleanupEdgeShift = 2; //turret should atttack edge + X to be able to clear X lines of mineral guaranteed
 
     public int buildCommandMaxWaitTicks = 5;
@@ -328,44 +328,44 @@ public class StrategyParams {
 
     }
 
-//    public void activateOption2() {//super fast home
-//        GameHistoryAndSharedState.random.nextInt();
-//
-//        populationOfWorkersToBuildBeforeRangers = 20;
-//
-//        rangerCountToAddSomeWorkers = 10;
-//
-//        DESIRED_BARRACK = of(25, 25);
-//        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
-//
-//        sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
-//
-//        attackEnemyMineralsOnHold = false;
-//
-//        randomAttackPositionShift = 0;
-//        useWorkerDefendingTurrets = false;
-//    }
-    public void activateOption2() {//super economy
+    public void activateOption2() {//super fast home
         GameHistoryAndSharedState.random.nextInt();
 
-        populationOfWorkersToBuildBeforeRangers = 50;
+        populationOfWorkersToBuildBeforeRangers = 20;
 
-        rangerCountToAddSomeWorkers = 30;
+        rangerCountToAddSomeWorkers = 10;
 
-        DESIRED_BARRACK = of(10, 10);
+        DESIRED_BARRACK = of(25, 25);
         sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
-        attackPoints = List.of(of(76, 76));
-        attackPointRates = List.of(1.0);
-
-
-        sendToCenterWorkerNumbers = Set.of();
+        sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
 
         attackEnemyMineralsOnHold = false;
 
         randomAttackPositionShift = 0;
-        useWorkerDefendingTurrets = true;
+        useWorkerDefendingTurrets = false;
     }
+//    public void activateOption2() {//super economy
+//        GameHistoryAndSharedState.random.nextInt();
+//
+//        populationOfWorkersToBuildBeforeRangers = 50;
+//
+//        rangerCountToAddSomeWorkers = 30;
+//
+//        DESIRED_BARRACK = of(10, 10);
+//        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
+//
+//        attackPoints = List.of(of(76, 76));
+//        attackPointRates = List.of(1.0);
+//
+//
+//        sendToCenterWorkerNumbers = Set.of();
+//
+//        attackEnemyMineralsOnHold = false;
+//
+//        randomAttackPositionShift = 0;
+//        useWorkerDefendingTurrets = true;
+//    }
 
     public void activateRound1() {
         StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 7;

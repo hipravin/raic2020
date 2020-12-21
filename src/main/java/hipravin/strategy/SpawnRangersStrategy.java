@@ -98,7 +98,7 @@ public class SpawnRangersStrategy implements SubStrategy {
                     .findFirst().orElse(null);
 
             if (enemyBarrack != null) {
-                setRedefinedAttackPoint(enemyBarrack, rangBasePos.halfWayTo(armyCloseToRangeBase.get()), gameHistoryState, strategyParams);
+                setRedefinedAttackPoint(enemyBarrack, rangBasePos.halfWayTo(enemyBarrack), gameHistoryState, strategyParams);
             } else if (armyCloseToRangeBase.isPresent()) {
                 setRedefinedAttackPoint(armyCloseToRangeBase.get(), rangBasePos.halfWayTo(armyCloseToRangeBase.get()), gameHistoryState, strategyParams);
             } else if (entityCloseToRangeBase.isPresent()) {

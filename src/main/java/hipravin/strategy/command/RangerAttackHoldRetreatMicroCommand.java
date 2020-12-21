@@ -250,12 +250,17 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
             DebugOut.println("Reach attackPosition and cleared: " + attackPosition + ", nbs: " + countSwitched.get());
 
             Position2d currentAttackPosition = attackPosition;
-
+            Optional<Position2d> nearestEnemyEntity = SpawnRangersStrategy.nearestEnemyEntityToPosition(rp, pgs);
             if (switchAttackPosition != null) {
                 attackPosition = switchAttackPosition;
                 switchAttackPosition = null;
+            } else if(nearestEnemyEntity
+                    .map(p -> p.lenShiftSum(rp) < 12).orElse(false)) {
+                attackPosition = nearestEnemyEntity.orElse(Position2dUtil.randomMapPosition());
             } else if (attackPosition.equals(strategyParams.attackPoints.get(0))) {
-                attackPosition = SpawnRangersStrategy.nearestEnemyEntityToPosition(rp, pgs).orElse(Position2dUtil.randomMapPosition());
+                attackPosition = nearestEnemyEntity.orElse(Position2dUtil.randomMapPosition());
+            } else if(!attackPosition.equals(strategyParams.attackPoints.get(0))) {
+                attackPosition = strategyParams.attackPoints.get(0);
             } else {
                 attackPosition = StrategyParams.selectRandomAccordingDistribution(strategyParams.attackPoints, strategyParams.attackPointRates);
                 randomMover = true;

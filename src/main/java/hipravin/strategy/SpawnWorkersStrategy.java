@@ -198,6 +198,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
                     sendWorkerToCenter(ccOuterEdge, gameHistoryState, pgs, strategyParams);
                     return;
                 }
+            } else {
+                needToPlaceTurretToCleanup = false;
             }
         }
 
