@@ -149,6 +149,8 @@ if see mining workers without defence - send 1 nearest ranger
 
 if barracks are close and no rangers are outside... - sneaky turrets to prevent expansion
 
+фикс атаки турелей и 6-2
+
 
 держим минералы, пока опп не соберётся ставить свой баррак, не ставим на плотных картах раньше, чем надо....
 

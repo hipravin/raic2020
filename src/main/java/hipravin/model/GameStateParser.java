@@ -283,7 +283,7 @@ public abstract class GameStateParser {
                     for (int r = 6; r <= 8; r++) {
                         int rr = r;
                         Position2dUtil.iterAllPositionsInExactRange(tp, r, ap -> {
-                            int count = pgs.at(ap).getAttackerCount(rr);
+                            int count = pgs.at(ap).getTurretAttackerCount(rr);
                             pgs.at(ap).setTurretAttackerCount(rr, count + 1);
                         });
 
@@ -291,7 +291,7 @@ public abstract class GameStateParser {
                     int range5orless = 5;
                     for (int r = 1; r <= 5; r++) {
                         Position2dUtil.iterAllPositionsInExactRange(tp, r, ap -> {
-                            int count = pgs.at(ap).getAttackerCount(range5orless);
+                            int count = pgs.at(ap).getTurretAttackerCount(range5orless);
                             pgs.at(ap).setTurretAttackerCount(range5orless, count + 1);
                         });
 

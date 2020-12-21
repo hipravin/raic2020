@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RootStrategyReplaySampleTickTest {
     @Test
-    void tesCountWnemyWorkres2() {
+    void tesCountTurret6() {
         RootStrategy strategy = new RootStrategy();
-        ServerMessage.GetAction get0 = TestServerUtil.readGet(3,19,878);
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3,19,890);
 
         Action action = strategy.getAction(get0.getPlayerView(), null);
 

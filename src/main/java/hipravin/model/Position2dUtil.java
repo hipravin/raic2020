@@ -96,6 +96,7 @@ public abstract class Position2dUtil {
 
         if (asum == 0) {
             return to;
+
         }
 
         double div = (double) len / asum;

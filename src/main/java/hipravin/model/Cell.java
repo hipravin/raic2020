@@ -135,13 +135,13 @@ public class Cell implements Cloneable {
 
         switch(range) {
             case 5:
-                return range5attackersCount;
+                return range5turretCount;
             case 6:
-                return range6attackersCount;
+                return range6turretCount;
             case 7:
-                return range7attackersCount;
+                return range7turretCount;
             case 8:
-                return range8attackersCount;
+                return range8turretCount;
         }
 
         return -1;
