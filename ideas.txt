@@ -132,7 +132,25 @@ if see mining workers without defence - send 1 nearest ranger
 
 112 stuck rangers
 
-113 таки распределение выстрелов...
+113 зачем рабочий идёт к цц?
+
+114 instead of hold move towards attack target if possible?
+115 from 6-2  try to move to 6-1
+
+116 shitty map - build second base?
+
+117 туретки ...
+
+119 not scouted fields at late game
+
+118 tough map detection
+
+атакавать рабов туреткой (быстрее, чем идти туда лучником)
+
+if barracks are close and no rangers are outside... - sneaky turrets to prevent expansion
+
+
+держим минералы, пока опп не соберётся ставить свой баррак, не ставим на плотных картах раньше, чем надо....
 
 right walker left walker
 

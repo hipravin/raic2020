@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static hipravin.model.Position2d.of;
 import static hipravin.strategy.StrategyParams.MAX_VAL;
 
+@Deprecated
 public class RangerAttackHoldRetreatCommand extends Command {
     Integer rangerEntityId;
     Position2d attackPosition;

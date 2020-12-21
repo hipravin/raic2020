@@ -333,6 +333,7 @@ public class RootStrategy extends MyStrategy {
         Map<Position2d, List<Position2d>> enemiesUnderAttack = new HashMap<>();
         Map<Position2d, Integer> enemyCurrentHealth = new HashMap<>();
 
+        Comparator<Position2d> byHealth = Comparator.comparingInt(p -> enemyCurrentHealth.get(p));
 
         for (Position2d rp : myRangersWhoCanAttack) {
             Position2dUtil.iterAllPositionsInRangeInclusive(rp, Position2dUtil.RANGER_RANGE, p -> {
@@ -345,8 +346,9 @@ public class RootStrategy extends MyStrategy {
                     enemyCurrentHealth.put(opp, pgs.at(p).getHealthLeft());
                 }
             });
+            Comparator<Position2d> byHealthThenByLen = byHealth.thenComparingInt(p -> rp.lenShiftSum(p));
 
-            enemiesUnderAttack.get(rp).sort(Comparator.comparingInt(p -> rp.lenShiftSum(p)));
+            enemiesUnderAttack.get(rp).sort(byHealthThenByLen);
         }
 
         List<Position2d> myRangersOrdered = new ArrayList<>(myRangersWhoCanAttack);

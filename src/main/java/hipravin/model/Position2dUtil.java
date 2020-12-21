@@ -34,13 +34,16 @@ public abstract class Position2dUtil {
     public static int WALL_SIZE = 1;
 
     public static Position2d midPoint(Position2d p1, Position2d p2) {
-        if(p1 == null || p2 == null) {
+        if (p1 == null || p2 == null) {
             return null;
         }
-        return crop(of((p1.x + p2.x) / 2, (p1.y + p2.y) / 2)) ;
+        return crop(of((p1.x + p2.x) / 2, (p1.y + p2.y) / 2));
     }
 
 
+    public static boolean isPositionOutside(Position2d position, int line) {
+        return position.x <= line || position.y <= line;
+    }
 
     public static void iterAllPositionsBuildingSightRange(Position2d corner, int buildingSize, int buildingSightRange,
                                                           Consumer<Position2d> positionConsumer) {
@@ -85,6 +88,20 @@ public abstract class Position2dUtil {
 
     }
 
+    public static Position2d limitWayTo(Position2d from, Position2d to, int len) {
+        int dx = to.x - from.x;
+        int dy = to.y - from.y;
+
+        int asum = Math.abs(dx + dy);
+
+        if (asum == 0) {
+            return to;
+        }
+
+        double div = (double) len / asum;
+
+        return crop(of((int) (from.x + dx * div), (int) (from.y + dy * div)));
+    }
 
     public static void iterAllPositionsInRangeInclusive(Position2d dotPosition, int range, Consumer<Position2d> positionConsumer) {
         positionConsumer.accept(dotPosition);

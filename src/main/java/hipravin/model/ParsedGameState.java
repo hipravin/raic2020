@@ -4,7 +4,6 @@ import hipravin.strategy.StrategyParams;
 import model.*;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -12,7 +11,6 @@ import static hipravin.model.GameStateParser.forEachPosition;
 import static hipravin.model.Position2d.of;
 import static hipravin.model.Position2dUtil.MAP_SIZE;
 import static hipravin.model.Position2dUtil.isSquareWithinMapBorder;
-import static hipravin.strategy.StrategyParams.MAX_VAL;
 
 public class ParsedGameState {
     PlayerView playerView;
@@ -22,6 +20,7 @@ public class ParsedGameState {
 
     Map<Integer, Building> buildingsByEntityId;
     Map<Integer, Cell> myWorkers;
+    Map<Integer, Cell> oppWorkers = new HashMap<>();
     Map<Integer, Cell> myRangers;
 
     Map<Integer, Cell> entityIdToCell; //for buildings to corner cell
@@ -402,6 +401,10 @@ public class ParsedGameState {
 
     public Map<Position2d, Position2d> getRangersMovedSinceLastTickReversed() {
         return rangersMovedSinceLastTickReversed;
+    }
+
+    public Map<Integer, Cell> getOppWorkers() {
+        return oppWorkers;
     }
 }
 

@@ -38,6 +38,11 @@ public class BuildBarrackStrategy implements SubStrategy {
         GameStateParser.computeUniqueWorkersNearbyCenterMore(pgs, StrategyParams.BARRACK_WORKERS_NEARBY_MAX_PATH,
                 StrategyParams.BARRACK_WORKERS_NEARBY_MAX_PATH_CENTER);
 
+        int ct = pgs.curTick();
+        boolean desperate = ct > strategyParams.desperateRangeBasePlacementTick;
+        boolean agony = ct > strategyParams.agonyRangeBasePlacementTick;
+
+
         boolean success =
                         tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, true)
                         || tryToBuildBarrackShortDistance(3, distance, 10, gameHistoryState, pgs, strategyParams, false)
@@ -45,10 +50,10 @@ public class BuildBarrackStrategy implements SubStrategy {
                         || tryToBuildBarrackShortDistance(3, distance, 15, gameHistoryState, pgs, strategyParams, false)
                         || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, true)
                         || tryToBuildBarrackShortDistance(5, distance, 20, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildBarrackShortDistance(7, distance, 30, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(7, distance, 30, gameHistoryState, pgs, strategyParams, false)
-                        || tryToBuildBarrackShortDistance(5, distance, 100, gameHistoryState, pgs, strategyParams, true)
-                        || tryToBuildBarrackShortDistance(5, distance, 100, gameHistoryState, pgs, strategyParams, false)
+                        || desperate && tryToBuildBarrackShortDistance(5, distance, 30, gameHistoryState, pgs, strategyParams, true)
+                        || desperate && tryToBuildBarrackShortDistance(5, distance, 30, gameHistoryState, pgs, strategyParams, false)
+                        || agony && tryToBuildBarrackShortDistance(5, distance, 100, gameHistoryState, pgs, strategyParams, true)
+                        || agony && tryToBuildBarrackShortDistance(5, distance, 100, gameHistoryState, pgs, strategyParams, false)
 //                        || tryToBuildBarrackShortDistance(5, distance, 40, gameHistoryState, pgs, strategyParams, true)
 //                        || tryToBuildBarrackShortDistance(5, distance, 40, gameHistoryState, pgs, strategyParams, false)
                 ;

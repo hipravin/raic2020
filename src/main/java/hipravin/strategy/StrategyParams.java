@@ -32,13 +32,18 @@ public class StrategyParams {
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
+    public int desperateRangeBasePlacementTick = 210;
+    public int agonyRangeBasePlacementTick = 230;
 
-    public static Position2d DESIRED_BARRACK = of(31, 31);
+    public static Position2d DESIRED_BARRACK = of(33, 33);
     public static Position2d sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(9, 9);
 
     public static final int MAP_CORNER_SIZE = 10;
 
     public static int randomAttackPositionShift = 0;
+
+    public int workerAttackSwitchMinWorkers = 3;
+    public int outsideLine = 40;
 
     public EntityType[] attackPriorities = new EntityType[] {
             EntityType.RANGED_UNIT,
@@ -76,8 +81,10 @@ public class StrategyParams {
 
 
     public double defenceOverCountRatio = 2;
+    public double workerHarrasOverCountRatio = 2;
 
     public int defenceClosenessRange = 10;
+    public int workerHarrassClosenessRange = 7;
 
     public int rangersCloserHold = 2;
     public int retreatStopRange = 6;
@@ -118,7 +125,7 @@ public class StrategyParams {
 
     public int maxHousesBeforeMandatorySpacing = 5;
 
-    public int vragUVorotRange = 13;
+    public int vragUVorotRange = 17;
 
     public boolean attackEnemyMineralsOnHold = true;
 
@@ -150,6 +157,7 @@ public class StrategyParams {
 
     public int maxNumberOfRangers = 100;
     public int extraMoney = 100;
+    public int insaneExtraMoney = 500;
     public int outOfMoney = 100;
     public int outOfPopulation = 5;
 
@@ -200,6 +208,7 @@ public class StrategyParams {
     public int populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded = 45;//35 is optimal rush?
     public int populationOfWorkersToBuildAfterRangers = 60;
     public int populationOfWorkersToIfExtraResources = 80;
+    public int populationOfWorkersToIfInsaneResources = 90;
     public boolean useWorkerFollow = true;
 
     public boolean sendToCenter = true;
@@ -373,12 +382,10 @@ public class StrategyParams {
         populationOfWorkersToBuildAfterRangers = 60;
 
         DESIRED_BARRACK = of(13, 13);
-        sendToCenterWorkerNumbers = Set.of(13, 15, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39);
+        sendToCenterWorkerNumbers = Set.of(30, 31, 32, 33, 34, 35, 36, 37, 38, 39);
 
         sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6,6);
 
-//        sendToCenterWorkerNumbers = Set.of(15, 16, 17, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
-        sendToCenterWorkerNumbers = Set.of(17, 18, 19, 20, 21, 22, 23, 24, 25);
         minHouseDistanceToCenter = 3;
         useWorkerFollow = false;
 

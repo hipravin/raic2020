@@ -69,7 +69,7 @@ public class Cell implements Cloneable {
     int range8turretCount = 0;
 
     int totalNearAttackerCount = 0;
-
+    int range5enemyWorkers = 0;
 
     public void setAttackerCount(int range, int count) {
         switch (range) {
@@ -475,6 +475,14 @@ public class Cell implements Cloneable {
 
     public void setEnemyTerritoryMineral(boolean enemyTerritoryMineral) {
         isEnemyTerritoryMineral = enemyTerritoryMineral;
+    }
+
+    public int getRange5enemyWorkers() {
+        return range5enemyWorkers;
+    }
+
+    public void setRange5enemyWorkers(int range5enemyWorkers) {
+        this.range5enemyWorkers = range5enemyWorkers;
     }
 }
 

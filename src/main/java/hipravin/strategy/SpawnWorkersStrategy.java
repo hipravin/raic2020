@@ -73,6 +73,13 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
         }
 
+        if (pgs.getMyWorkers().size() <= strategyParams.populationOfWorkersToIfInsaneResources
+                && haveInsaneResources(pgs, gameHistoryState, strategyParams)
+                && (pgs.getMyRangerBase() != null)) {
+            return true;
+        }
+
+
         if (pgs.getMyWorkers().size() <= strategyParams.populationOfWorkersToIfExtraResources
                 && haveExtraResources(pgs, gameHistoryState, strategyParams)
                 && (pgs.getMyRangerBase() == null || !pgs.getMyRangerBase().isActive())) {
@@ -99,6 +106,12 @@ public class SpawnWorkersStrategy implements SubStrategy {
     boolean haveExtraResources(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
         return pgs.getEstimatedResourceAfterTicks(1) >= gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
                 + pgs.getRangCost() + strategyParams.extraMoney
+                ;
+    }
+
+    boolean haveInsaneResources(ParsedGameState pgs, GameHistoryAndSharedState gameHistoryAndSharedState, StrategyParams strategyParams) {
+        return pgs.getEstimatedResourceAfterTicks(1) >= gameHistoryAndSharedState.ongoingHouseBuildCommandCount() * pgs.getHouseCost()
+                + pgs.getRangCost() + strategyParams.insaneExtraMoney
                 ;
     }
 

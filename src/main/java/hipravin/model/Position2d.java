@@ -67,6 +67,7 @@ public final class Position2d {
         return square(x - other.x) + square(y - other.y);
     }
 
+
     public int lenShiftSum(Position2d other) {
         return Math.abs(x - other.x) + Math.abs(y - other.y);
     }

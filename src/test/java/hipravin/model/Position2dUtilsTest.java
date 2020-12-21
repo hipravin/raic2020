@@ -15,6 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class Position2dUtilsTest {
 
     @Test
+    void testLimitWayTo() {
+        assertEquals(of(0,10), Position2dUtil.limitWayTo(of(0,0), of(0,20), 10));
+        assertEquals(of(10,0), Position2dUtil.limitWayTo(of(0,0), of(20,0), 10));
+        assertEquals(of(10,10), Position2dUtil.limitWayTo(of(5,5), of(50,50), 10));
+    }
+
+    @Test
     void testRuinAway() {
 
         assertEquals(of(15,0), Position2dUtil.runAwayDoubleDistance(of(5,0), of(0,0)));

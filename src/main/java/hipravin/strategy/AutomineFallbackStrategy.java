@@ -98,7 +98,7 @@ public class AutomineFallbackStrategy implements SubStrategy {
             Command moveTo;
             if (of(w.getPosition()).lenShiftSum(to) < 15) {
                 moveTo = new MoveTowardsCommand(pgs, w.getId(),
-                        Position2dUtil.randomMapPosition(),
+                        Position2dUtil.randomMapPosition(), //TODO NEAREST FULL HP THAT DON't HAVE ATTACKERS FROM ALL ARRAY OR RANDOM
                         Position2dUtil.MAP_SIZE, strategyParams.moveTowardsMineralsDistanceTreshold);
 
             } else {

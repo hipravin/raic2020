@@ -117,7 +117,14 @@ public class RangerNewScoutCommand extends SingleEntityCommand {
     boolean isStuck(Position2d currentPosition, GameHistoryAndSharedState gameHistoryState,
                     ParsedGameState pgs, StrategyParams strategyParams) {
 
-        if (lastPositions.size() < StrategyParams.RANGER_POS_HIST) {
+        if(lastPositions.size() < 3) {
+            return false;
+        }
+        int curTick = pgs.curTick();
+
+        Position2d pr = lastPositions.get(curTick - 1);
+
+        if(pr == null) {
             return false;
         }
 
@@ -125,7 +132,6 @@ public class RangerNewScoutCommand extends SingleEntityCommand {
                 .filter(lp -> lp.equals(currentPosition))
                 .count();
 
-
-        return countSame > 1;
+        return countSame > 1 && !currentPosition.equals(pr);
     }
 }

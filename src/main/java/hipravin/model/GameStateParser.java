@@ -67,6 +67,9 @@ public abstract class GameStateParser {
             if (c.isMyEntity && c.getEntityType() == EntityType.BUILDER_UNIT) {
                 parsedGameState.myWorkers.put(c.entityId, c);
             }
+            if (!c.isEmpty && !c.isMyEntity && c.getEntityType() == EntityType.BUILDER_UNIT) {
+                parsedGameState.oppWorkers.put(c.entityId, c);
+            }
 
             if (c.isMyEntity && c.getEntityType() == EntityType.RANGED_UNIT) {
                 parsedGameState.myRangers.put(c.entityId, c);
@@ -117,11 +120,23 @@ public abstract class GameStateParser {
         }
 
         calculateEnemyAttackRanges(parsedGameState);
+        calculateEnemyWorkers(parsedGameState);
         calculateAttackerCounts(parsedGameState);
         calculateEnemyMinerals(parsedGameState);
         calculateEnemyBuildingRepairers(parsedGameState);
 
         return parsedGameState;
+    }
+
+    private static void calculateEnemyWorkers(ParsedGameState pgs) {
+        for (Map.Entry<Integer, Cell> entry : pgs.getOppWorkers().entrySet()) {
+            Position2d wp = entry.getValue().position;
+
+            Position2dUtil.iterAllPositionsInRangeInclusive(wp, 5, ap -> {
+                int count = pgs.at(ap).getRange5enemyWorkers();
+                pgs.at(ap).setRange5enemyWorkers(count + 1);
+            });
+        }
     }
 
     static void calculateEnemyBuildingRepairers(ParsedGameState pgs) {
@@ -254,7 +269,6 @@ public abstract class GameStateParser {
                         int count = pgs.at(ap).getAttackerCount(range5orless);
                         pgs.at(ap).setAttackerCount(range5orless, count + 1);
                     });
-
                 }
             }
         }
