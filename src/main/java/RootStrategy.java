@@ -138,6 +138,7 @@ public class RootStrategy extends MyStrategy {
         currentParsedGameState = GameStateParser.parse(playerView);
         trackChanges();
         removeCompletedOrStaleCommands();
+        rearrangeRangerCommands();
 
         if(strategyParams.useRangerHealing) {
 
@@ -145,6 +146,42 @@ public class RootStrategy extends MyStrategy {
 
             if(hasDamagedRangers) {
                 GameStateParserDjkstra.computeMyNonUniqueNearestWorkers(currentParsedGameState);
+            }
+        }
+    }
+
+    private void rearrangeRangerCommands() {
+        if(gameHistoryState.getRangerCommands().isEmpty() || gameHistoryState.getRangerCommands().size() == 1) {
+            return;
+        }
+
+        Map<Position2d, Set<Position2d>> currentlyAssigned = new HashMap<>();
+        Set<Position2d> available = new HashSet<>(gameHistoryState.getRangerCommands().keySet());
+
+        gameHistoryState.getRangerCommands().forEach((p, rc) -> {
+            currentlyAssigned.merge(rc.getAttackPosition(), new HashSet<>(Collections.singleton(p)), (s1, s2) -> {
+                s1.addAll(s2);
+                return  s1;
+            });
+        });
+
+        for (Map.Entry<Position2d, Set<Position2d>> cae : currentlyAssigned.entrySet()) {
+            Position2d attackTarget = cae.getKey();
+
+            List<Position2d> availableList = new ArrayList<>(available);
+
+            availableList.sort(Comparator.comparingInt(p -> p.lenShiftSum(attackTarget)));
+
+            availableList = availableList.subList(0, currentlyAssigned.get(attackTarget).size());
+            available.removeAll(availableList);
+
+            for (Position2d av : availableList) {
+                RangerAttackHoldRetreatMicroCommand rahmc = gameHistoryState.getRangerCommands().get(av);
+                if(!rahmc.getAttackPosition().equals(cae.getKey())) {
+                    DebugOut.println("Rearrange attack:  " +  av + " from " + rahmc.getAttackPosition() + " -> " + cae.getKey() );
+                }
+
+                rahmc.setAttackPosition(cae.getKey());
             }
         }
     }

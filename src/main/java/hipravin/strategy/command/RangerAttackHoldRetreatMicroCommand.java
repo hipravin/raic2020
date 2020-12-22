@@ -328,6 +328,9 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         } else if (rc.getAttackerCount(6) > 1 && better6 != null && !strategyParams.neverHold) {
             DebugOut.println("Ranger move better6: " + rp + "->" + better6);
             updateAttackPos(better6, gameHistoryState, pgs, strategyParams, assignedActions);
+        } else if(rc.getAttackerCount(6) == 0 && p61 != null) {
+            DebugOut.println("Ranger push 61: " + rp + "->" + p61);
+            updateAttackPos(p61, gameHistoryState, pgs, strategyParams, assignedActions);
         } else if ((rc.getAttackerCount(5) ==0 && rc.getAttackerCount(6) == 0 && rc.getAttackerCount(7) > 1)
                 && (3 * enemyCount > 4 * myCount || myCountNearRange7 == 0) &&!strategyParams.neverHold) {
             if (!decidedToGetHealing(gameHistoryState, pgs, strategyParams, assignedActions)) {
@@ -550,7 +553,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         switchAttackPosition = attackPosition;
 
         attackPosition = Position2dUtil.limitWayTo(pgs.getEntityIdToCell().get(rangerEntityId).getPosition(),
-                attackPosition, Position2dUtil.RANGER_RANGE - 2);
+                attackPosition, Position2dUtil.RANGER_RANGE - 4);
         updateAttack(gameHistoryState, pgs, strategyParams, assignedActions);
     }
 
