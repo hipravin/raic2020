@@ -87,13 +87,13 @@ class ParsedGameStateTest {
 
         assertEquals(1, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 0));
         assertEquals(4, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 1));
-        assertEquals(7, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 2));
+        assertEquals(8, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 2));
 
         pgs.allCellsAsStream().forEach(c -> {
             assertTrue(c.myNearestWorker == null || c.myNearestWorker.sourceCell.position.equals(of(4, 4)));
         });
 
-        assertEquals(252, countCells(pgs, c -> c.myNearestWorker != null));//approximately half of map is unreacheable at start. seems legit if mineral count is good
+        assertEquals(323, countCells(pgs, c -> c.myNearestWorker != null));//approximately half of map is unreacheable at start. seems legit if mineral count is good
     }
 
     @Test
@@ -105,9 +105,9 @@ class ParsedGameStateTest {
         GameStateParserDjkstra.computeMyNonUniqueNearestWorkers(pgs);
 
         assertEquals(13, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 0));
-        assertEquals(28, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 1));
-        assertEquals(29, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 2));
-        assertEquals(32, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 3));
+        assertEquals(35, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 1));
+        assertEquals(34, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 2));
+        assertEquals(34, countCells(pgs, c -> c.myNearestWorker != null && c.myNearestWorker.pathLenEmptyCellsToThisCell == 3));
     }
 
     @Test

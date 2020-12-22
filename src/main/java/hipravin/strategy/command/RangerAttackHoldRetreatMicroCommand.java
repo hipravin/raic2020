@@ -207,7 +207,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
     public Optional<Position2d> betterToAttackWorkersOutSide(GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
         if (pgs.isRound1() || pgs.isRound2()) {
-            return null;
+            return Optional.empty();
         }
 
         Position2d rp = pgs.getEntityIdToCell().get(rangerEntityId).getPosition();

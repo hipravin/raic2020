@@ -22,8 +22,8 @@ public class GameStateParserDjkstra {//wide search actually
 
 
     public static Map<Position2d, NearestEntity> shortWideSearch(ParsedGameState pgs, Set<Position2d> additionalNotEmptyCells,
-                                                  Set<Position2d> startPositions,
-                                                  int maxPathLen, boolean ignoreFog, boolean ignoreUnits, Set<Position2d> additionalEmpty) {
+                                                                 Set<Position2d> startPositions,
+                                                                 int maxPathLen, boolean ignoreFog, boolean ignoreUnits, Set<Position2d> additionalEmpty) {
         Map<Position2d, NearestEntity> result = new HashMap<>();
 
         Set<Position2d> visited = new HashSet<>();
@@ -41,20 +41,35 @@ public class GameStateParserDjkstra {//wide search actually
             for (Position2d curPathLenPos : currentSet) {
                 final int pathLen = len;
 
-                List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
-                                p -> ignoreFog || pgs.at(p).test(c -> !c.fog || c.isFogEdge),
-                                p -> !result.containsKey(p) || result.get(p).pathLenEmptyCellsToThisCell > pathLen,
-                                p -> !visited.contains(p)
-                                );
+                for (Position2d p : Position2dUtil.upRightLeftDownWithinMap(curPathLenPos)) {
+                    Cell cell = pgs.at(p);
 
-                neighbourstoAdd.forEach(p -> {
-                    visited.add(p);
-                    Cell atP  = pgs.at(p);
-                    result.put(p, result.get(curPathLenPos).pathPlus1(atP));
-                    if((pgs.at(p).isEmpty || ignoreUnits && pgs.at(p).isUnit || additionalEmpty.contains(p)) && !additionalNotEmptyCells.contains(p)) {
-                        nextCurrentSet.add(p);
+                    if ((ignoreFog || cell.test(c -> !c.fog || c.isFogEdge))
+                            && (!result.containsKey(p) || result.get(p).pathLenEmptyCellsToThisCell > pathLen)
+                            && (!visited.contains(p))) {
+                        visited.add(p);
+                        Cell atP = cell;
+                        result.put(p, result.get(curPathLenPos).pathPlus1(atP));
+                        if ((cell.isEmpty || ignoreUnits && cell.isUnit || additionalEmpty.contains(p)) && !additionalNotEmptyCells.contains(p)) {
+                            nextCurrentSet.add(p);
+                        }
                     }
-                });
+                }
+
+//                List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
+//                        p -> ignoreFog || pgs.at(p).test(c -> !c.fog || c.isFogEdge),
+//                        p -> !result.containsKey(p) || result.get(p).pathLenEmptyCellsToThisCell > pathLen,
+//                        p -> !visited.contains(p)
+//                );
+//
+//                neighbourstoAdd.forEach(p -> {
+//                    visited.add(p);
+//                    Cell atP = pgs.at(p);
+//                    result.put(p, result.get(curPathLenPos).pathPlus1(atP));
+//                    if ((pgs.at(p).isEmpty || ignoreUnits && pgs.at(p).isUnit || additionalEmpty.contains(p)) && !additionalNotEmptyCells.contains(p)) {
+//                        nextCurrentSet.add(p);
+//                    }
+//                });
             }
             currentSet.clear();
             currentSet.addAll(nextCurrentSet);
@@ -86,21 +101,36 @@ public class GameStateParserDjkstra {//wide search actually
             for (Position2d curPathLenPos : currentSet) {
                 final int pathLen = len;
 
-                List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
+                for (Position2d p : Position2dUtil.upRightLeftDownWithinMap(curPathLenPos)) {
+                    Cell cell = pgs.at(p);
 
-                                p -> pgs.at(p).test(c -> c.isEmpty || c.isMyWorker()),
-                                p -> pgs.at(p).nearestMineralField == null || pgs.at(p).nearestMineralField.pathLenEmptyCellsToThisCell > pathLen,
-                                p -> !visited.contains(p)
-                                );
+                    if (cell.test(c -> c.isEmpty || c.isMyWorker())
+                            && cell.test(c -> c.nearestMineralField == null || c.nearestMineralField.pathLenEmptyCellsToThisCell > pathLen)
+                            && !visited.contains(p)) {
 
-                neighbourstoAdd.forEach(p -> {
-                    visited.add(p);
-                    Cell atP  = pgs.at(p);
-                    atP.nearestMineralField = pgs.at(curPathLenPos).nearestMineralField.pathPlus1(atP);
-                    if(!pgs.at(p).isMyWorker()) {
-                        nextCurrentSet.add(p);
+                        visited.add(p);
+                        Cell atP = pgs.at(p);
+                        atP.nearestMineralField = pgs.at(curPathLenPos).nearestMineralField.pathPlus1(atP);
+                        if (!cell.isMyWorker() && !cell.isMineral) {
+                            nextCurrentSet.add(p);
+                        }
                     }
-                });
+                }
+//                List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
+//
+//                                p -> pgs.at(p).test(c -> c.isEmpty || c.isMyWorker()),
+//                                p -> pgs.at(p).nearestMineralField == null || pgs.at(p).nearestMineralField.pathLenEmptyCellsToThisCell > pathLen,
+//                                p -> !visited.contains(p)
+//                                );
+//
+//                neighbourstoAdd.forEach(p -> {
+//                    visited.add(p);
+//                    Cell atP  = pgs.at(p);
+//                    atP.nearestMineralField = pgs.at(curPathLenPos).nearestMineralField.pathPlus1(atP);
+//                    if(!pgs.at(p).isMyWorker()) {
+//                        nextCurrentSet.add(p);
+//                    }
+//                });
             }
             currentSet.clear();
             currentSet.addAll(nextCurrentSet);
@@ -129,16 +159,16 @@ public class GameStateParserDjkstra {//wide search actually
             for (Position2d curPathLenPos : currentSet) {
                 final int pathLen = len;
                 List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
-                                p -> pgs.at(p).myNearestWorker == null || pgs.at(p).myNearestWorker.pathLenEmptyCellsToThisCell > pathLen,
-                                p -> !visited.contains(p)
-                                );
+                        p -> pgs.at(p).myNearestWorker == null || pgs.at(p).myNearestWorker.pathLenEmptyCellsToThisCell > pathLen,
+                        p -> !visited.contains(p)
+                );
 
                 neighbourstoAdd.forEach(p -> {
                     visited.add(p);
-                    Cell atP  = pgs.at(p);
+                    Cell atP = pgs.at(p);
                     atP.myNearestWorker = pgs.at(curPathLenPos).myNearestWorker.pathPlus1(atP);
 
-                    if(pgs.at(p).isEmpty) {
+                    if (pgs.at(p).isEmpty) {
                         nextCurrentSet.add(p);
                     }
                 });

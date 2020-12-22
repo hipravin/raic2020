@@ -231,6 +231,14 @@ public abstract class Position2dUtil {
             {0, -1}
     };
 
+    public static Position2d[] upRightLeftDownWithinMap(Position2d p) {
+        if(p.x > 0 && p.y > 0 && p.x < Position2dUtil.MAP_SIZE -1 && p.y < Position2dUtil.MAP_SIZE - 1) {
+            return new Position2d[] {p.shift(0, 1), p.shift(1, 0), p.shift(-1, 0), p.shift(0, -1)};
+        }
+
+        return  upRightLeftDownFiltered(p, Position2dUtil::isPositionWithinMapBorder).toArray(new Position2d[0]);
+    }
+
     public static List<Position2d> upRightLeftDownFiltered(Position2d p, Predicate<? super Position2d>... filters) {
         List<Position2d> pfiltered = new ArrayList<>(4);
 
