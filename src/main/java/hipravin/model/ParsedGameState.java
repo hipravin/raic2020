@@ -19,6 +19,7 @@ public class ParsedGameState {
     Population population;
 
     Map<Integer, Building> buildingsByEntityId;
+    List<Building> myBuildings;
     Map<Integer, Cell> myWorkers;
     Map<Integer, Cell> oppWorkers = new HashMap<>();
     Map<Integer, Cell> myRangers;
@@ -250,10 +251,8 @@ public class ParsedGameState {
                 .collect(Collectors.toList());
     }
 
-    public List<Building> findAllMyBuildings() {
-        return buildingsByEntityId.values().stream()
-                .filter(Building::isMyBuilding)
-                .collect(Collectors.toList());
+    public List<Building> getAllMyBuildings() {
+        return myBuildings;
     }
 
     public Player getMyPlayer() {

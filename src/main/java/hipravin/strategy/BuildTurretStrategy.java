@@ -154,7 +154,7 @@ public class BuildTurretStrategy implements SubStrategy {
     }
 
     static boolean doesntTouchOtherBuildings(Position2d corner, int size, ParsedGameState pgs) {
-        return pgs.findAllMyBuildings()
+        return pgs.getAllMyBuildings()
                 .stream().allMatch(b ->
                         buildingsHaveSpaceInBetween(corner, size,
                                 b.getCornerCell().getPosition(), b.getCornerCell().getBuildingSize()));

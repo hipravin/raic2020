@@ -85,6 +85,10 @@ public abstract class GameStateParser {
             //TODO: set all is visible according to sight ranges
         }
 
+        parsedGameState.myBuildings = Collections.unmodifiableList(parsedGameState.buildingsByEntityId.values().stream()
+                .filter(Building::isMyBuilding)
+                .collect(Collectors.toList()));
+
         calculateMapEdge(parsedGameState);
         calculateWorkerXY(parsedGameState);
 
@@ -205,25 +209,31 @@ public abstract class GameStateParser {
     }
 
     static void calculateAttackerCounts(ParsedGameState pgs) {
-        pgs.allCellsAsStream().forEach(c -> {
-            c.totalNearAttackerCount += c.getAttackerCount(5);
-            c.totalNearAttackerCount += c.getAttackerCount(6);
-            c.totalNearAttackerCount += c.getAttackerCount(7);
-            c.totalNearAttackerCount += c.getAttackerCount(8);
-            c.totalNearAttackerCount += c.getAttackerCount(9);
-            c.totalNearAttackerCount += c.getAttackerCount(10);
+        for (int x = 0; x < pgs.cells.length; x++) {
 
-            c.totalNearAttackerCount += c.getTurretAttackerCount(5);
-            c.totalNearAttackerCount += c.getTurretAttackerCount(6);
-            c.totalNearAttackerCount += c.getTurretAttackerCount(7);
-            c.totalNearAttackerCount += c.getTurretAttackerCount(8);
-        });
+            for (int y = 0; y < pgs.cells[x].length; y++) {
+                Cell c = pgs.at(x,y);
+                c.totalNearAttackerCount += c.getAttackerCount(5);
+                c.totalNearAttackerCount += c.getAttackerCount(6);
+                c.totalNearAttackerCount += c.getAttackerCount(7);
+                c.totalNearAttackerCount += c.getAttackerCount(8);
+                c.totalNearAttackerCount += c.getAttackerCount(9);
+                c.totalNearAttackerCount += c.getAttackerCount(10);
 
-        pgs.getBuildingsByEntityId().forEach((id, b) -> {
-            b.setMyBuildingAttackersCount(
-                    b.buildingInnerEdge.stream()
-                            .map(e -> pgs.at(e))
-                            .mapToInt(c -> c.totalNearAttackerCount).sum());
+                c.totalNearAttackerCount += c.getTurretAttackerCount(5);
+                c.totalNearAttackerCount += c.getTurretAttackerCount(6);
+                c.totalNearAttackerCount += c.getTurretAttackerCount(7);
+                c.totalNearAttackerCount += c.getTurretAttackerCount(8);
+            }
+        }
+
+        pgs.getAllMyBuildings().forEach(b -> {
+            int totalAttackers = 0;
+
+            for (Position2d e : b.getBuildingInnerEdge()) {
+                totalAttackers += pgs.at(e).totalNearAttackerCount;
+            }
+            b.setMyBuildingAttackersCount(totalAttackers);
         });
     }
 
@@ -650,7 +660,7 @@ public abstract class GameStateParser {
         }
 
 
-        for (Building building : pgs.findAllMyBuildings()) {
+        for (Building building : pgs.getAllMyBuildings()) {
             int sightRange = pgs.getPlayerView().getEntityProperties().get(building.cornerCell.getEntityType()).getSightRange();
 
             for (Position2d edge : building.getBuildingInnerEdge()) {
