@@ -21,6 +21,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
     boolean randomMover = false;
 
+
     Position2d retreatPosition;
     int xshift = 0;
     int yshift = 0;
@@ -278,7 +279,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
                 attackPosition = switchAttackPosition;
                 switchAttackPosition = null;
             } else if (nearestEnemyEntity
-                    .map(p -> p.lenShiftSum(rp) < 12).orElse(false)) {
+                    .map(p -> p.lenShiftSum(rp) <= 20).orElse(false)) {
                 attackPosition = nearestEnemyEntity.orElse(Position2dUtil.randomMapPosition());
             } else if (attackPosition.equals(strategyParams.attackPoints.get(0))) {
                 attackPosition = nearestEnemyEntity.orElse(Position2dUtil.randomMapPosition());
@@ -304,7 +305,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
         int enemyCount = countEnemyRangersNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams)
                 + countEnemySwordmansNearby(rp, strategyParams.attackHoldEnemyRange, gameHistoryState, pgs, strategyParams);
-        int myCount = countMyRangersNearby(rp, strategyParams.attackHoldMyRange, gameHistoryState, pgs, strategyParams);
+        int myCount = countMyRangersNearby(rp, strategyParams.attackHoldMyRange, gameHistoryState, pgs, strategyParams) + 1;
         int myCountTurretsRange6 = countMyRangersNearbyTurretRange6(rp, strategyParams.attackHoldMyRange, gameHistoryState, pgs, strategyParams);
 
         int myCountNearRange6 = countMyRangersCLoseRange6(rc.getPosition(), gameHistoryState, pgs, strategyParams);
@@ -319,7 +320,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
 
 
-        if((rc.getAttackerCount(6) >= 1 || rc.getAttackerCount(7) >=1)  && myCount < 1 && enemyCount > 1) {
+        if((rc.getAttackerCount(6) >= 1 || rc.getAttackerCount(7) >=1)  && myCount <= 1 && enemyCount > 1) {
             updateRetreat(gameHistoryState, pgs, strategyParams, assignedActions);
         } else if (rc.getAttackerCount(6) > 1 && p61 != null && !strategyParams.neverHold) {
             DebugOut.println("Ranger move 61: " + rp + "->" + p61);

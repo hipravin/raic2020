@@ -40,8 +40,8 @@ public class StrategyParams {
     public boolean neverHold = false;
 
 
-    //    public static Position2d DESIRED_BARRACK = of(33, 33);
-    public static Position2d DESIRED_BARRACK = of(13, 13);
+        public static Position2d DESIRED_BARRACK = of(33, 33);
+//    public static Position2d DESIRED_BARRACK = of(13, 13);
     public static Position2d sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(9, 9);
 
     public static final int MAP_CORNER_SIZE = 10;
@@ -335,32 +335,33 @@ public class StrategyParams {
 
     }
 
-//    public void activateOption2() {//super fast home
-//        GameHistoryAndSharedState.random.nextInt();
-//
-//        populationOfWorkersToBuildBeforeRangers = 20;
-//
-//        rangerCountToAddSomeWorkers = 10;
-//
-//        DESIRED_BARRACK = of(25, 25);
-//        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
-//
-//        sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
-//
-//        attackEnemyMineralsOnHold = false;
-//
-//        randomAttackPositionShift = 0;
-//        useWorkerDefendingTurrets = false;
-//    }
+    public void activateOption2() {//super fast home
+        GameHistoryAndSharedState.random.nextInt();
+
+        populationOfWorkersToBuildBeforeRangers = 20;
+
+        rangerCountToAddSomeWorkers = 10;
+
+        DESIRED_BARRACK = of(25, 25);
+        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
+
+        sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
+
+        attackEnemyMineralsOnHold = false;
+
+        randomAttackPositionShift = 0;
+        useWorkerDefendingTurrets = false;
+    }
 //    public void activateOption2() {//super economy
 //        GameHistoryAndSharedState.random.nextInt();
 //
-//        populationOfWorkersToBuildBeforeRangers = 55;
+//        populationOfWorkersToBuildBeforeRangers = 50;
 //
 //        rangerCountToAddSomeWorkers = 30;
 //
-//        DESIRED_BARRACK = of(10, 10);
+//        DESIRED_BARRACK = of(15, 15);
 //        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
+//        sendToCenterWorkerNumbers = Set.of(19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31);
 //
 //        attackPoints = List.of(of(76, 76));
 //        attackPointRates = List.of(1.0);
@@ -374,12 +375,6 @@ public class StrategyParams {
 //        useWorkerDefendingTurrets = true;
 //    }
 
-    public void activateOption2() {
-//        maxNumberOfRangers = 100;
-//        useRangerHealing = false;
-
-
-    }
 
     public void activateRound1() {
         StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 7;
