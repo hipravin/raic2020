@@ -1,10 +1,12 @@
 package hipravin.strategy;
 
+import hipravin.DebugOut;
 import hipravin.model.*;
 import hipravin.strategy.command.*;
 import model.*;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static hipravin.model.Position2d.of;
@@ -58,10 +60,12 @@ public class AutomineFallbackStrategy implements SubStrategy {
                 .collect(Collectors.toList());
 
         currentParsedGameState.getMyWorkers().forEach((id, wc) -> {
-            if (!handleRunAway(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
-                if (!busyEntities.contains(id)) {
-                    if (!handleNoCloseMinerals(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
-                        justMine(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+            if(!handleAutoRepairRanger(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
+                if (!handleRunAway(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
+                    if (!busyEntities.contains(id)) {
+                        if (!handleNoCloseMinerals(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions)) {
+                            justMine(wc.getEntity(), gameHistoryState, currentParsedGameState, strategyParams, assignedActions);
+                        }
                     }
                 }
             }
@@ -127,6 +131,41 @@ public class AutomineFallbackStrategy implements SubStrategy {
         }
     }
 
+    public Optional<Position2d> closestNotAttackedMineral(Position2d wp, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                                          StrategyParams strategyParams) {
+        return Arrays.stream(pgs.getPlayerView().getEntities())
+                .filter(e -> e.getEntityType() == EntityType.RESOURCE)
+                .filter(e -> pgs.at(e.getPosition()).getTotalNearAttackerCount() == 0)
+                .filter(e -> pgs.at(e.getPosition()).getTurretAttackerCount(5) == 0)
+                .min(Comparator.comparingInt(e -> wp.lenShiftSum(e.getPosition())))
+                .map(e -> of(e.getPosition()));
+    }
+
+
+    public boolean handleAutoRepairRanger(Entity w, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
+                                 StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
+
+        if(!strategyParams.useRangerHealing) {
+            return false;
+        }
+
+        Optional<Position2d> rangerToHeal = Position2dUtil.upRightLeftDownFiltered(of(w.getPosition()),
+                p -> pgs.at(p).test(c -> c.isMyRanger() && c.getHealthLeft() < 6))
+                .stream().max(Comparator.comparingInt(p -> pgs.at(p).getHealthLeft()));
+
+        if(rangerToHeal.isPresent()) {
+            DebugOut.println("worker decided to heal ranger: " + rangerToHeal.get());
+
+            Command healRanger = new RangerRepairCommand(pgs.at(rangerToHeal.get()).getEntity().getId(), w.getId(),
+                    pgs, strategyParams);
+            gameHistoryState.addOngoingCommand(healRanger, true);
+
+            return true;
+        }
+        return false;
+    }
+
+
     public boolean handleRunAway(Entity w, GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs,
                                  StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         Entity rangBase = pgs.getMyRangerBase();
@@ -138,10 +177,15 @@ public class AutomineFallbackStrategy implements SubStrategy {
                             || c.getAttackerCount(7) > 0
                             || c.getAttackerCount(6) > 0
                             || c.getAttackerCount(5) > 0
+                            || c.getTurretAttackerCount(5) > 0
+                            || c.getTurretAttackerCount(6) > 0
             )) {
 
                 Position2d wp = of(w.getPosition());
-                Position2d nearestEnemy = nearestEnemyUnitToPosition(of(w.getPosition()), pgs).orElse(null);
+                Position2d nearestEnemy = nearestEnemyUnitToPosition(wp, pgs).orElse(null);
+                if(nearestEnemy == null) {
+                    nearestEnemy = closestTurretShortRange(wp, gameHistoryState, pgs, strategyParams).orElse(null);
+                }
 
                 if (nearestEnemy != null) {
                     Position2d runTo = Position2dUtil.runAwayDoubleDistance(wp, nearestEnemy);
@@ -173,7 +217,20 @@ public class AutomineFallbackStrategy implements SubStrategy {
                 .min(Comparator.comparingInt(p -> p.lenShiftSum(toPosition)));
 
     }
+    public Optional<Position2d> closestTurretShortRange(Position2d wp,
+                                         GameHistoryAndSharedState gameHistoryState, ParsedGameState pgs, StrategyParams strategyParams) {
+        List<Position2d> turretCells = new ArrayList<>();
 
+        Position2dUtil.iterAllPositionsInRangeExclusive(wp, 7, p -> {
+            if (pgs.at(p).test(c -> c.isBuilding()
+                    && c.getEntityType() == EntityType.TURRET && c.getEntity().isActive() && !c.isMyEntity())) {
+                turretCells.add(p);
+            }
+        });
+
+        return turretCells.stream()
+                .min(Comparator.comparingInt(p -> wp.lenShiftSum(p)));
+    }
     public void justMine(Entity w, GameHistoryAndSharedState gameHistoryState, ParsedGameState currentParsedGameState,
                          StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         EntityAction autoAttack = new EntityAction();

@@ -139,7 +139,14 @@ public class RootStrategy extends MyStrategy {
         trackChanges();
         removeCompletedOrStaleCommands();
 
+        if(strategyParams.useRangerHealing) {
 
+            boolean hasDamagedRangers = currentParsedGameState.getMyRangers().values().stream().anyMatch(c -> c.getHealthLeft() < 6);
+
+            if(hasDamagedRangers) {
+                GameStateParserDjkstra.computeMyNonUniqueNearestWorkers(currentParsedGameState);
+            }
+        }
     }
 
     void trackChanges() {
@@ -272,6 +279,11 @@ public class RootStrategy extends MyStrategy {
 
             afterParse = Instant.now();
 
+            if(currentParsedGameState.getMyRangerBase() != null && currentParsedGameState.getEstimatedResourceAfterTicks(0) > strategyParams.turretsExtraMoney) {
+                strategyParams.useWorkerDefendingTurrets = true;
+            } else {
+                strategyParams.useWorkerDefendingTurrets = false;
+            }
 
             Action decision = combineDecisions();
             updateGameHistoryState(decision);

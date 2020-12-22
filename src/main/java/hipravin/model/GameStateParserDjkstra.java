@@ -129,7 +129,6 @@ public class GameStateParserDjkstra {//wide search actually
             for (Position2d curPathLenPos : currentSet) {
                 final int pathLen = len;
                 List<Position2d> neighbourstoAdd = Position2dUtil.upRightLeftDownFiltered(curPathLenPos,
-                                p -> pgs.at(p).isEmpty,
                                 p -> pgs.at(p).myNearestWorker == null || pgs.at(p).myNearestWorker.pathLenEmptyCellsToThisCell > pathLen,
                                 p -> !visited.contains(p)
                                 );
@@ -139,7 +138,9 @@ public class GameStateParserDjkstra {//wide search actually
                     Cell atP  = pgs.at(p);
                     atP.myNearestWorker = pgs.at(curPathLenPos).myNearestWorker.pathPlus1(atP);
 
-                    nextCurrentSet.add(p);
+                    if(pgs.at(p).isEmpty) {
+                        nextCurrentSet.add(p);
+                    }
                 });
             }
             currentSet.clear();

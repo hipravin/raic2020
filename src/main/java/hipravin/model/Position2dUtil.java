@@ -65,6 +65,14 @@ public abstract class Position2dUtil {
 
         return crop(runTo);
     }
+    public static Position2d runAwayABit(Position2d unit, Position2d runFrom) {
+        int dx = runFrom.x - unit.x;
+        int dy = runFrom.y - unit.y;
+
+        Position2d runTo = unit.shift(-dx / 2, -dy / 2);
+
+        return crop(runTo);
+    }
 
     public static Position2d randomShift(Position2d p, int shift) {
         if (shift == 0) {
@@ -230,6 +238,21 @@ public abstract class Position2dUtil {
         withingMapBorderAndPassesAllFilters(p.shift(1, 0), pfiltered, filters);
         withingMapBorderAndPassesAllFilters(p.shift(-1, 0), pfiltered, filters);
         withingMapBorderAndPassesAllFilters(p.shift(0, -1), pfiltered, filters);
+
+        return pfiltered;
+    }
+
+    public static List<Position2d> upRightLeftDownDiagsFiltered(Position2d p, Predicate<? super Position2d>... filters) {
+        List<Position2d> pfiltered = new ArrayList<>(4);
+
+        withingMapBorderAndPassesAllFilters(p.shift(0, 1), pfiltered, filters);
+        withingMapBorderAndPassesAllFilters(p.shift(1, 0), pfiltered, filters);
+        withingMapBorderAndPassesAllFilters(p.shift(-1, 0), pfiltered, filters);
+        withingMapBorderAndPassesAllFilters(p.shift(0, -1), pfiltered, filters);
+        withingMapBorderAndPassesAllFilters(p.shift(1, 1), pfiltered, filters);
+        withingMapBorderAndPassesAllFilters(p.shift(1, -1), pfiltered, filters);
+        withingMapBorderAndPassesAllFilters(p.shift(-1, 1), pfiltered, filters);
+        withingMapBorderAndPassesAllFilters(p.shift(-1, -1), pfiltered, filters);
 
         return pfiltered;
     }

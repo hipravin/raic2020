@@ -7,6 +7,61 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RootStrategyReplaySampleTickTest {
     @Test
+    void test72hold() {
+        RootStrategy strategy = new RootStrategy();
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3,19,259);
+
+        Action action = strategy.getAction(get0.getPlayerView(), null);
+
+
+        System.out.println(action.getEntityActions().size());
+
+        //standing?
+//        Ongonig:RangerAttackHoldRetreatCommand{rangerEntityId=4565, attackPosition=(7,15), retreatPosition=(17,12)}
+//        Ongonig:RangerAttackHoldRetreatCommand{rangerEntityId=4556, attackPosition=(8,21), retreatPosition=(18,15)}
+//        Ongonig:RangerAttackHoldRetreatCommand{rangerEntityId=4580, attackPosition=(9,20), retreatPosition=(19,13)}
+
+    }
+
+
+    @Test
+    void test61hold() {
+        RootStrategy strategy = new RootStrategy();
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3,19,238);
+
+        Action action = strategy.getAction(get0.getPlayerView(), null);
+
+        assertEquals(0, strategy.currentParsedGameState.at(37,38).getAttackerCount(5));
+        assertEquals(1, strategy.currentParsedGameState.at(37,38).getAttackerCount(6));
+        assertEquals(1, strategy.currentParsedGameState.at(37,38).getAttackerCount(7));
+
+        System.out.println(action.getEntityActions().size());
+
+        //standing?
+//        Ongonig:RangerAttackHoldRetreatCommand{rangerEntityId=4565, attackPosition=(7,15), retreatPosition=(17,12)}
+//        Ongonig:RangerAttackHoldRetreatCommand{rangerEntityId=4556, attackPosition=(8,21), retreatPosition=(18,15)}
+//        Ongonig:RangerAttackHoldRetreatCommand{rangerEntityId=4580, attackPosition=(9,20), retreatPosition=(19,13)}
+
+    }
+
+
+    @Test
+    void tesheal() {
+        RootStrategy strategy = new RootStrategy();
+        ServerMessage.GetAction get0 = TestServerUtil.readGet(3,19,371);
+
+        Action action = strategy.getAction(get0.getPlayerView(), null);
+
+        System.out.println(action.getEntityActions().size());
+
+        //standing?
+//        Ongonig:RangerAttackHoldRetreatCommand{rangerEntityId=4565, attackPosition=(7,15), retreatPosition=(17,12)}
+//        Ongonig:RangerAttackHoldRetreatCommand{rangerEntityId=4556, attackPosition=(8,21), retreatPosition=(18,15)}
+//        Ongonig:RangerAttackHoldRetreatCommand{rangerEntityId=4580, attackPosition=(9,20), retreatPosition=(19,13)}
+
+    }
+
+    @Test
     void tesCountTurret6() {
         RootStrategy strategy = new RootStrategy();
         ServerMessage.GetAction get0 = TestServerUtil.readGet(3,19,890);

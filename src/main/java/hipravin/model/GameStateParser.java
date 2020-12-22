@@ -100,6 +100,7 @@ public abstract class GameStateParser {
 
         calculateNeighbourMineralsAndWorkers(parsedGameState);
 
+
 //        GameStateParserDjkstra.computeMyNonUniqueNearestWorkers(parsedGameState); //only when requested
         GameStateParserDjkstra.computeClosestMinerals(parsedGameState);
 

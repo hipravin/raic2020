@@ -35,7 +35,13 @@ public class StrategyParams {
     public int desperateRangeBasePlacementTick = 210;
     public int agonyRangeBasePlacementTick = 230;
 
-    public static Position2d DESIRED_BARRACK = of(33, 33);
+    public boolean useRangerHealing = true;
+    public boolean useRangerPairing = true;
+    public boolean neverHold = false;
+
+
+    //    public static Position2d DESIRED_BARRACK = of(33, 33);
+    public static Position2d DESIRED_BARRACK = of(13, 13);
     public static Position2d sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(9, 9);
 
     public static final int MAP_CORNER_SIZE = 10;
@@ -45,7 +51,7 @@ public class StrategyParams {
     public int workerAttackSwitchMinWorkers = 3;
     public int outsideLine = 40;
 
-    public EntityType[] attackPriorities = new EntityType[] {
+    public EntityType[] attackPriorities = new EntityType[]{
             EntityType.RANGED_UNIT,
             EntityType.MELEE_UNIT,
             EntityType.TURRET,
@@ -60,7 +66,7 @@ public class StrategyParams {
 
     public EntityType[] selectBestTargetTypesAccordingPriorities(EnumSet<EntityType> available) {
         for (EntityType entityType : attackPriorities) {
-            if(available.contains(entityType)) {
+            if (available.contains(entityType)) {
                 return new EntityType[]{entityType};
             }
         }
@@ -138,7 +144,7 @@ public class StrategyParams {
     public double defendArmyOvercomeRatio = 1.5;
 
     public boolean useWorkerDefendingTurrets = false;//worker nearest to enemy cc or rang base requets turret
-    public int turretsFrequency = 7;
+    public int turretsFrequency = 6;
     public int turretsMinRangers = 15;
 
     public int turretMinMinerals = 50;
@@ -155,9 +161,11 @@ public class StrategyParams {
 
     //    public int populationOfWorkersToBuildBeforeRangers = 60;
 
-    public int maxNumberOfRangers = 100;
+    public int maxNumberOfRangers = 40;
     public int extraMoney = 100;
     public int insaneExtraMoney = 500;
+    public int turretsExtraMoney = 1000;
+
     public int outOfMoney = 100;
     public int outOfPopulation = 5;
 
@@ -167,7 +175,6 @@ public class StrategyParams {
     public int magnetMaxToSinglePointOthers = 1;
 
     public int numberOfRandomScoutChoices = 20;
-
 
 
     public boolean useWorkerPush = true;
@@ -328,27 +335,27 @@ public class StrategyParams {
 
     }
 
-    public void activateOption2() {//super fast home
-        GameHistoryAndSharedState.random.nextInt();
-
-        populationOfWorkersToBuildBeforeRangers = 20;
-
-        rangerCountToAddSomeWorkers = 10;
-
-        DESIRED_BARRACK = of(25, 25);
-        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
-
-        sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
-
-        attackEnemyMineralsOnHold = false;
-
-        randomAttackPositionShift = 0;
-        useWorkerDefendingTurrets = false;
-    }
+//    public void activateOption2() {//super fast home
+//        GameHistoryAndSharedState.random.nextInt();
+//
+//        populationOfWorkersToBuildBeforeRangers = 20;
+//
+//        rangerCountToAddSomeWorkers = 10;
+//
+//        DESIRED_BARRACK = of(25, 25);
+//        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
+//
+//        sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
+//
+//        attackEnemyMineralsOnHold = false;
+//
+//        randomAttackPositionShift = 0;
+//        useWorkerDefendingTurrets = false;
+//    }
 //    public void activateOption2() {//super economy
 //        GameHistoryAndSharedState.random.nextInt();
 //
-//        populationOfWorkersToBuildBeforeRangers = 50;
+//        populationOfWorkersToBuildBeforeRangers = 55;
 //
 //        rangerCountToAddSomeWorkers = 30;
 //
@@ -367,9 +374,19 @@ public class StrategyParams {
 //        useWorkerDefendingTurrets = true;
 //    }
 
+    public void activateOption2() {
+//        maxNumberOfRangers = 100;
+//        useRangerHealing = false;
+
+
+    }
+
     public void activateRound1() {
         StrategyParams.NEAREST_MINERALS_COMPUTE_PATH_LIMIT = 7;
         StrategyParams.NEAREST_WORKERS_COMPUTE_PATH_LIMIT = 15;
+
+        useRangerHealing = false;
+
 
         populationOfWorkersToBuildAfterRangers = 60;
         populationOfWorkersToBuildBeforeRangers = 15;
@@ -395,13 +412,14 @@ public class StrategyParams {
     public void activateRound2() {
         scoutProb = 0;
 
+        useRangerHealing = false;
         populationOfWorkersToBuildBeforeRangers = 40;
         populationOfWorkersToBuildAfterRangers = 60;
 
         DESIRED_BARRACK = of(13, 13);
         sendToCenterWorkerNumbers = Set.of(30, 31, 32, 33, 34, 35, 36, 37, 38, 39);
 
-        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6,6);
+        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
 
         minHouseDistanceToCenter = 3;
         useWorkerFollow = false;
