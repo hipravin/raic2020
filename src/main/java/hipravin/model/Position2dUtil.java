@@ -112,6 +112,26 @@ public abstract class Position2dUtil {
         return crop(of((int) (from.x + dx * div), (int) (from.y + dy * div)));
     }
 
+    public static Position2d limitWayToLine(Position2d from, Position2d to, int len) {
+        int dx = to.x - from.x;
+        int dy = to.y - from.y;
+
+        if(Math.abs(dx) > Math.abs(dy)) {
+            dy = 0;
+        } else {
+            dx = 0;
+        }
+
+        int asum = Math.abs(dx + dy);
+
+        if (asum == 0) {
+            return to;
+        }
+        double div = (double) len / asum;
+
+        return crop(of((int) (from.x + dx * div), (int) (from.y + dy * div)));
+    }
+
     public static void iterAllPositionsInRangeInclusive(Position2d dotPosition, int range, Consumer<Position2d> positionConsumer) {
         positionConsumer.accept(dotPosition);
         iterAllPositionsInRangeExclusive(dotPosition, range, positionConsumer);

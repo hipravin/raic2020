@@ -552,8 +552,10 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
                                   StrategyParams strategyParams, Map<Integer, ValuedEntityAction> assignedActions) {
         switchAttackPosition = attackPosition;
 
-        attackPosition = Position2dUtil.limitWayTo(pgs.getEntityIdToCell().get(rangerEntityId).getPosition(),
-                attackPosition, Position2dUtil.RANGER_RANGE - 4);
+//        attackPosition = Position2dUtil.limitWayTo(pgs.getEntityIdToCell().get(rangerEntityId).getPosition(),
+//                attackPosition, Position2dUtil.RANGER_RANGE);
+        attackPosition = Position2dUtil.limitWayToLine(pgs.getEntityIdToCell().get(rangerEntityId).getPosition(),
+                attackPosition, Position2dUtil.RANGER_RANGE);
         updateAttack(gameHistoryState, pgs, strategyParams, assignedActions);
     }
 

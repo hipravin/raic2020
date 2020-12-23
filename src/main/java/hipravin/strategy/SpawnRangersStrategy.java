@@ -160,9 +160,9 @@ public class SpawnRangersStrategy implements SubStrategy {
             return;
         }
 
-        if (defendMyTerritory(gameHistoryState, pgs, strategyParams, assignedActions)) {
-            return;
-        }
+//        if (defendMyTerritory(gameHistoryState, pgs, strategyParams, assignedActions)) {
+//            return;
+//        }
 
         if ((pgs.isRound1() || pgs.isRound2())
                 && defendMyTerritoryRound12(gameHistoryState, pgs, strategyParams, assignedActions)) {

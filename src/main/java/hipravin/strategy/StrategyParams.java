@@ -116,7 +116,7 @@ public class StrategyParams {
     public int workerScoutToBarrackCloseMinRange = 15;
 
     public int minCountOfRangersBeforeScouts = 15;
-    public int maxNumberOfScouts = 3;
+    public int maxNumberOfScouts = 2;
     public double scoutProb = 0.1;
 
     public int turretsForCleanupRange = 25;
