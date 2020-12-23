@@ -32,8 +32,9 @@ public class StrategyParams {
     public static final int MAX_COMBINATIONS_BF = 2000;
     public static final int FREE_SPACE_COMPUTE_RANGE = 10;
 
-    public int desperateRangeBasePlacementTick = 210;
-    public int agonyRangeBasePlacementTick = 230;
+    public int desperateRangeBasePlacementTick = 215;
+    public int agonyRangeBasePlacementTick = 235;
+    public int lostRangeBasePlacementTick = 255;
 
     public boolean useRangerHealing = true;
     public boolean useRangerPairing = true;
