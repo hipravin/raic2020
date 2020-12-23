@@ -106,8 +106,9 @@ public class StrategyParams {
 
     public int rangerCountToAddSomeWorkers = 10;
 
-    public int workerSpawnDelayIfDead = 20;
-    public int workerSpawnDelayIfDefence = 10;
+    public int workerSpawnDelayIfDead = 10;
+    public int workerSpawnDelayIfDefence = 5;
+    public int workerSpawnDelayIfDefenceRangerCount = 15;
 
     public int workerScoutStartTickShiftAfterRangComplete = 10;
     public int workerScoutFrequency = 10; //pull 1 worker every n ticks
@@ -161,7 +162,7 @@ public class StrategyParams {
 
     //    public int populationOfWorkersToBuildBeforeRangers = 60;
 
-    public int maxNumberOfRangers = 40;
+    public int maxNumberOfRangers = 60;
     public int extraMoney = 100;
     public int insaneExtraMoney = 500;
     public int turretsExtraMoney = 1000;
@@ -213,9 +214,9 @@ public class StrategyParams {
     public int populationOfWorkersToBuildBeforeRangers = 25;// is optimal rush?
     public int populationOfWorkersToBuildBeforeRangersIfSurrounded = 35;
     public int populationOfWorkersToBuildBeforeRangersIfDoubleSurrounded = 50;
-    public int populationOfWorkersToBuildAfterRangers = 60;
+    public int populationOfWorkersToBuildAfterRangers = 65;
     public int populationOfWorkersToIfExtraResources = 80;
-    public int populationOfWorkersToIfInsaneResources = 90;
+    public int populationOfWorkersToIfInsaneResources = 80;
     public boolean useWorkerFollow = true;
 
     public boolean sendToCenter = true;
@@ -335,45 +336,45 @@ public class StrategyParams {
 
     }
 
-    public void activateOption2() {//super fast home
-        GameHistoryAndSharedState.random.nextInt();
-
-        populationOfWorkersToBuildBeforeRangers = 20;
-
-        rangerCountToAddSomeWorkers = 10;
-
-        DESIRED_BARRACK = of(25, 25);
-        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
-
-        sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
-
-        attackEnemyMineralsOnHold = false;
-
-        randomAttackPositionShift = 0;
-        useWorkerDefendingTurrets = false;
-    }
-//    public void activateOption2() {//super economy
+//    public void activateOption2() {//super fast home
 //        GameHistoryAndSharedState.random.nextInt();
 //
-//        populationOfWorkersToBuildBeforeRangers = 50;
+//        populationOfWorkersToBuildBeforeRangers = 20;
 //
-//        rangerCountToAddSomeWorkers = 30;
+//        rangerCountToAddSomeWorkers = 10;
 //
-//        DESIRED_BARRACK = of(15, 15);
+//        DESIRED_BARRACK = of(25, 25);
 //        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
-//        sendToCenterWorkerNumbers = Set.of(19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31);
 //
-//        attackPoints = List.of(of(76, 76));
-//        attackPointRates = List.of(1.0);
-//
-//
-//        sendToCenterWorkerNumbers = Set.of();
+//        sendToCenterWorkerNumbers = Set.of(13, 14, 15, 16, 17, 18, 19, 20);
 //
 //        attackEnemyMineralsOnHold = false;
 //
 //        randomAttackPositionShift = 0;
-//        useWorkerDefendingTurrets = true;
+//        useWorkerDefendingTurrets = false;
 //    }
+    public void activateOption2() {//super economy
+        GameHistoryAndSharedState.random.nextInt();
+
+        populationOfWorkersToBuildBeforeRangers = 40;
+
+        rangerCountToAddSomeWorkers = 30;
+
+        DESIRED_BARRACK = of(20, 20);
+        sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
+        sendToCenterWorkerNumbers = Set.of(29,30,31,32,33,34,35,36,37,38,39);
+
+        attackPoints = List.of(of(76, 76));
+        attackPointRates = List.of(1.0);
+
+
+        sendToCenterWorkerNumbers = Set.of();
+
+        attackEnemyMineralsOnHold = false;
+
+        randomAttackPositionShift = 0;
+        useWorkerDefendingTurrets = true;
+    }
 
 
     public void activateRound1() {

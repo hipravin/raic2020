@@ -31,6 +31,7 @@ public class SpawnWorkersStrategy implements SubStrategy {
         }
 
         if(gameHistoryState.getLastDefenceTick() + strategyParams.workerSpawnDelayIfDefence > pgs.curTick()
+                && pgs.getMyRangers().size() < strategyParams.workerSpawnDelayIfDefenceRangerCount
                 && !haveExtraResources(pgs, gameHistoryState, strategyParams)) {
             DebugOut.println("Don't spawn worker, delayed until (def): " +
                     (gameHistoryState.getLastDefenceTick() + strategyParams.workerSpawnDelayIfDefence));

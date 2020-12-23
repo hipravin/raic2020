@@ -215,7 +215,7 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         Optional<Position2d> workerToAttack = pgs.getOppWorkers().values().stream()
                 .filter(c -> Position2dUtil.isPositionOutside(c.getPosition(), strategyParams.outsideLine))
                 .filter(c -> c.getRange5enemyWorkers() >= strategyParams.workerAttackSwitchMinWorkers)
-                .filter(c -> c.getPosition().lenShiftSum(rp) * 1.2 < rp.lenShiftSum(attackPosition))
+                .filter(c -> c.getPosition().lenShiftSum(rp) * 1.5 < rp.lenShiftSum(attackPosition))
                 .filter(c -> {
 
                     int enemies = SpawnRangersStrategy.countEnemyArmyNearby(c.getPosition(), strategyParams.workerHarrassClosenessRange, gameHistoryState, pgs, strategyParams);
@@ -620,6 +620,9 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
 
         if (nearestEnemy != null) {
             Position2d runTo = Position2dUtil.runAwayABit(rp, nearestEnemy);
+            if(!pgs.at(runTo).isEmpty()) {
+                runTo = Position2dUtil.runAwayDoubleDistance(rp, nearestEnemy);
+            }
 
             DebugOut.println("Ranger retreat: " + rp + " ->" + runTo);
             autoAttack.setMoveAction(new MoveAction(runTo.toVec2dInt(), true, true));

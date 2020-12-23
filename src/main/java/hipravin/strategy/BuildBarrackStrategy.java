@@ -41,6 +41,7 @@ public class BuildBarrackStrategy implements SubStrategy {
         int ct = pgs.curTick();
         boolean desperate = ct > strategyParams.desperateRangeBasePlacementTick;
         boolean agony = ct > strategyParams.agonyRangeBasePlacementTick;
+        boolean lost = ct > 250;
 
 
         boolean success =
@@ -54,6 +55,7 @@ public class BuildBarrackStrategy implements SubStrategy {
                         || desperate && tryToBuildBarrackShortDistance(5, distance, 30, gameHistoryState, pgs, strategyParams, false)
                         || agony && tryToBuildBarrackShortDistance(5, distance, 100, gameHistoryState, pgs, strategyParams, true)
                         || agony && tryToBuildBarrackShortDistance(5, distance, 100, gameHistoryState, pgs, strategyParams, false)
+                        || lost && tryToBuildBarrackShortDistance(1, distance, 100, gameHistoryState, pgs, strategyParams, false)
 //                        || tryToBuildBarrackShortDistance(5, distance, 40, gameHistoryState, pgs, strategyParams, true)
 //                        || tryToBuildBarrackShortDistance(5, distance, 40, gameHistoryState, pgs, strategyParams, false)
                 ;
