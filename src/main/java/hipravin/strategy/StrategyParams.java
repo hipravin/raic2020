@@ -85,7 +85,7 @@ public class StrategyParams {
     public int moveTowardsMineralsDistanceTreshold = 6;
     public boolean useAttackHoldOverCountTreshold = true;
     public int attackHoldEnemyRange = 10;
-    public int attackHoldMyRange = 8;
+    public int attackHoldMyRange = 10;
     public double attackOverCountTreshhold = 1.2;
 
 

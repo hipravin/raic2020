@@ -318,17 +318,19 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
         Position2d p61 = find61(rp, gameHistoryState, pgs);
         Position2d better6 = findBetter6(rp, gameHistoryState, pgs);
 
-
-
         if((rc.getAttackerCount(6) >= 1 || rc.getAttackerCount(7) >=1)  && myCount <= 1 && enemyCount > 1) {
             updateRetreat(gameHistoryState, pgs, strategyParams, assignedActions);
-        } else if (rc.getAttackerCount(6) > 1 && p61 != null && !strategyParams.neverHold) {
+        } else if (rc.getAttackerCount(6) > 1 && p61 != null
+                && p61.lenShiftSum(attackPosition) <= rp.lenShiftSum(attackPosition) && !strategyParams.neverHold) {
             DebugOut.println("Ranger move 61: " + rp + "->" + p61);
             updateAttackPos(p61, gameHistoryState, pgs, strategyParams, assignedActions);
-        } else if (rc.getAttackerCount(6) > 1 && better6 != null && !strategyParams.neverHold) {
+        } else if (rc.getAttackerCount(6) > 1 && better6 != null
+                && better6.lenShiftSum(attackPosition) <= rp.lenShiftSum(attackPosition)
+                && !strategyParams.neverHold) {
             DebugOut.println("Ranger move better6: " + rp + "->" + better6);
             updateAttackPos(better6, gameHistoryState, pgs, strategyParams, assignedActions);
-        } else if(rc.getAttackerCount(6) == 0 && p61 != null) {
+        } else if(rc.getAttackerCount(6) == 0 && p61 != null
+                    && p61.lenShiftSum(attackPosition) <= rp.lenShiftSum(attackPosition)) {
             DebugOut.println("Ranger push 61: " + rp + "->" + p61);
             updateAttackPos(p61, gameHistoryState, pgs, strategyParams, assignedActions);
         } else if ((rc.getAttackerCount(5) ==0 && rc.getAttackerCount(6) == 0 && rc.getAttackerCount(7) > 1)
