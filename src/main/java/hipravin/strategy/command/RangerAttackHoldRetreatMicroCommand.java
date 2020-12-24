@@ -332,13 +332,13 @@ public class RangerAttackHoldRetreatMicroCommand extends Command {
             DebugOut.println("Ranger push 61: " + rp + "->" + p61);
             updateAttackPos(p61, gameHistoryState, pgs, strategyParams, assignedActions);
         } else if ((rc.getAttackerCount(5) ==0 && rc.getAttackerCount(6) == 0 && rc.getAttackerCount(7) > 1)
-                && (3 * enemyCount > 4 * myCount || myCountNearRange7 == 0) &&!strategyParams.neverHold) {
+                && (4 * enemyCount > 3 * myCount || myCountNearRange7 == 0) &&!strategyParams.neverHold) {
             if (!decidedToGetHealing(gameHistoryState, pgs, strategyParams, assignedActions)) {
                 DebugOut.println("Ranger hold at 7: " + rp + " myCountTurretsRange6: " + myCountTurretsRange6);
                 updateHold(gameHistoryState, pgs, strategyParams, assignedActions);
             }
         }else if (((rc.getAttackerCount(6) >= 1)
-                && (3 * enemyCount > 4 * myCount || (enemyCount > 1 && myCountNearRange6 == 0)) &&!strategyParams.neverHold)
+                && (4 * enemyCount > 3 * myCount || (enemyCount > 1 && myCountNearRange6 == 0)) &&!strategyParams.neverHold)
                 || (turretsRange6 > 0 && myCountTurretsRange6 < 6)
         ) {
             if (!decidedToGetHealing(gameHistoryState, pgs, strategyParams, assignedActions)) {

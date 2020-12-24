@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static hipravin.model.Position2d.of;
-import static hipravin.strategy.StrategyParams.MAX_VAL;
+import static hipravin.strategy.StrategyParams.*;
 
 public class SpawnWorkersStrategy implements SubStrategy {
     //to prevent multiple workers being sent to single mineral field
@@ -191,6 +191,8 @@ public class SpawnWorkersStrategy implements SubStrategy {
 
                     strategyParams.sendToCenterWorkerNumbers = strategyParams.doubleSurroundedSendToCenterWorkerNumbers;
                     requestTurretToCleanup(ccOuterEdge, gameHistoryState, pgs, strategyParams);
+
+                    DESIRED_BARRACK = DS_DESIRED_BARRACK;
                 } else {
                     needToPlaceTurretToCleanup = false;
                 }

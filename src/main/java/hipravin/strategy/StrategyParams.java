@@ -41,8 +41,10 @@ public class StrategyParams {
     public boolean neverHold = false;
 
 
-        public static Position2d DESIRED_BARRACK = of(33, 33);
+    public static Position2d DESIRED_BARRACK = of(33, 33);
 //    public static Position2d DESIRED_BARRACK = of(13, 13);
+    public static Position2d DS_DESIRED_BARRACK = of(20, 20);
+    //    public static Position2d DESIRED_BARRACK = of(13, 13);
     public static Position2d sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(9, 9);
 
     public static final int MAP_CORNER_SIZE = 10;
@@ -83,7 +85,7 @@ public class StrategyParams {
     public int moveTowardsMineralsDistanceTreshold = 6;
     public boolean useAttackHoldOverCountTreshold = true;
     public int attackHoldEnemyRange = 10;
-    public int attackHoldMyRange = 10;
+    public int attackHoldMyRange = 8;
     public double attackOverCountTreshhold = 1.2;
 
 
@@ -337,7 +339,7 @@ public class StrategyParams {
 
     }
 
-//    public void activateOption2() {//super fast home
+    //    public void activateOption2() {//super fast home
 //        GameHistoryAndSharedState.random.nextInt();
 //
 //        populationOfWorkersToBuildBeforeRangers = 20;
@@ -363,11 +365,12 @@ public class StrategyParams {
 
         DESIRED_BARRACK = of(20, 20);
         sendToDesiredBarrackPosition = DESIRED_BARRACK.shift(6, 6);
-        sendToCenterWorkerNumbers = Set.of(29,30,31,32,33,34,35,36,37,38,39);
+        sendToCenterWorkerNumbers = Set.of(29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39);
 
         attackPoints = List.of(of(76, 76));
         attackPointRates = List.of(1.0);
 
+        attackHoldMyRange = 8;
 
         sendToCenterWorkerNumbers = Set.of();
 
